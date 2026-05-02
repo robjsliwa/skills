@@ -1,0 +1,44 @@
+# syntax=docker/dockerfile:1.6
+#
+# OPERATOR CLI DOCKERFILE — for jumpboxes, ops workstations, ad-hoc admin.
+#
+# This image contains ONLY the CLI binary. It is INTENTIONALLY DIFFERENT
+# from the production server image (deploy/Dockerfile). Tag this with an
+# "-ops" suffix in your registry (e.g. {{PROJECT_NAME}}-ops:v1.0.0) so
+# nobody accidentally deploys it to production.
+#
+# Distribution should be restricted: private registry, internal only,
+# IAM-gated. The CLI typically holds privileged credentials.
+
+# ----------- builder -----------
+FROM golang:{{GO_VERSION}}-alpine AS builder
+
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
+
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+COPY . .
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux go build \
+      -trimpath \
+      -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.BuildTime=${BUILD_TIME}" \
+      -o /out/{{CLI_NAME}} \
+      ./cmd/{{CLI_NAME}}
+
+# ----------- runtime -----------
+FROM gcr.io/distroless/static-debian12:nonroot
+
+WORKDIR /app
+
+COPY --from=builder /out/{{CLI_NAME}} /app/{{CLI_NAME}}
+
+USER nonroot:nonroot
+ENTRYPOINT ["/app/{{CLI_NAME}}"]

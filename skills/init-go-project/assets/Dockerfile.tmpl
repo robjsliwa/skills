@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1.6
+#
+# PRODUCTION DOCKERFILE — server binary only.
+#
+# This image contains ONLY the server binary. The CLI binary is intentionally
+# NOT included. See deploy/Dockerfile.cli for the operator CLI image, which
+# is meant for ops jumpboxes — not for production runtime.
+
+# ----------- builder -----------
+FROM golang:{{GO_VERSION}}-alpine AS builder
+
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
+
+WORKDIR /src
+
+# Cache deps
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+COPY . .
+
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux go build \
+      -trimpath \
+      -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.BuildTime=${BUILD_TIME}" \
+      -o /out/{{PROJECT_NAME}} \
+      ./cmd/server
+
+# ----------- runtime -----------
+FROM gcr.io/distroless/static-debian12:nonroot
+
+WORKDIR /app
+
+COPY --from=builder /out/{{PROJECT_NAME}} /app/{{PROJECT_NAME}}
+
+USER nonroot:nonroot
+EXPOSE 8080
+ENTRYPOINT ["/app/{{PROJECT_NAME}}"]

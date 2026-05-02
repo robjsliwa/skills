@@ -1,0 +1,117 @@
+# {{PROJECT_NAME}}
+
+{{DESCRIPTION}}
+
+## Prerequisites
+
+- Go {{GO_VERSION}}+
+- Docker and docker-compose (for local development stack)
+- Make
+
+## Quickstart
+
+```bash
+# Copy environment config
+cp .env.example .env
+# Edit .env as needed (see Configuration below)
+
+# Start local dev stack (database + app)
+make compose-up
+
+# Run database migrations (SQL databases only)
+make migrate-up
+
+# Run the server
+make run
+
+# Open Swagger UI
+open http://localhost:8080/docs/
+```
+
+## Common Commands
+
+| Command              | Description                                    |
+|----------------------|------------------------------------------------|
+| `make run`           | Run the server with `.env` loaded              |
+| `make build`         | Build the server binary into `bin/`            |
+| `make build-cli`     | Build the CLI binary (if configured)           |
+| `make build-all`     | Build both server and CLI                      |
+| `make test`          | Run unit tests with race detector              |
+| `make test-integration` | Run integration tests (requires Docker)     |
+| `make lint`          | Run golangci-lint                              |
+| `make swagger`       | Regenerate OpenAPI spec from annotations       |
+| `make compose-up`    | Start local dev stack                          |
+| `make compose-down`  | Stop local dev stack                           |
+| `make migrate-up`    | Run database migrations up                     |
+| `make migrate-down`  | Roll back one migration                        |
+| `make migrate-create`| Create a new migration file                    |
+| `make cover`         | Generate coverage report                       |
+| `make install-hooks` | Install the pre-commit git hook                |
+| `make ci`            | Run all checks (vet, lint, swagger, test)      |
+
+## Project Structure
+
+```
+cmd/
+  server/          Server entry point
+internal/
+  adapters/
+    http/          HTTP handlers, middleware, routing
+    store/         Database adapters (memory, SQL, or MongoDB)
+    telemetry/     OpenTelemetry and structured logging
+  config/          Configuration loading and validation
+  core/            Business logic (services)
+  auth/            JWT/OAuth authentication middleware
+pkg/
+  domain/          Domain types, ports (interfaces), errors
+deploy/            Dockerfile, docker-compose
+migrations/        SQL migration files (if applicable)
+docs/              Architecture docs, OpenAPI spec
+```
+
+## Configuration
+
+Configuration is loaded from environment variables. See `.env.example`
+for all available settings with documentation.
+
+Key settings:
+
+| Variable         | Description                          | Default   |
+|------------------|--------------------------------------|-----------|
+| `HTTP_PORT`      | Server listen port                   | `8080`    |
+| `LOG_LEVEL`      | `debug`, `info`, `warn`, `error`     | `info`    |
+| `AUTH_ENABLED`    | Enable/disable JWT authentication   | `true`    |
+| `DATABASE_URL`   | Database connection string           | —         |
+
+## API Documentation
+
+When the server is running, interactive API documentation is available at:
+
+    http://localhost:8080/docs/
+
+The OpenAPI spec is generated from handler annotations using
+[swag](https://github.com/swaggo/swag). Regenerate after changing
+handler annotations:
+
+```bash
+make swagger
+```
+
+## Authentication
+
+JWT/OAuth token validation is built in. Configure via environment:
+
+- Set `AUTH_ENABLED=false` to disable during development
+- Set `AUTH_JWKS_URL` for RS256/ES256 (JWKS auto-refresh)
+- Set `AUTH_HMAC_SECRET` for HS256
+
+See `.env.example` for all auth settings.
+
+## Development Workflow
+
+See `CLAUDE.md` for the full development workflow including the
+rationale journal system for tracking architectural decisions.
+
+## License
+
+_Add your license here._

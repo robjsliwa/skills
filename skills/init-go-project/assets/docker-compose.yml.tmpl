@@ -1,0 +1,80 @@
+# docker-compose for {{PROJECT_NAME}}
+
+services:
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        VERSION: dev
+        COMMIT: local
+    image: {{PROJECT_NAME}}:dev
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    env_file: ../.env
+## DEPENDS_ON
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+## /DEPENDS_ON
+
+## DB:postgres
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: ${DB_NAME:-{{PROJECT_NAME}}}
+  #     POSTGRES_USER: ${DB_USER:-{{PROJECT_NAME}}}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+  #   ports:
+  #     - "${DB_PORT:-5432}:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-{{PROJECT_NAME}}}"]
+  #     interval: 5s
+  #     timeout: 3s
+  #     retries: 5
+## /DB:postgres
+
+## DB:mysql
+  # db:
+  #   image: mysql:8.0
+  #   environment:
+  #     MYSQL_DATABASE: ${DB_NAME:-{{PROJECT_NAME}}}
+  #     MYSQL_USER: ${DB_USER:-{{PROJECT_NAME}}}
+  #     MYSQL_PASSWORD: ${DB_PASSWORD:-changeme}
+  #     MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootchangeme}
+  #   ports:
+  #     - "${DB_PORT:-3306}:3306"
+  #   volumes:
+  #     - mysqldata:/var/lib/mysql
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 5s
+## /DB:mysql
+
+## DB:mongodb
+  # db:
+  #   image: mongo:7
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-{{PROJECT_NAME}}}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
+  #   ports:
+  #     - "${MONGO_PORT:-27017}:27017"
+  #   volumes:
+  #     - mongodata:/data/db
+## /DB:mongodb
+
+## VOLUMES
+# volumes:
+## VOL:postgres
+#   pgdata:
+## /VOL:postgres
+## VOL:mysql
+#   mysqldata:
+## /VOL:mysql
+## VOL:mongodb
+#   mongodata:
+## /VOL:mongodb
+## /VOLUMES

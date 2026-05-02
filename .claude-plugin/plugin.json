@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "name": "somos-engineering-skills"
+  },
+  "plugins": [
+    {
+      "name": "somos-engineering",
+      "skills": [
+        "./skills/init-go-project",
+        "./skills/init-react-app",
+        "./skills/deploy-to-eks"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+# {{PROJECT_NAME}} — Makefile
+
+# Load .env if present (export makes vars available to sub-shells)
+-include .env
+$(foreach var,\
+  $(shell [ -f .env ] && grep -v '^\s*#' .env | grep '=' | cut -d= -f1 | sed 's/[[:space:]]//g'),\
+  $(eval $(var) := $(strip $($(var)))))
+export
+
+PROJECT_NAME := {{PROJECT_NAME}}
+MODULE       := {{MODULE}}
+CLI_NAME     := {{CLI_NAME}}
+
+# Build metadata
+VERSION    ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+COMMIT     := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+BUILD_TIME := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+LDFLAGS    := -X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.BuildTime=$(BUILD_TIME)
+
+# Tooling versions
+GOLANGCI_LINT_VERSION := v1.61.0
+SWAG_VERSION          := v1.16.4
+MIGRATE_VERSION       := v4.18.1
+MIGRATE_DB_TAG        := {{DB_DRIVER_TAG}}
+
+GO_FILES := $(shell find . -type f -name '*.go' -not -path './vendor/*' -not -path './docs/docs.go')
+
+.PHONY: help
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: tidy
+tidy: ## Run go mod tidy
+	go mod tidy
+
+.PHONY: build
+build: swagger ## Build the SERVER binary into bin/ (production target)
+	@mkdir -p bin
+	go build -ldflags "$(LDFLAGS)" -o bin/$(PROJECT_NAME) ./cmd/server
+
+.PHONY: build-cli
+build-cli: ## Build the CLI binary (operator tool — do NOT deploy to production)
+	@if [ -z "$(CLI_NAME)" ] || [ ! -d "./cmd/$(CLI_NAME)" ]; then \
+		echo "No CLI configured (CLI_NAME=$(CLI_NAME)); skipping"; \
+	else \
+		mkdir -p bin && \
+		go build -ldflags "$(LDFLAGS)" -o bin/$(CLI_NAME) ./cmd/$(CLI_NAME); \
+		echo "Built bin/$(CLI_NAME)"; \
+	fi
+
+.PHONY: build-all
+build-all: build build-cli ## Build both server and CLI
+
+.PHONY: run
+run: swagger ## Run the server with .env loaded
+	go run -ldflags "$(LDFLAGS)" ./cmd/server
+
+.PHONY: test
+test: ## Run unit tests with race detector
+	go test -race -count=1 ./...
+
+.PHONY: test-integration
+test-integration: ## Run integration tests (requires Docker for testcontainers)
+	go test -race -count=1 -tags=integration ./...
+
+.PHONY: cover
+cover: ## Generate coverage report
+	go test -race -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Open coverage.html"
+
+.PHONY: lint
+lint: ## Run golangci-lint
+	@which golangci-lint > /dev/null || \
+		(echo "Installing golangci-lint $(GOLANGCI_LINT_VERSION)..." && \
+		 go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION))
+	golangci-lint run ./...
+
+.PHONY: fmt
+fmt: ## Format code
+	gofmt -s -w $(GO_FILES)
+	go mod tidy
+
+.PHONY: vet
+vet: ## Run go vet
+	go vet ./...
+
+.PHONY: swagger
+swagger: ## Regenerate OpenAPI spec from handler annotations
+	@which swag > /dev/null || \
+		(echo "Installing swag $(SWAG_VERSION)..." && \
+		 go install github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION))
+	swag init -g cmd/server/main.go -o docs --parseInternal --parseDependency --quiet
+	@echo "OpenAPI spec regenerated under docs/"
+
+.PHONY: swagger-check
+swagger-check: ## Verify the committed spec matches handler annotations (CI use)
+	@which swag > /dev/null || go install github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION)
+	swag init -g cmd/server/main.go -o docs --parseInternal --parseDependency --quiet
+	@if ! git diff --exit-code -- docs/ > /dev/null 2>&1; then \
+		echo "❌ OpenAPI spec is stale. Run 'make swagger' and commit the result."; \
+		git diff --stat -- docs/; \
+		exit 1; \
+	fi
+	@echo "✅ OpenAPI spec is up to date"
+
+.PHONY: docker
+docker: ## Build SERVER Docker image (the deployable artifact)
+	docker build -t $(PROJECT_NAME):$(VERSION) -t $(PROJECT_NAME):latest \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg COMMIT=$(COMMIT) \
+		--build-arg BUILD_TIME=$(BUILD_TIME) \
+		-f deploy/Dockerfile .
+
+.PHONY: docker-cli
+docker-cli: ## Build CLI Docker image (for ops jumpboxes — not for production runtime)
+	@if [ -z "$(CLI_NAME)" ] || [ ! -f "./deploy/Dockerfile.cli" ]; then \
+		echo "No CLI Dockerfile; skipping"; \
+	else \
+		docker build -t $(CLI_NAME)-ops:$(VERSION) -t $(CLI_NAME)-ops:latest \
+			--build-arg VERSION=$(VERSION) \
+			--build-arg COMMIT=$(COMMIT) \
+			--build-arg BUILD_TIME=$(BUILD_TIME) \
+			-f deploy/Dockerfile.cli .; \
+	fi
+
+.PHONY: compose-up
+compose-up: ## Start local dev stack (DB if applicable)
+	docker-compose -f deploy/docker-compose.yml up -d
+
+.PHONY: compose-down
+compose-down: ## Stop local dev stack
+	docker-compose -f deploy/docker-compose.yml down
+
+.PHONY: migrate-up
+migrate-up: ## Run DB migrations up (SQL DBs only)
+	@which migrate > /dev/null || \
+		(echo "Installing golang-migrate $(MIGRATE_VERSION)..." && \
+		 go install -tags '$(MIGRATE_DB_TAG)' github.com/golang-migrate/migrate/v4/cmd/migrate@$(MIGRATE_VERSION))
+	@if [ -z "$$DATABASE_URL" ]; then echo "Set DATABASE_URL env var"; exit 1; fi
+	migrate -path migrations -database "$$DATABASE_URL" up
+
+.PHONY: migrate-down
+migrate-down: ## Roll back one migration (SQL DBs only)
+	@which migrate > /dev/null || \
+		(echo "Installing golang-migrate $(MIGRATE_VERSION)..." && \
+		 go install -tags '$(MIGRATE_DB_TAG)' github.com/golang-migrate/migrate/v4/cmd/migrate@$(MIGRATE_VERSION))
+	@if [ -z "$$DATABASE_URL" ]; then echo "Set DATABASE_URL env var"; exit 1; fi
+	migrate -path migrations -database "$$DATABASE_URL" down 1
+
+.PHONY: migrate-create
+migrate-create: ## Create a new migration; usage: make migrate-create NAME=add_widgets_index
+	@which migrate > /dev/null || \
+		(echo "Installing golang-migrate $(MIGRATE_VERSION)..." && \
+		 go install -tags '$(MIGRATE_DB_TAG)' github.com/golang-migrate/migrate/v4/cmd/migrate@$(MIGRATE_VERSION))
+	@if [ -z "$(NAME)" ]; then echo "Usage: make migrate-create NAME=description"; exit 1; fi
+	migrate create -ext sql -dir migrations -seq $(NAME)
+
+.PHONY: install-hooks
+install-hooks: ## Install the pre-commit git hook
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+	@echo "✅ Pre-commit hook installed (using .githooks/pre-commit)"
+	@echo "   Bypass with: git commit --no-verify"
+
+.PHONY: codemap
+codemap: ## Regenerate docs/MODULE_MAP.md from package symbols
+	@mkdir -p docs
+	@echo "# Module Map" > docs/MODULE_MAP.md
+	@echo "" >> docs/MODULE_MAP.md
+	@echo "_Generated: $$(date -u +%Y-%m-%dT%H:%M:%SZ)_" >> docs/MODULE_MAP.md
+	@echo "" >> docs/MODULE_MAP.md
+	@for pkg in $$(go list ./... 2>/dev/null | grep -v '/docs$$'); do \
+		echo "## $$pkg" >> docs/MODULE_MAP.md; \
+		echo "" >> docs/MODULE_MAP.md; \
+		echo '```go' >> docs/MODULE_MAP.md; \
+		go doc -short $$pkg 2>/dev/null | head -50 >> docs/MODULE_MAP.md; \
+		echo '```' >> docs/MODULE_MAP.md; \
+		echo "" >> docs/MODULE_MAP.md; \
+	done
+	@echo "docs/MODULE_MAP.md updated"
+
+.PHONY: clean
+clean: ## Remove build artifacts
+	rm -rf bin coverage.out coverage.html
+
+.PHONY: ci
+ci: vet lint swagger-check test ## Run all checks (CI)
+
+.DEFAULT_GOAL := help

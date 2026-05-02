@@ -1,0 +1,194 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "1.23"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.61.0
+          args: --timeout=5m
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Run unit tests
+        run: go test -race -count=1 -coverprofile=coverage.out ./...
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 7
+
+  swagger-check:
+    name: OpenAPI Spec Drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@v1.16.4
+      - name: Regenerate spec
+        run: swag init -g cmd/server/main.go -o docs --parseInternal --parseDependency --quiet
+      - name: Verify no drift
+        run: |
+          if ! git diff --exit-code -- docs/; then
+            echo "❌ OpenAPI spec is stale. Run 'make swagger' locally and commit."
+            exit 1
+          fi
+
+  build:
+    name: Build (server + cli)
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Build server
+        run: |
+          mkdir -p bin
+          VERSION=${GITHUB_SHA::8}
+          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          go build -trimpath \
+            -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${GITHUB_SHA::8} -X main.BuildTime=${BUILD_TIME}" \
+            -o bin/{{PROJECT_NAME}} ./cmd/server
+      - name: Build CLI (if present)
+        run: |
+          # Build any cmd/* directory other than cmd/server, so we catch
+          # breakage even when the CLI evolves over time.
+          for d in cmd/*/; do
+            name=$(basename "$d")
+            if [ "$name" != "server" ]; then
+              go build -trimpath -o "bin/$name" "./cmd/$name"
+              echo "Built bin/$name"
+            fi
+          done
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: bin/
+          retention-days: 7
+
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Run integration tests
+        run: go test -race -count=1 -tags=integration ./...
+
+  docker-build-server:
+    name: Docker Build (server, production)
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build server image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          push: false
+          tags: |
+            {{PROJECT_NAME}}:${{ github.sha }}
+            {{PROJECT_NAME}}:latest
+          build-args: |
+            VERSION=${{ github.sha }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  docker-build-cli:
+    name: Docker Build (CLI, ops)
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for CLI Dockerfile
+        id: cli_check
+        run: |
+          if [ -f deploy/Dockerfile.cli ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Set up Docker Buildx
+        if: steps.cli_check.outputs.exists == 'true'
+        uses: docker/setup-buildx-action@v3
+      - name: Build CLI image (no push)
+        if: steps.cli_check.outputs.exists == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.cli
+          push: false
+          # Note the -ops suffix: this image is NOT for production runtime.
+          tags: |
+            {{PROJECT_NAME}}-ops:${{ github.sha }}
+            {{PROJECT_NAME}}-ops:latest
+          build-args: |
+            VERSION=${{ github.sha }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ----------------------------------------------------------------
+      # To push to a registry, replace `push: false` above with `push: true`
+      # and add registry login. Example for ghcr.io:
+      #
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+      #
+      # And update tags:
+      # tags: ghcr.io/${{ github.repository }}-ops:${{ github.sha }}
+      #
+      # Restrict pull access to the ops image — it carries privileged code.
+      # ----------------------------------------------------------------
