@@ -12,7 +12,9 @@ description: >
   generation. Server and CLI build into separate binaries from the same
   repo. Generates CLAUDE.md with rationale journal workflow, ARCHITECTURE.md,
   MODULE_MAP.md, GitHub Actions CI, and a native git pre-commit hook.
-  Usable interactively or non-interactively (e.g., from Backstage via
+  Also creates AGENTS.md, GEMINI.md, and .github/copilot-instructions.md
+  as symlinks to CLAUDE.md for multi-tool AI support (Codex, Gemini,
+  GitHub Copilot). Usable interactively or non-interactively (e.g., from Backstage via
   `claude -p --permission-mode bypassPermissions`).
 disable-model-invocation: true
 ---
@@ -218,7 +220,7 @@ Note: `README.md` is installed by `install-static.sh` in Step 4
 - `docs/MODULE_MAP.md` — initial map of generated packages
 - `CLAUDE.md` — see Step 7
 
-### Step 7: Generate CLAUDE.md
+### Step 7: Generate AI Tool Config Files
 
 Read `references/workflow-template.md`. The generated CLAUDE.md must contain:
 
@@ -230,13 +232,31 @@ Read `references/workflow-template.md`. The generated CLAUDE.md must contain:
    ```
 3. Project structure tree (reflecting the actual scaffolded directories,
    including `cmd/server/` and `cmd/{cli_name}/` if CLI was requested)
-4. Architectural Layers section
+4. Architectural Layers section (inline summary — include this regardless
+   of @imports, so tools that don't follow @import syntax still get the
+   key layer breakdown)
 5. Coding conventions (slog only, error wrapping, decodeAndValidate for
    bodies, swag annotations on all handlers, regenerate spec via
    `make swagger`)
 6. Test commands (`make test`, `make test-integration`)
 7. Story Implementation Workflow (from workflow-template.md)
 8. Keeping Docs Current section
+
+After generating CLAUDE.md, create three symlinks so the project works
+with Codex CLI, Gemini Code Assist, and GitHub Copilot out of the box.
+Run these shell commands in the target directory:
+
+```bash
+ln -s CLAUDE.md AGENTS.md
+ln -s CLAUDE.md GEMINI.md
+ln -s ../CLAUDE.md .github/copilot-instructions.md
+```
+
+`.github/` already exists — bootstrap.sh creates `.github/workflows/`
+in Step 3. These symlinks are committed to git. Any AI tool reading
+`AGENTS.md`, `GEMINI.md`, or `.github/copilot-instructions.md` sees the
+same content as `CLAUDE.md`. To update guidance for all tools at once,
+edit `CLAUDE.md` only.
 
 ### Step 8: Run verify.sh (with fix-and-retry)
 
@@ -308,6 +328,8 @@ Print:
   open http://localhost:8080/docs/
   ```
 - Pointer to `CLAUDE.md` for the rationale journal workflow
+  (`AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`
+  are symlinks to it — the project works with any AI coding assistant)
 
 ## Constraints
 

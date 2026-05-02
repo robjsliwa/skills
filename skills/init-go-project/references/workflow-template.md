@@ -186,6 +186,13 @@ How does this build on earlier work? What does it set up for next?
 
 ---
 
+## AI Tool Config Files
+
+`AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md` are symlinks
+to `CLAUDE.md` in every generated project. Edit `CLAUDE.md` only — all three
+are updated automatically. The symlinks are committed to git and work correctly
+in GitHub-hosted repos.
+
 ## Skill author note
 
 When the database choice is `none`, omit the "Database & Migration Changes"
