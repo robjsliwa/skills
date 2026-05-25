@@ -32,7 +32,7 @@ fi
 
 # ---------- defaults for optional params ------------------------------------
 if [[ -z "$DEST_DIR" ]]; then
-  DEST_DIR="./$PROJECT_NAME"
+  DEST_DIR="."
 fi
 if [[ -z "$MODULE_PATH" ]]; then
   MODULE_PATH="github.com/$GITHUB_USER/$PROJECT_NAME"
@@ -44,11 +44,6 @@ TARBALL="$SCRIPT_DIR/../assets/boilerplate.tar.gz"
 
 if [[ ! -f "$TARBALL" ]]; then
   echo "Error: asset not found: $TARBALL" >&2; exit 1
-fi
-
-# ---------- destination sanity check ----------------------------------------
-if [[ -e "$DEST_DIR" ]]; then
-  echo "Error: destination already exists: $DEST_DIR" >&2; exit 1
 fi
 
 # ---------- extract ----------------------------------------------------------
@@ -133,7 +128,6 @@ echo "Project created:  $DEST_DIR"
 echo "Module path:      $MODULE_PATH"
 echo ""
 echo "Next steps:"
-echo "  cd $DEST_DIR"
 echo "  make run        # start the server"
 echo "  make swagger    # regenerate docs after editing handlers"
 echo "  make build      # compile to bin/server"

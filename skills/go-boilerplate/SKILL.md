@@ -13,7 +13,7 @@ Gather the required parameters, then run the script. Do not perform any replacem
 | `project_name` | yes | — | Project name in kebab-case (e.g. `my-service`) |
 | `github_user` | yes | — | GitHub username or org that will own the repo (e.g. `acme`) |
 | `description` | yes | — | One-sentence description of the service |
-| `dest_dir` | no | `./{project_name}` | Directory to create the project in |
+| `dest_dir` | no | `.` (current directory) | Directory to install the project files into |
 | `module_path` | no | `github.com/{github_user}/{project_name}` | Full Go module path (override if not on GitHub) |
 
 ## Steps
