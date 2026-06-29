@@ -33,7 +33,11 @@ skills/
     elaborate-current-phase/
     phased-implementation-plan/
   productivity/       # general workflow tools (reserved — no skills yet)
-  gamedev/            # game development skills (reserved — no skills yet)
+  gamedev/            # game development / interactive-narrative skills
+    narrative-grill/
+    story-decompose/
+    beat-grill/
+    subquest-fill/
   deprecated/         # superseded skills, kept for reference
     init-go-project/
 ```
@@ -42,7 +46,7 @@ skills/
 |---|---|---|
 | `engineering` | Code-focused skills for day-to-day development | `go-boilerplate`, `let-me-code`, `planning-loop`, `write-requirements`, `design-interview`, `solution-design`, `vertical-slice-phasing`, `elaborate-current-phase`, `phased-implementation-plan` |
 | `productivity` | General workflow tools not specific to coding | _(reserved — none yet)_ |
-| `gamedev` | Game development skills | _(reserved — none yet)_ |
+| `gamedev` | Game development / interactive-narrative skills | `narrative-grill`, `story-decompose`, `beat-grill`, `subquest-fill` |
 | `deprecated` | Superseded skills, kept for reference | `init-go-project` |
 
 ## Engineering
@@ -473,6 +477,182 @@ past. To harden a step you see getting cut, add this near the top of that skill:
 
 That turns the checklist into materialized tasks the agent must account for. Apply it
 only to the one or two steps that actually drift; gating every step gets annoying fast.
+
+## Gamedev
+
+Four skills that take a game-story idea and turn it into an authored, branching
+story you can build one piece at a time, while keeping the whole thing coherent.
+They run against your game's repo, so the story content lives in git next to the
+code. The chain is `narrative-grill` → `story-decompose` → `beat-grill`, with
+`subquest-fill` branching off once the bible exists.
+
+### `narrative-grill`
+
+Drives a rigorous, **one-question-at-a-time** interview that turns a rough RPG or
+game-story idea into a `story-bible.md` — the single source of truth the other
+three skills read.
+
+**What it does:**
+
+- Grounds itself in your premise plus any notes or comparable games you name,
+  then maps the decision tree and walks it one coupled decision per turn
+- Each turn is one recommendation (premise, theme, world rules, factions,
+  protagonist arc, tone) that you accept, refine, or overrule
+- Structures the plot against a framework — default James Scott Bell's LOCK and
+  two doorways, swappable if you say so up front
+- Produces a story bible with a numbered **structural spine** and a single
+  **world-state flag list**
+
+**When to use:**
+
+```
+# "Grill my game's story / interview me about the narrative"
+# "Develop my RPG story / work out the plot"
+# "Turn this idea into a story bible"
+# Starting a new game's story, or re-grilling an existing premise
+```
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/narrative-grill
+```
+
+Name a tone comp up front ("think Disco Elysium, but colder") so it anchors its
+recommendations instead of asking you to describe tone from nothing.
+
+### `story-decompose`
+
+Breaks the bible's spine into a `beats/` folder of small, individually grillable
+stub files — one Markdown file per beat, numbered in spine order, each linking
+back to `../story-bible.md`. The folder *is* the work list; there is no separate
+tracker.
+
+**What it does:**
+
+- Reads the bible's numbered spine and proposes an act-to-beat breakdown in one
+  pass (not a deep interview)
+- Asks at most two light questions (granularity and act boundaries)
+- Writes one stub per beat — its place in the spine, a scene checklist, and any
+  forks the bible already named (`Status: stub`)
+- Refuses to invent plot; if it would have to, it tells you to re-grill the bible
+  instead
+
+**When to use:**
+
+```
+# "Break it into beats / decompose the story"
+# "Split the arc into pieces / turn the bible into beat files"
+# A bible exists and you want manageable units to grill one at a time
+```
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/story-decompose
+```
+
+### `beat-grill`
+
+Expands **one beat at a time** from a stub into full branching content, and
+appends any new flags to the bible so the flag vocabulary stays in one home.
+
+**What it does:**
+
+- Reads the bible (tone, world rules, factions, flag list) and the one beat file
+- Walks the beat's forks one per turn: for each player choice, proposes whether
+  it is **guarded** by a flag and what **consequence** it writes back to state
+- Writes the dialog for each branch in the bible's established voice
+- Flips the file to `Status: grilled` and appends any new flags to the bible's
+  flag list
+
+**When to use:**
+
+```
+# "Grill this beat / work out the branches"
+# "Write the choices and dialog / flesh out this scene"
+# One beat at a time, after a bible and decomposed beats exist
+```
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/beat-grill beats/03-first-doorway.md
+```
+
+Working one beat per session is the discipline — it keeps each grill small and
+the dialog consistent.
+
+### `subquest-fill`
+
+Seeds side quests anchored to the bible's existing factions and flags, so side
+content inherits the established world instead of floating free.
+
+**What it does:**
+
+- Reads the bible's factions and flag list
+- Proposes side quests that each hang off an existing faction and an existing
+  entry flag or goal
+- Writes subquest stubs under `beats/subquests/<faction>/`, in the same shape
+  `story-decompose` produces — so `beat-grill` expands them with no special case
+- Skips generic errands that anchor to nothing
+
+**When to use:**
+
+```
+# "Add side quests / seed subquests"
+# "Fill out the world with optional content / give the factions something to do"
+# Anytime after the bible exists (usually after the main spine is decomposed)
+```
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/subquest-fill
+```
+
+### How the narrative skills fit together
+
+Three ideas hold the whole thing together:
+
+1. **The bible is the center.** Every skill reads `story-bible.md` first. It is
+   the single source of truth for the spine, world rules, factions, tone, and the
+   flag list. If something feels off the rails, the bible is where you look.
+2. **The `beats/` folder is the pieces.** One Markdown file per beat. The folder
+   and the filenames are your work list.
+3. **Flags have one home.** World-state flags (the things branches gate on) live
+   in one list in the bible; beats reference them and `beat-grill` appends new
+   ones there. That single home keeps branches from drifting apart.
+
+The flow:
+
+```
+  narrative-grill ──► story-bible.md ──► story-decompose ──► beats/*.md
+                          ▲   ▲                                   │
+                          │   │                                   ▼
+                          │   └────────────── beat-grill ◄── (one beat at a time)
+                          │                       │
+                          │            appends new flags
+                          │
+                    subquest-fill ──► beats/subquests/<faction>/*.md
+                    (reads factions + flags, anytime after the bible exists)
+```
+
+**Tips and conventions:**
+
+- **Let the skills read the bible; you don't have to paste it.** They open it
+  themselves — just point `beat-grill` at the beat file.
+- **Flags live only in the bible.** A flag list inside a beat file means
+  something went wrong; the bible is the one home.
+- **One beat per session.** It keeps each grill small and the dialog consistent.
+  Resist the urge to batch.
+- **Re-grilling is fine.** If a beat reveals a problem with the spine, re-run
+  `narrative-grill` on the bible — the downstream files reference it, so fixing
+  the center propagates.
 
 ## Deprecated
 
