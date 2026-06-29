@@ -36,10 +36,24 @@ bash ~/.claude/skills/go-boilerplate/scripts/apply.sh \
 
 1. Extracts the frozen boilerplate snapshot into the destination directory
 2. Replaces the module path in `go.mod` and all `.go` imports
-3. Replaces service name string literals (OTel tracer/meter names, config default)
+3. Replaces service name string literals (OTel tracer/meter names, config default, `.env.example`, Docker tag)
 4. Updates Swagger `@title` / `@description` annotations and generated docs
 5. Updates `README.md` title and description
-6. Runs `go mod tidy`
+6. Fills the `LICENSE` copyright line (current year + GitHub user)
+7. Runs `go mod tidy`
+
+## What you get
+
+In addition to the runtime service (Chi, OpenTelemetry, Swagger, graceful shutdown, in-memory
+CRUD store), each scaffold ships full project hygiene:
+
+- `.gitignore`, `.dockerignore`, `.editorconfig`, `.env.example`
+- `.golangci.yml` (golangci-lint v2) and a wired-up `make lint`
+- Table-driven and `httptest` tests across the store, service, and API layers (`make test`)
+- Multi-stage `Dockerfile` → distroless image (`make docker`)
+- GitHub Actions CI (build / test / lint)
+- `.pre-commit-config.yaml` (Go fmt/build/vet, golangci-lint, gitleaks, hadolint, Conventional Commits)
+- Apache 2.0 `LICENSE`
 
 ## After scaffolding
 

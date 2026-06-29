@@ -118,6 +118,20 @@ preplaceall '`boilerplate`' "\`$PROJECT_NAME\`" "$DEST_DIR/README.md"
 # Any remaining "boilerplate" word in README (e.g. prose references)
 preplaceall "boilerplate" "$PROJECT_NAME" "$DEST_DIR/README.md"
 
+# ---------- 9b. .env.example + Makefile docker tag ---------------------------
+if [[ -f "$DEST_DIR/.env.example" ]]; then
+  preplaceall "boilerplate" "$PROJECT_NAME" "$DEST_DIR/.env.example"
+fi
+if [[ -f "$DEST_DIR/Makefile" ]]; then
+  preplaceall "boilerplate" "$PROJECT_NAME" "$DEST_DIR/Makefile"
+fi
+
+# ---------- 9c. LICENSE copyright line ---------------------------------------
+if [[ -f "$DEST_DIR/LICENSE" ]]; then
+  preplaceall "[yyyy]" "$(date +%Y)" "$DEST_DIR/LICENSE"
+  preplaceall "[name of copyright owner]" "$GITHUB_USER" "$DEST_DIR/LICENSE"
+fi
+
 # ---------- 10. go mod tidy --------------------------------------------------
 echo "Running go mod tidy..."
 (cd "$DEST_DIR" && go mod tidy)
