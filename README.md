@@ -25,6 +25,9 @@ skills/
   engineering/        # code-focused skills for day-to-day development
     go-boilerplate/
     let-me-code/
+    design-interview/
+    vertical-slice-phasing/
+    phased-implementation-plan/
   productivity/       # general workflow tools (reserved — no skills yet)
   gamedev/            # game development skills (reserved — no skills yet)
   deprecated/         # superseded skills, kept for reference
@@ -33,7 +36,7 @@ skills/
 
 | Category | Purpose | Skills |
 |---|---|---|
-| `engineering` | Code-focused skills for day-to-day development | `go-boilerplate`, `let-me-code` |
+| `engineering` | Code-focused skills for day-to-day development | `go-boilerplate`, `let-me-code`, `design-interview`, `vertical-slice-phasing`, `phased-implementation-plan` |
 | `productivity` | General workflow tools not specific to coding | _(reserved — none yet)_ |
 | `gamedev` | Game development skills | _(reserved — none yet)_ |
 | `deprecated` | Superseded skills, kept for reference | `init-go-project` |
@@ -119,6 +122,130 @@ Generates a TDD-structured tutorial markdown file that guides you to type each l
 ```
 
 Claude will ask what feature or concept you want to learn, confirm the language and test framework, agree on which behaviors to cover and in what order, then write the tutorial.
+
+### Planning workflow: `design-interview` → `vertical-slice-phasing` → `phased-implementation-plan`
+
+These three skills form a pipeline that takes a rough idea all the way to a build
+plan an agent can execute. Each one is also useful on its own — pick the stage
+that matches where you actually are.
+
+| Stage | Skill | Answers | Output |
+|---|---|---|---|
+| 1. Decide **what** to build | `design-interview` | What is the architecture / approach? | A findings document |
+| 2. Decide **in what order** | `vertical-slice-phasing` | What do we build first, and how do we phase it? | A phased design document |
+| 3. Decide **the exact tasks** | `phased-implementation-plan` | What are the per-story PRs? | A directory tree of phase/story files |
+
+The boundary between them matters: `design-interview` resolves the architecture,
+`vertical-slice-phasing` decides the build order assuming the architecture is
+settled, and `phased-implementation-plan` mechanically explodes a settled plan
+into story files. If you start at stage 2 or 3 you can skip the earlier ones, but
+don't use a later skill to redo an earlier skill's job.
+
+### `design-interview`
+
+Drives a rigorous, **one-question-at-a-time** interview to nail down a design,
+architecture, plan, or any decision-heavy problem before anything gets written
+up, then captures the agreed design in a markdown findings document.
+
+**What it does:**
+
+- Reads every attachment, codebase, and prior decision first, so it only asks
+  what genuinely needs your judgment
+- Maps the decision tree, then walks it in dependency order — one coupled
+  decision per turn
+- Every question carries a **recommendation**, its reasoning, the tradeoff, and
+  the soft spot where you might reasonably overrule it
+- Tracks what's *settled*, what's *deferred*, and the *designed seams* (interfaces
+  left in place so future work is additive)
+- Ends by writing a findings document capturing the decisions **and the reasoning**
+
+**When to use:**
+
+```
+# "Help me think this through / interview me"
+# "Let's work out the requirements"
+# "Walk the design tree / nail down the approach"
+# A branching set of coupled decisions (auth, data model, API surface, infra)
+```
+
+Don't use it for a single well-posed question or when you want a fast one-shot
+answer.
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/design-interview
+```
+
+### `vertical-slice-phasing`
+
+Turns settled requirements or design docs into a **phased implementation design**
+built from thin vertical slices, by interviewing you about sequencing one decision
+at a time. This decides **build order**, not the architecture.
+
+**What it does:**
+
+- Assumes the architecture is fixed input; extracts the core thesis, acceptance
+  criteria, load-bearing seams, and constraints from the docs
+- Walks the phase tree in dependency order, recommending where each cut line falls
+- Applies a "walking skeleton first" philosophy: phase one is a thin end-to-end
+  slice that proves the riskiest claim; every later phase thickens it with usable,
+  demoable capability rather than completing horizontal layers
+- Maps acceptance criteria to phase boundaries and names the designed seams
+- Writes a phased design document a human reads (not story files)
+
+**When to use:**
+
+```
+# "How should I build this? / what first?"
+# "Phase the work / sequence it into milestones / work out a build order"
+# You have a draft phase list you want pressure-tested
+```
+
+Run `design-interview` first if the architecture itself is still open.
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/vertical-slice-phasing
+```
+
+### `phased-implementation-plan`
+
+Turns a proposal or design document plus an MVP scope into a phased,
+**story-by-story** implementation plan — a directory tree with `CLAUDE.md`,
+`README.md`, one folder per phase, and one Markdown file per story, packaged as a
+`.tar.gz` you can extract into a repo.
+
+**What it generates:**
+
+- 4–7 phases (Phase 0 is foundations; every later phase is a demoable vertical slice)
+- 3–7 stories per phase, each sized to land as a single PR
+- Each story is self-contained: narrative, TDD test plan (RED-first), implementation
+  hints, checkbox acceptance criteria, README updates, and verification commands
+- A `CLAUDE.md` contract another agent reads on every turn (stack, layering,
+  persistence/auth rules, public surface, definition of done)
+- Bundled reference templates for each file type live in the skill's `references/`
+
+**When to use:**
+
+```
+# "Break this into stories / give me a build plan"
+# "Turn this proposal into something Claude Code can execute"
+# "Give me a plan I can hand to an agent"
+```
+
+This is the mechanical explosion step — run it once the architecture and phasing
+are settled.
+
+**Usage:**
+
+```
+# Inside a Claude Code session:
+/phased-implementation-plan
+```
 
 ## Deprecated
 
