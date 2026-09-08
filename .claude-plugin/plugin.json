@@ -6,9 +6,19 @@
     {
       "name": "somos-engineering",
       "skills": [
-        "./skills/init-go-project",
-        "./skills/init-react-app",
-        "./skills/deploy-to-eks"
+        "./skills/engineering/planning-loop",
+        "./skills/engineering/write-requirements",
+        "./skills/engineering/design-interview",
+        "./skills/engineering/solution-design",
+        "./skills/engineering/vertical-slice-phasing",
+        "./skills/engineering/elaborate-current-phase",
+        "./skills/engineering/to-story",
+        "./skills/engineering/go-boilerplate",
+        "./skills/engineering/let-me-code",
+        "./skills/gamedev/narrative-grill",
+        "./skills/gamedev/story-decompose",
+        "./skills/gamedev/beat-grill",
+        "./skills/gamedev/subquest-fill"
       ]
     }
   ]

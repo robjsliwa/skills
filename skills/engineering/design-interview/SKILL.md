@@ -168,8 +168,10 @@ decisions the tree actually has.
 
 ## Step 4: Write the findings document
 
-Capture the agreed design in a markdown file. Save it to the outputs directory
-and present it. Use this structure unless the domain calls for adapting it:
+Capture the agreed design in a markdown file. When another skill invoked this
+interview (solution-design does), hand the findings back to it. Otherwise save the
+file as `docs/planning/<slug>/findings.md` and present it. Use this structure unless
+the domain calls for adapting it:
 
 ```markdown
 # [Subject]: [What was designed]

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Links all skills from this repo into ~/.claude/skills/ as symlinks.
+# Links all non-deprecated skills from this repo into ~/.claude/skills/ as symlinks.
 # Run after cloning: bash scripts/link-skills.sh
 
 set -euo pipefail
@@ -9,7 +9,7 @@ SKILLS_DIR="$HOME/.claude/skills"
 
 mkdir -p "$SKILLS_DIR"
 
-find "$REPO/skills" -name "SKILL.md" | while read -r skill_md; do
+find "$REPO/skills" -path "$REPO/skills/deprecated" -prune -o -name "SKILL.md" -print | while read -r skill_md; do
     skill_dir="$(dirname "$skill_md")"
     skill_name="$(basename "$skill_dir")"
     target="$SKILLS_DIR/$skill_name"
@@ -19,3 +19,4 @@ done
 
 echo ""
 echo "Done. Restart Claude Code (or start a new session) to pick up the skills."
+echo "Deprecated skills under skills/deprecated/ were not linked."

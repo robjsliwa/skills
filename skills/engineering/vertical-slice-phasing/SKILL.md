@@ -10,10 +10,10 @@ description: >-
   functionality and founds the next. Trigger even when the user just asks "how
   should I build this" or proposes their own phase list and wants it
   pressure-tested. This decides BUILD ORDER, not the architecture (use
-  design-interview for that) and not mechanically exploding a proposal into
-  story files (use phased-implementation-plan for that). Prefer it whenever the
-  architecture is mostly settled and the open question is how to slice it into
-  phases that each prove something and stay additive.
+  design-interview for that) and not writing the stories (elaborate-current-phase
+  and to-story do that). Prefer it whenever the architecture is mostly settled
+  and the open question is how to slice it into phases that each prove something
+  and stay additive.
 ---
 
 # Vertical-Slice Phasing
@@ -56,10 +56,10 @@ or "what first," possibly with a draft phase list they want pressure-tested.
 Do not use it to decide the architecture itself. If the coupled decisions are
 about what a tenant is, what the data model is, or what the trust boundary is,
 that is `design-interview`'s job; do that first, then phase the result with this.
-Do not use it to mechanically explode a finished plan into per-task story files
-for an agent to execute; that is `phased-implementation-plan`. This skill sits
-between them: the design is agreed, and you are deciding the order and the slices,
-through an interview, producing a design document a human reads.
+Do not use it to write the stories themselves; that is `elaborate-current-phase`,
+which details one phase at a time through `to-story`. This skill sits between them:
+the design is agreed, and you are deciding the order and the slices, through an
+interview, producing a design document a human reads.
 
 ## The contract
 
@@ -91,11 +91,12 @@ them is what makes it fail.
 
 ## Step 0: Absorb the requirements before the first question
 
-Do not start cold. Read every requirements and design document in full. Treat the
-agreed architecture as fixed input you will not reopen; if you find yourself
-wanting to relitigate a design decision, stop, note it as an out-of-scope
-boundary, and stay on sequencing. While reading, extract four things, because they
-drive the whole plan:
+Do not start cold. The inputs are `docs/planning/<slug>/design.md` and the
+requirements it links (a file or a tracker issue); read both in full, plus any
+`CONTEXT.md` and ADRs in the area. Treat the agreed architecture as fixed input you
+will not reopen; if you find yourself wanting to relitigate a design decision, stop,
+note it as an out-of-scope boundary, and stay on sequencing. While reading, extract
+four things, because they drive the whole plan:
 
 - **The core thesis.** The single most novel, riskiest, most falsifiable claim the
   system makes. This is what phase one must prove. If there are several, pick the
@@ -206,7 +207,8 @@ order. Lean on them when forming each recommendation.
 
 9. **Map acceptance criteria to phase boundaries.** State which phase end satisfies
    each acceptance criterion. This anchors the plan to the user's definition of done
-   and exposes whether the slicing actually delivers value when promised.
+   and exposes whether the slicing actually delivers value when promised. Write it
+   as a runnable end-to-end script, one line per capability, tagged by phase.
 
 10. **Name the designed seams.** Every deferred capability should have the interface
     that will eventually receive it identified and placed in its enabling phase, so
@@ -235,8 +237,8 @@ actually has.
 
 ## Step 4: Write the phased design document
 
-Capture the agreed plan in a markdown file, save it to the outputs directory, and
-present it. Use this structure unless the domain calls for adapting it:
+Capture the agreed plan as `docs/planning/<slug>/phases.md` and present it. Use
+this structure unless the domain calls for adapting it:
 
 ```markdown
 # [Subject]: Phased Implementation Design
@@ -263,9 +265,19 @@ where the reasoning behind the order lives.]
 and required of every phase after. The spine that keeps later phases additive.]
 
 ## Phase 1..N: [name per phase]
+**Status:** planned
 [For each phase, in order: what it delivers (the usable capability at its end), why
 it sits here (the dependency or risk rationale), its concrete scope, its acceptance
-checkpoint, and the seams it establishes or relies on. Mirror the interview order.]
+checkpoint, and the seams it establishes or relies on. Mirror the interview order.
+The Status line is state for elaborate-current-phase, which flips it to current and
+done and appends Drift notes beneath the phase as the build teaches.]
+
+## Definition of done
+[An end-to-end script a fresh developer runs after the last phase: clone, build,
+then one command per delivered capability, each line tagged with the phase that
+makes it pass. This is the concrete form of the acceptance-criteria mapping and the
+contract for "shipped". elaborate-current-phase checks a phase's lines before
+marking it done.]
 
 ## Cross-cutting concerns
 [Observability, security, contracts: the floor and how each phase carries its own,
@@ -304,3 +316,9 @@ open. Capture the reasoning, not only the conclusions.
 - **Match the user's depth**, and default to prose over heavy formatting in both the
   questions and the document. Use lists only for genuine enumerations (a phase
   scope, the seams). Avoid em dashes in the written document.
+
+## Hand off
+
+Commit `phases.md`. The next step is `elaborate-current-phase`, which details the
+first phase only, through `to-story`. It is safe to clear context first. Do not
+write stories for every phase now; that is the waste this loop exists to avoid.

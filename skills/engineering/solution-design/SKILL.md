@@ -3,23 +3,21 @@ name: solution-design
 description: >-
   Turn an agreed requirements document or PRD into a detailed technical design
   document (the HOW): ports, adapters, the deterministic-versus-probabilistic
-  split, domain model, data, seams, and the decisions that become ADRs. Use this
-  as the missing step between to-prd and to-issues, whenever the user has
-  requirements in hand and is about to break work into issues but there is no
-  design artifact yet, or whenever they say "design this," "how should we build
-  this," "work out the architecture," or "write the design doc." This is the
-  step that stops to-issues from guessing at mechanism. It produces a design,
-  not a build order; phasing the design is the next step. For resolving genuinely
-  coupled, branching architecture decisions, invoke design-interview from inside
-  this skill rather than guessing.
+  split, domain model, data, seams, the decisions that become ADRs, and the
+  CLAUDE.md agent contract that binds every story to the design. Use
+  whenever the user has requirements in hand and there is no design artifact
+  yet, or says "design this," "how should we build this," "work out the
+  architecture," or "write the design doc." Produces a design, not a build
+  order; phasing the design is the next step. For genuinely coupled, branching
+  architecture decisions, invoke design-interview from inside this skill rather
+  than guessing.
 ---
 
 # Solution Design
 
-The step the Pocock chain skips. `to-issues` goes straight from PRD to vertical-slice
-issues, which is fine for a single thin slice and wrong for anything with real
-architectural weight. This skill inserts the design artifact in between, so the issues
-inherit a chosen mechanism instead of inventing one per agent.
+Stories written straight from requirements guess at mechanism, one guess per agent
+session. This skill inserts the design artifact in between, so every story inherits
+a chosen mechanism instead of inventing one.
 
 The output is a design document: how the system is built, expressed in this repo's
 conventions. Hexagonal core with explicit ports and adapters, deterministic work in
@@ -29,11 +27,12 @@ the design is graded against them by construction.
 
 ## Precondition: requirements first
 
-Do not design against a vague brief. Confirm an agreed requirements doc or PRD exists
-(the output of `write-requirements` / `to-prd`). If it does not, stop and produce it
-first; designing without requirements produces a design that satisfies nothing
-checkable. Read the requirements in full and carry the requirement ids (R1, R4)
-forward so every decision traces back to what it serves.
+Do not design against a vague brief. The input is the requirements document from
+`write-requirements`: `docs/planning/<slug>/requirements.md`, or the tracker issue
+the user points at (fetch it in full, with comments). If neither exists, stop and
+produce it first; designing without requirements produces a design that satisfies
+nothing checkable. Carry the requirement ids (R1, R4) forward so every decision
+traces back to what it serves.
 
 ## Resolve the decisions before writing
 
@@ -47,7 +46,8 @@ A design is a set of resolved decisions. Two ways to resolve them:
   up the result.
 
 Explore before asking or assuming. Existing ports, adapters, `CONTEXT.md`, and prior
-ADRs answer many questions outright and constrain the rest. Read the code.
+ADRs answer many questions outright and constrain the rest. Read the code. Use the
+glossary's vocabulary; flag any conflict with an ADR rather than overriding it.
 
 ## Write to the template
 
@@ -68,6 +68,24 @@ sections that carry this repo's standards, and where designs usually fail:
   to what comes next.
 - **Testing strategy.** Map each acceptance criterion to the layer that proves it, RED
   test first.
+
+Write with the stories in mind. Typed interface sketches, a schema, a sequence
+diagram, and pseudocode for the non-obvious algorithm are what `to-story` later
+carries into each story, so put them here once rather than describing them in prose.
+
+## Write the agent contract
+
+The design's decisions become rules an agent reads on every turn. Read
+`assets/claude-md-template.md` and write or merge `CLAUDE.md` at the repo root:
+stack, layering, persistence and auth contracts, observability, the closed list of
+public surface, the per-story definition of done, and working style. Only rules
+that apply to every story go here. The design doc keeps the reasoning; the stories
+keep story-specific detail. If a rule needs a paragraph of justification, it is
+design, not contract; link to the section instead.
+
+If `CLAUDE.md` (or `AGENTS.md`) already exists, merge into it section by section as
+the template describes. Do not overwrite user content or the block
+`setup-matt-pocock-skills` wrote. If neither exists, create `CLAUDE.md`.
 
 ## ADRs, not prose monuments
 
@@ -91,9 +109,15 @@ A twelve-line Go interface says more than a page of description.
 - [ ] Designed seams name what they enable and the phase that fills them.
 - [ ] Acceptance criteria are each mapped to a test layer.
 - [ ] Hard-to-reverse surprising decisions have ADRs; reversible ones do not.
+- [ ] `CLAUDE.md` carries every rule that applies to all stories (stack, layering,
+      persistence, auth, public surface, definition of done) and nothing
+      story-specific.
 
-## Hand off
+## Publish and hand off
 
-Commit the design and any ADRs. The next step is `vertical-slice-phasing`, which takes
-this design as fixed input and decides the build order. Do not start exploding work
-into issues yet; phase first, then elaborate only the first phase.
+Save the design as `docs/planning/<slug>/design.md`, with the requirements linked in
+its header (path or issue URL), and commit it with `CLAUDE.md` and any ADRs. The
+next step is
+`vertical-slice-phasing`, which takes this design as fixed input and decides the
+build order. It is safe to clear context first. Do not start writing stories; phase
+first, then elaborate only the first phase.

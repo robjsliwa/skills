@@ -1,91 +1,73 @@
 ---
 name: planning-loop
 description: >-
-  Route to the right planning step and explain the full plan-to-build loop. Use
-  this when the user asks where to start, what comes next, "what skill do I use
-  for this," how the planning pipeline fits together, or when they have a rough
-  idea and are not sure whether they need a grilling, a PRD, a design, phasing,
-  or just to start coding. A user-invoked orchestrator over the planning skills:
-  it points you at the next step, it does not do the step itself. Invoke the
-  model-invoked skills it names to actually do the work.
+  Tell the user where they are in the plan-to-build loop and which skill to run
+  next, by reading the planning artifacts on disk. Use when the user asks where
+  to start, what comes next, or which planning skill applies to what they have.
+  It points; it does not do the step.
 ---
 
 # Planning Loop
 
-The spine that connects the Pocock chain, the existing planning skills, and the
-progressive-elaboration loop. Its job is to tell the user, or you, which step the work
-is at and what to invoke next. It orchestrates; it never does the downstream step
-itself.
-
-## The loop
+One feature, from idea to shipped code, one artifact per step. Every artifact lives
+under `docs/planning/<slug>/` (or in the configured tracker), so the user can clear
+context between steps and the next skill picks up from disk.
 
 ```
-grill-me / design-interview   align, resolve the design tree
-        │
-write-requirements → to-prd   the WHAT, template-driven, filed as an issue
-        │
-solution-design               the HOW: ports, adapters, det/prob split, seams, ADRs
-        │  (invokes design-interview for coupled decisions)
-vertical-slice-phasing        the build ORDER: walking-skeleton-first phases
-        │
-elaborate-current-phase       detail THIS phase only, via phased-implementation-plan
-        │                     or to-issues; later phases stay sketches
-tdd                           build the phase, RED first
-        │
-story-review                  gate the work
-        │
-        └── phase done ──► elaborate-current-phase again (re-derive next phase
-                            against the real codebase). Loop until the last phase.
+grill-with-docs           align; CONTEXT.md and ADRs grow as you go
+   │
+write-requirements        the WHAT  → requirements.md, or a tracker issue
+   │  (clear context)
+solution-design           the HOW   → design.md, plus docs/adr/
+   │  (clear context)
+vertical-slice-phasing    the ORDER → phases.md, walking skeleton first
+   │  (clear context)
+elaborate-current-phase   this phase only, via to-story → stories/NN-MM-*.md
+   │  (clear context)         or tracker issues
+tdd                       one story per context window; flip Status to done
+   │
+   └── every story in the phase done ──► elaborate-current-phase again,
+                                          re-derived against the real code.
+                                          Repeat until the last phase.
 ```
 
-The thing that makes this a loop rather than a line is the return arrow. You do not
-plan all phases once. You plan one, build it, then re-plan the next against what the
-code now is.
+The return arrow is what makes this a loop rather than a line. You do not plan all
+phases once. You plan one, build it, then re-plan the next against what the code now
+is.
 
-## Pick the path: light or heavy
+## Find where the work is
 
-Not every change earns the whole loop. Judge by architectural weight, not size of diff.
+Look at `docs/planning/*/` and, if `docs/agents/issue-tracker.md` names a real
+tracker, at the tracker. Match the first row that describes what exists, and name its
+next step:
 
-- **Light path** (a single coherent vertical slice, no real architectural choice):
-  `grill-me` to align, then `to-issues`, then `tdd`. The slice is its own design. Do
-  not manufacture ceremony for it. This is the Pocock chain as-is, and it is correct
-  for this case.
-- **Heavy path** (coupled decisions, multiple phases, a contract others depend on, or
-  anything you will regret getting wrong): the full loop above. The design and phasing
-  steps are not overhead here; they are the cheapest place to be wrong.
+| What exists | Next step |
+|---|---|
+| Nothing, or only an idea | `grill-with-docs`, then `write-requirements` |
+| `requirements.md` (or the PRD issue), no `design.md` | `solution-design` |
+| `design.md`, no `phases.md` | `vertical-slice-phasing` |
+| `phases.md`, current phase has no stories | `elaborate-current-phase` |
+| Stories with open status | `tdd` on the first unblocked story |
+| Every story in the current phase done | `elaborate-current-phase` |
+| Every phase done | Nothing. Ship it. |
 
-The tell for the heavy path: you cannot name the ports without thinking, the work has
-an obvious phase-one-versus-later split, or a wrong call now means a rewrite later. The
-tell for the light path: you could open the editor right now and the only question is
-where the first test goes.
+When the user describes their state instead of having artifacts, map it the same
+way: "I have an idea" is row one, "requirements are agreed" is row two, "phase one
+shipped" is row six.
 
-## Where you probably are, and what to invoke
+## Light path
 
-- "I have an idea but it is fuzzy" → `grill-me`, or `design-interview` if the decisions
-  are coupled and you want a durable findings doc.
-- "We have aligned, write it up" → `write-requirements`, then `to-prd`.
-- "Requirements are agreed, how do we build it" → `solution-design`.
-- "Design is done, what is the build order" → `vertical-slice-phasing`.
-- "We have phases, what do I build first" → `elaborate-current-phase` (current phase
-  only).
-- "Phase one is shipped, what now" → `elaborate-current-phase` again, to re-derive
-  phase two against the real code.
-- "A story is ready to build" → `tdd`.
-- "Review this story before I build it" → `story-review`.
+Not every change earns the loop. Judge by architectural weight, not diff size. A
+single coherent vertical slice with no real design choice takes the light path:
+`grill-with-docs`, then `to-story`, then `tdd`. The slice is its own design.
 
-## Invocation rules
+The tell for the heavy path: you cannot name the ports without thinking, the work
+has an obvious phase-one-versus-later split, or a wrong call now means a rewrite
+later. The tell for the light path: you could open the editor now and the only
+question is where the first test goes.
 
-This is a user-invoked orchestrator. It may invoke the model-invoked planning skills
-(`write-requirements`, `solution-design`, `elaborate-current-phase`) and point at the
-other user-invoked ones (`grill-me`, `design-interview`, `vertical-slice-phasing`,
-`to-prd`, `to-issues`, `tdd`, `story-review`). It does not run a downstream step's
-work inline; it hands off. One headline next-step per turn, named plainly, with a
-one-line reason.
+## Rules
 
-## The principle behind the loop
-
-State persists in files, not in the chat: the requirements doc, the design doc and its
-ADRs, the phased design, the per-phase stories, `CONTEXT.md`. A fresh session can pick
-up the loop at any step by reading those artifacts. The chat is scaffolding; the
-documents are the system. Plan the phase you are about to build in full, sketch the
-rest, and re-derive each next phase only when the code that informs it exists.
+One headline next step per turn, named plainly, with a one-line reason. Hand off;
+do not run the step inline. State persists in the files, not in the chat, so a
+fresh session can pick the loop up at any step by reading them.

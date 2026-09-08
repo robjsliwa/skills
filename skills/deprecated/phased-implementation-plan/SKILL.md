@@ -1,6 +1,7 @@
 ---
 name: phased-implementation-plan
-description: Turn a software proposal or design document plus an MVP scope description into a phased, story-by-story implementation plan and bundle it as a .tar.gz. Use this whenever the user has a proposal/spec/RFC/design doc and wants a TDD-style build plan with phase folders and one story file per task — phrases like "phased plan", "implementation plan", "break this into stories", "build plan for this proposal", "turn this proposal into something Claude Code can execute", or "give me a plan I can hand to an agent" should all trigger this skill, even if they don't say the word "phased". Also trigger when a user has uploaded a proposal-shaped document (architecture, design, product spec, RFC) and asks anything about how to actually build it. The output is a directory tree with CLAUDE.md, README.md, one folder per phase, and one Markdown file per story, archived as .tar.gz.
+description: DEPRECATED. Superseded by vertical-slice-phasing (build order) plus to-story (design-rich stories, one phase at a time via elaborate-current-phase). Kept for reference; explodes a whole proposal into a phase/story file bundle in one pass.
+disable-model-invocation: true
 ---
 
 # Phased implementation plan from a proposal

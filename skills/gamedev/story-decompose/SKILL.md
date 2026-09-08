@@ -3,7 +3,7 @@ name: story-decompose
 description: >-
   Take a story bible produced by narrative-grill and break its arc into a folder
   of small, individually grillable beat files: acts to beats, one file per beat,
-  each pointing back to the bible. This is the to-issues analog for narrative, but
+  each pointing back to the bible. This is the to-story analog for narrative, but
   the file tree is the work-item store instead of GitHub. Use whenever the user
   has a story bible and wants to "break it into beats", "decompose the story",
   "split the arc into pieces", "turn the bible into beat files", or "grill it by
