@@ -3,7 +3,8 @@ name: solution-design
 description: >-
   Turn an agreed requirements document or PRD into a detailed technical design
   document (the HOW): ports, adapters, the deterministic-versus-probabilistic
-  split, domain model, data, seams, and the decisions that become ADRs. Use
+  split, domain model, data, seams, the decisions that become ADRs, and the
+  CLAUDE.md agent contract that binds every story to the design. Use
   whenever the user has requirements in hand and there is no design artifact
   yet, or says "design this," "how should we build this," "work out the
   architecture," or "write the design doc." Produces a design, not a build
@@ -72,6 +73,20 @@ Write with the stories in mind. Typed interface sketches, a schema, a sequence
 diagram, and pseudocode for the non-obvious algorithm are what `to-story` later
 carries into each story, so put them here once rather than describing them in prose.
 
+## Write the agent contract
+
+The design's decisions become rules an agent reads on every turn. Read
+`assets/claude-md-template.md` and write or merge `CLAUDE.md` at the repo root:
+stack, layering, persistence and auth contracts, observability, the closed list of
+public surface, the per-story definition of done, and working style. Only rules
+that apply to every story go here. The design doc keeps the reasoning; the stories
+keep story-specific detail. If a rule needs a paragraph of justification, it is
+design, not contract; link to the section instead.
+
+If `CLAUDE.md` (or `AGENTS.md`) already exists, merge into it section by section as
+the template describes. Do not overwrite user content or the block
+`setup-matt-pocock-skills` wrote. If neither exists, create `CLAUDE.md`.
+
 ## ADRs, not prose monuments
 
 When a decision is hard to reverse and would surprise a reader without context, write
@@ -94,11 +109,15 @@ A twelve-line Go interface says more than a page of description.
 - [ ] Designed seams name what they enable and the phase that fills them.
 - [ ] Acceptance criteria are each mapped to a test layer.
 - [ ] Hard-to-reverse surprising decisions have ADRs; reversible ones do not.
+- [ ] `CLAUDE.md` carries every rule that applies to all stories (stack, layering,
+      persistence, auth, public surface, definition of done) and nothing
+      story-specific.
 
 ## Publish and hand off
 
 Save the design as `docs/planning/<slug>/design.md`, with the requirements linked in
-its header (path or issue URL), and commit it with any ADRs. The next step is
+its header (path or issue URL), and commit it with `CLAUDE.md` and any ADRs. The
+next step is
 `vertical-slice-phasing`, which takes this design as fixed input and decides the
 build order. It is safe to clear context first. Do not start writing stories; phase
 first, then elaborate only the first phase.

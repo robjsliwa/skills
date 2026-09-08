@@ -31,7 +31,7 @@ step; the next skill reads the previous artifact from disk.
 |---|---|---|
 | 1. Align | `/grill-with-docs` | shared understanding; `CONTEXT.md` and ADRs as you go |
 | 2. Requirements | `/write-requirements` | `requirements.md` (the WHAT), or a tracker issue |
-| 3. Design | `/solution-design` pointed at the requirements | `design.md` (the HOW), plus ADRs |
+| 3. Design | `/solution-design` pointed at the requirements | `design.md` (the HOW), `CLAUDE.md` contract, ADRs |
 | 4. Phase | `/vertical-slice-phasing` | `phases.md` (the ORDER), walking skeleton first |
 | 5. Stories | `/elaborate-current-phase` | stories for the current phase only, via `to-story` |
 | 6. Build | `/tdd` pointed at one story | the code; mark the story done |
@@ -48,7 +48,7 @@ track, `/planning-loop` reads `docs/planning/` and names the next step.
 /write-requirements                    # -> docs/planning/acme-auth/requirements.md
 /clear
 /solution-design docs/planning/acme-auth/requirements.md
-/clear                                 # -> design.md, docs/adr/0007-*.md
+/clear                                 # -> design.md, CLAUDE.md, docs/adr/0007-*.md
 /vertical-slice-phasing docs/planning/acme-auth/design.md
 /clear                                 # -> phases.md
 /elaborate-current-phase docs/planning/acme-auth/phases.md
@@ -69,6 +69,7 @@ docs/
     stories/NN-MM-*.md   to-story                (or tracker issues)
   adr/NNNN-*.md          grill-with-docs, solution-design
 CONTEXT.md               grill-with-docs (the domain glossary)
+CLAUDE.md                solution-design (the agent contract; merged if it exists)
 ```
 
 If `docs/agents/issue-tracker.md` names a real tracker (GitHub, GitLab, Jira,
@@ -110,7 +111,9 @@ stdlib-first dependency policy, designed seams, trust boundaries, a testing
 strategy, and the few hard-to-reverse decisions that become ADRs. Invokes
 `design-interview` for genuinely coupled decisions instead of guessing. Writes
 `design.md` with typed interface sketches, schemas, and diagrams that `to-story`
-later carries into each story.
+later carries into each story, and writes or merges `CLAUDE.md`: the agent
+contract (stack, layering, persistence and auth rules, public surface, definition
+of done) that every story inherits.
 
 ### `vertical-slice-phasing`
 
@@ -118,7 +121,9 @@ Interviews you about build order, one sequencing decision at a time, and writes
 `phases.md`. Phase one is a thin walking skeleton that proves the riskiest claim;
 every later phase thickens it with demoable capability. Names the seams placed early
 so later phases are a swap, not a rewrite, and maps acceptance criteria to phase
-boundaries. Each phase carries a Status line that `elaborate-current-phase` updates.
+boundaries as an end-to-end definition-of-done script, one line per capability,
+tagged by phase. Each phase carries a Status line that `elaborate-current-phase`
+updates.
 
 ### `elaborate-current-phase`
 
@@ -249,7 +254,9 @@ Kept for reference under `skills/deprecated/`. They are not linked by
 - `init-go-project`: superseded by `go-boilerplate`.
 - `phased-implementation-plan`: exploded a whole proposal into a phase/story bundle
   in one pass. Superseded by `vertical-slice-phasing` plus `to-story` via
-  `elaborate-current-phase`, which detail one phase at a time.
+  `elaborate-current-phase`, which detail one phase at a time. Its `CLAUDE.md`
+  contract now comes from `solution-design`; its definition-of-done script from
+  `vertical-slice-phasing`.
 
 ## Repository layout
 

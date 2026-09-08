@@ -207,7 +207,8 @@ order. Lean on them when forming each recommendation.
 
 9. **Map acceptance criteria to phase boundaries.** State which phase end satisfies
    each acceptance criterion. This anchors the plan to the user's definition of done
-   and exposes whether the slicing actually delivers value when promised.
+   and exposes whether the slicing actually delivers value when promised. Write it
+   as a runnable end-to-end script, one line per capability, tagged by phase.
 
 10. **Name the designed seams.** Every deferred capability should have the interface
     that will eventually receive it identified and placed in its enabling phase, so
@@ -270,6 +271,13 @@ it sits here (the dependency or risk rationale), its concrete scope, its accepta
 checkpoint, and the seams it establishes or relies on. Mirror the interview order.
 The Status line is state for elaborate-current-phase, which flips it to current and
 done and appends Drift notes beneath the phase as the build teaches.]
+
+## Definition of done
+[An end-to-end script a fresh developer runs after the last phase: clone, build,
+then one command per delivered capability, each line tagged with the phase that
+makes it pass. This is the concrete form of the acceptance-criteria mapping and the
+contract for "shipped". elaborate-current-phase checks a phase's lines before
+marking it done.]
 
 ## Cross-cutting concerns
 [Observability, security, contracts: the floor and how each phase carries its own,

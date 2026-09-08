@@ -81,6 +81,11 @@ design doc the parts this slice touches, and only those:
   working implementation. It shows the shape the implementer should land on.
 - **Files.** The paths the story creates or touches.
 
+Stories inherit `CLAUDE.md`, the agent contract solution-design wrote. A rule that
+applies to every story (layering, the persistence contract, the definition of done)
+lives there and is not restated per story; a story carries only what is specific
+to its slice.
+
 Derive, do not invent. If a story needs a decision the design does not make,
 make it in the story, mark it `(story decision)`, and say so in the hand-off so
 the design doc can absorb it. Trim to the decision-rich parts. Omit any

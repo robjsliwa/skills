@@ -33,8 +33,10 @@ The current phase is the one the user names, otherwise the first phase not marke
 done.
 
 - If the current phase already has stories and every one is done (`Status: done`,
-  or a closed issue), mark the phase done in `phases.md`; the next planned phase
-  becomes current. If the statuses look stale against `git log`, ask before assuming.
+  or a closed issue), run the phase's lines from the definition-of-done script in
+  `phases.md`. If they pass, mark the phase done; the next planned phase becomes
+  current. If they fail, or the statuses look stale against `git log`, report it
+  and ask before assuming.
 - If it has stories and some are still open, report the frontier and stop. There is
   nothing to elaborate yet.
 - Built phases are evidence. Read their real ports, adapters, and schema, and note
