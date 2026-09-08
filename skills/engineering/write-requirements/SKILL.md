@@ -2,20 +2,17 @@
 name: write-requirements
 description: >-
   Turn a finished grilling or design-interview session into a detailed,
-  template-driven requirements document (a PRD with teeth), then hand it to
-  to-prd to file in the issue tracker. Use this whenever the user is ready to
-  capture requirements, write a PRD, write a spec, or "write up what we just
-  decided," and especially when they feel their requirements come out too thin
-  or get handed to to-issues underspecified. Use it before to-prd, not instead
-  of it: this skill produces the body, to-prd files it. Trigger it even when the
-  user just says "write the PRD" or "capture the requirements" for anything
-  beyond a trivial one-slice change. Do not use it to decide the technical
-  approach; that is solution-design's job and comes after this.
+  template-driven requirements document (a PRD with teeth), then publish it as
+  docs/planning/<slug>/requirements.md or as an issue in the configured
+  tracker. Use whenever the user is ready to capture requirements, write a
+  PRD, write a spec, or "write up what we just decided," for anything beyond a
+  trivial one-slice change. Do not use it to decide the technical approach;
+  that is solution-design's job and comes after this.
 ---
 
 # Write Requirements
 
-Produce a requirements document detailed enough that solution-design and to-issues
+Produce a requirements document detailed enough that solution-design and to-story
 never have to guess what the system must do. The output is the WHAT and the WHY. It
 contains no architecture, no ports, no chosen libraries. Mechanism is the next step.
 
@@ -29,13 +26,13 @@ because it enumerates those dimensions and makes their absence visible.
 A good requirements doc is the residue of a good interrogation. Before writing,
 confirm the understanding is actually shared:
 
-- If a grilling session (`grill-me`) or a `design-interview` already happened in this
-  conversation, use it. The decisions are the raw material.
+- If a grilling session (`grill-with-docs` or `grilling`) or a `design-interview`
+  already happened in this conversation, use it. The decisions are the raw material.
 - If it did not, stop and run the grilling first. Writing requirements from an
   unexamined one-line brief is how thin requirements happen. Say so plainly and
   invoke the interview rather than papering over the gap.
 - Explore before asking. Anything answerable from the codebase, the uploads, prior
-  ADRs, or `CONTEXT.md` should be read, not asked.
+  ADRs, or `CONTEXT.md` should be read, not asked. Use the glossary's vocabulary.
 
 ## Write to the template, fill every section
 
@@ -64,7 +61,7 @@ em dashes. Requirements are terse and declarative. Use "shall" for obligations. 
 the observable outcome, never the mechanism. If you find yourself writing how, you
 have drifted into the design; cut it and note it for solution-design.
 
-## Self-check before handing off
+## Self-check before publishing
 
 - [ ] Every section of the template is present and non-empty, or struck with a reason.
 - [ ] Every behavioral requirement is single-behavior, numbered, and testable.
@@ -73,9 +70,24 @@ have drifted into the design; cut it and note it for solution-design.
 - [ ] Acceptance criteria are checkable and each maps to a requirement id.
 - [ ] Out-of-scope items carry the phase or milestone where they return.
 
+## Publish
+
+Read `docs/agents/issue-tracker.md` (written by `setup-matt-pocock-skills`) and
+publish where it points:
+
+- **A real tracker** (GitHub, GitLab, Jira, Linear, or a freeform workflow the
+  config describes): file the document as one issue, an epic where the tracker has
+  them, titled `<Feature>: Requirements`, with the full document as the body. Apply
+  the `ready-for-agent` label. Report the issue reference; it is the input to the
+  next step.
+- **Local markdown, or no config:** save to `docs/planning/<slug>/requirements.md`,
+  where `<slug>` is a short kebab-case feature name. Create the folder; the design,
+  the phases, and the stories for this feature will live beside it.
+
+Do not paraphrase the document back in chat; the artifact is the deliverable.
+
 ## Hand off
 
-Save the document, then invoke `to-prd` to file it in the configured issue tracker so
-it lives where the rest of the chain expects it. Do not also paraphrase it back in
-chat; the document is the artifact. The next step is `solution-design`, which turns
-this WHAT into a HOW.
+Name the next step: `solution-design`, pointed at the requirements (the path or the
+issue reference). It is safe to clear context first; everything the next step needs
+is in the artifact.
