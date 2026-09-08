@@ -1,0 +1,40 @@
+/* Figures: inline SVG illustrations shared by lessons.
+   Usage:  <figure class="fig"><svg viewBox="0 0 760 200">…</svg><figcaption>…</figcaption></figure>
+   Shapes go in <g class="ink sketch">, text in <g class="lbl">. Load ../assets/figures.js
+   once per page for the arrowheads (#arr, #arr-acc, #arr-ok, #arr-bad) and the #sketch filter. */
+.fig { margin: 2rem 0; }
+.fig svg { width: 100%; height: auto; display: block; overflow: visible; }
+.fig figcaption { font-size: 0.85em; color: #666; font-style: italic; margin-top: 0.5rem; }
+
+/* strokes */
+.fig .ink { fill: none; stroke: #1a1a1a; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.fig .acc { stroke: #8b2500; }
+.fig .ok { stroke: #1d6b3a; }
+.fig .bad { stroke: #a52a1d; }
+.fig .dash { stroke-dasharray: 5 4; }
+.fig .thin { stroke-width: 1; }
+.fig .thick { stroke-width: 2.4; }
+.fig .sketch { filter: url(#sketch); }
+
+/* fills (use on rects/paths inside .ink groups) */
+.fig .paper { fill: #fffdf8; }
+.fig .soft { fill: #f4f1e8; }
+.fig .tint { fill: #f3e4dc; }
+.fig .oktint { fill: #eaf3ec; }
+.fig .badtint { fill: #f7e9e7; }
+.fig .fill-ink { fill: #1a1a1a; stroke: none; }
+.fig .fill-acc { fill: #8b2500; stroke: none; }
+
+/* text */
+.fig .lbl { font-family: var(--mono); font-size: 12px; fill: #1a1a1a; }
+.fig .lbl .sm { font-size: 10.5px; }
+.fig .lbl .big { font-size: 14px; }
+.fig .lbl .hand { font-family: var(--serif); font-style: italic; font-size: 13.5px; fill: #444; }
+.fig .t-acc { fill: #8b2500; }
+.fig .t-ok { fill: #1d6b3a; }
+.fig .t-bad { fill: #a52a1d; }
+.fig .t-muted { fill: #777; }
+.fig .mid { text-anchor: middle; }
+.fig .end { text-anchor: end; }
+
+@media print { .fig .sketch { filter: none; } }

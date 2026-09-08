@@ -1,0 +1,74 @@
+/* ---------- Chapter furniture ----------
+   Epigraph, margin asides, "where this code goes" labels, collapsible
+   listings, challenges and design notes: the chapter components every
+   lesson reuses. Append to the workspace stylesheet, which must define
+   --rule, --mono, --accent and --note-bg. */
+.epigraph {
+  margin: 0 0 2.2rem;
+  padding-left: 1.2rem;
+  border-left: 2px solid var(--rule);
+  font-style: italic;
+  color: #555;
+  font-size: 0.95em;
+}
+.epigraph .who { display: block; font-style: normal; font-size: 0.85em; margin-top: 0.3rem; }
+
+aside.margin {
+  font-size: 0.8em;
+  line-height: 1.45;
+  color: #555;
+}
+aside.margin code { font-size: 0.95em; }
+@media (min-width: 78rem) {
+  aside.margin {
+    float: right;
+    clear: right;
+    width: 13rem;
+    margin: 0.25rem -15rem 1rem 1.2rem;
+  }
+}
+@media (max-width: 77.99rem) {
+  aside.margin {
+    margin: 1rem 0 1.2rem 1.4rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--rule);
+  }
+}
+
+.code-loc {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 1.4rem 0 0.3rem;
+  text-align: right;
+}
+.code-loc + pre { margin-top: 0; }
+
+details.listing { margin: 1.5rem 0; }
+details.listing summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+details.listing pre { margin-top: 0.6rem; }
+
+.rules { font-size: 0.9em; }
+.rules td:first-child { white-space: nowrap; font-weight: 600; }
+
+.challenges ol { padding-left: 1.4rem; }
+.challenges li { margin: 0.7rem 0; }
+
+.design-note {
+  margin: 2.5rem 0;
+  padding: 1.2rem 1.5rem;
+  background: var(--note-bg);
+  border-top: 2px solid var(--accent);
+}
+.design-note h2 { margin-top: 0; font-size: 1.2rem; }
+
+@media print {
+  aside.margin { float: none; width: auto; margin: 0.8rem 0 0.8rem 1.4rem; }
+}

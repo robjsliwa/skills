@@ -1,0 +1,301 @@
+/* Shared stylesheet for the course. Every lesson and reference doc links this. */
+
+:root {
+  --ink: #1a1a1a;
+  --paper: #fffdf8;
+  --accent: #8b2500;       /* burnt sienna — links, lesson number */
+  --accent-soft: #b5541f;
+  --rule: #d8d2c4;
+  --code-bg: #f4f1e8;
+  --note-bg: #f7f3ea;
+  --ok: #1d6b3a;
+  --bad: #a52a1d;
+  --mono: "Berkeley Mono", "SF Mono", Menlo, Consolas, monospace;
+  --serif: "ET Book", Palatino, "Palatino Linotype", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--serif);
+  color: var(--ink);
+  background: var(--paper);
+  margin: 0;
+  padding: 0;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+main {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+}
+
+/* ---------- Header ---------- */
+.lesson-kicker {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.15;
+  margin: 0 0 0.4rem;
+}
+
+.lesson-summary {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #555;
+  margin: 0 0 2rem;
+}
+
+h2 {
+  font-size: 1.45rem;
+  font-weight: 500;
+  font-style: italic;
+  margin: 2.6rem 0 0.8rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.6rem;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 2.5rem 0;
+}
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--accent-soft); }
+
+/* ---------- Code ---------- */
+code, pre {
+  font-family: var(--mono);
+  font-size: 0.82em;
+}
+
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+pre code { background: none; padding: 0; }
+
+/* ---------- Notes, asides, citations ---------- */
+.note, .try-it, .win {
+  background: var(--note-bg);
+  border-left: 3px solid var(--accent);
+  padding: 0.9rem 1.2rem;
+  margin: 1.5rem 0;
+  font-size: 0.95em;
+}
+
+.try-it { border-left-color: var(--ok); }
+.try-it::before {
+  content: "Try it";
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ok);
+  margin-bottom: 0.4rem;
+}
+
+.win { border-left-color: var(--accent); }
+.win::before {
+  content: "Today's win";
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+.cite {
+  font-size: 0.85em;
+  color: #666;
+}
+
+/* ---------- Tables ---------- */
+table {
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.92em;
+  width: 100%;
+}
+th, td {
+  text-align: left;
+  padding: 0.45rem 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ---------- Quiz widget (used by quiz.js) ---------- */
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.4rem 1.6rem;
+  margin: 2rem 0;
+}
+.quiz h3 { margin-top: 0; }
+.quiz-q { margin: 1.4rem 0; }
+.quiz-q p.q-text { font-weight: 600; margin: 0 0 0.6rem; }
+.quiz-q button.q-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.55rem 0.9rem;
+  margin: 0.35rem 0;
+  cursor: pointer;
+}
+.quiz-q button.q-opt:hover { border-color: var(--accent-soft); }
+.quiz-q button.q-opt.correct { border-color: var(--ok); background: #eaf3ec; }
+.quiz-q button.q-opt.wrong { border-color: var(--bad); background: #f7e9e7; }
+.quiz-q button.q-opt:disabled { cursor: default; }
+.quiz-q .q-explain {
+  display: none;
+  font-size: 0.9em;
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--note-bg);
+  border-radius: 5px;
+}
+.quiz-q .q-explain.shown { display: block; }
+.quiz-score { font-family: var(--mono); font-size: 0.85rem; color: #555; }
+
+/* ---------- Footer nav ---------- */
+.lesson-nav {
+  margin-top: 4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9em;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ask-teacher {
+  margin-top: 2rem;
+  font-size: 0.88em;
+  font-style: italic;
+  color: #666;
+}
+
+/* ---------- Print ---------- */
+@media print {
+  body { font-size: 11pt; background: #fff; }
+  main { max-width: none; padding: 0; }
+  .quiz button.q-opt { border: 1px solid #999; }
+  a { color: var(--ink); }
+  .ask-teacher, .lesson-nav { display: none; }
+}
+
+/* ---------- Chapter furniture ----------
+   Epigraph, margin asides, "where this code goes" labels, collapsible
+   listings, challenges and design notes: the chapter components every
+   lesson reuses (same block as chapter-furniture.css). */
+.epigraph {
+  margin: 0 0 2.2rem;
+  padding-left: 1.2rem;
+  border-left: 2px solid var(--rule);
+  font-style: italic;
+  color: #555;
+  font-size: 0.95em;
+}
+.epigraph .who { display: block; font-style: normal; font-size: 0.85em; margin-top: 0.3rem; }
+
+aside.margin {
+  font-size: 0.8em;
+  line-height: 1.45;
+  color: #555;
+}
+aside.margin code { font-size: 0.95em; }
+@media (min-width: 78rem) {
+  aside.margin {
+    float: right;
+    clear: right;
+    width: 13rem;
+    margin: 0.25rem -15rem 1rem 1.2rem;
+  }
+}
+@media (max-width: 77.99rem) {
+  aside.margin {
+    margin: 1rem 0 1.2rem 1.4rem;
+    padding-left: 0.9rem;
+    border-left: 2px solid var(--rule);
+  }
+}
+
+.code-loc {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 1.4rem 0 0.3rem;
+  text-align: right;
+}
+.code-loc + pre { margin-top: 0; }
+
+details.listing { margin: 1.5rem 0; }
+details.listing summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+details.listing pre { margin-top: 0.6rem; }
+
+.rules { font-size: 0.9em; }
+.rules td:first-child { white-space: nowrap; font-weight: 600; }
+
+.challenges ol { padding-left: 1.4rem; }
+.challenges li { margin: 0.7rem 0; }
+
+.design-note {
+  margin: 2.5rem 0;
+  padding: 1.2rem 1.5rem;
+  background: var(--note-bg);
+  border-top: 2px solid var(--accent);
+}
+.design-note h2 { margin-top: 0; font-size: 1.2rem; }
+
+@media print {
+  aside.margin { float: none; width: auto; margin: 0.8rem 0 0.8rem 1.4rem; }
+}
