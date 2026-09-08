@@ -65,7 +65,7 @@ docs/
   planning/<feature-slug>/
     requirements.md      write-requirements      (or a tracker issue / epic)
     design.md            solution-design
-    phases.md            vertical-slice-phasing  (one Status line per phase)
+    phases.md            vertical-slice-phasing  (Status per phase, traceability table)
     stories/NN-MM-*.md   to-story                (or tracker issues)
   adr/NNNN-*.md          grill-with-docs, solution-design
 CONTEXT.md               grill-with-docs (the domain glossary)
@@ -117,13 +117,15 @@ of done) that every story inherits.
 
 ### `vertical-slice-phasing`
 
-Interviews you about build order, one sequencing decision at a time, and writes
-`phases.md`. Phase one is a thin walking skeleton that proves the riskiest claim;
-every later phase thickens it with demoable capability. Names the seams placed early
-so later phases are a swap, not a rewrite, and maps acceptance criteria to phase
-boundaries as an end-to-end definition-of-done script, one line per capability,
-tagged by phase. Each phase carries a Status line that `elaborate-current-phase`
-updates.
+Runs `design-interview` on build order alone, one sequencing decision at a time,
+judged by ten phasing heuristics, and writes `phases.md`. Phase one is a thin
+walking skeleton that proves the riskiest claim; every later phase thickens it with
+demoable capability. Names the seams placed early so later phases are a swap, not a
+rewrite, and maps requirements to phase boundaries twice: as an end-to-end
+definition-of-done script, one line per capability, tagged by phase, and as a
+traceability table, one row per requirement id, that `to-story` fills with story
+ids so a requirement with no story is visible before the phase is built. Each phase
+carries a Status line that `elaborate-current-phase` updates.
 
 ### `elaborate-current-phase`
 
@@ -141,16 +143,17 @@ context window, with blocking edges declared. Unlike a plain ticket, each story
 carries its design: interfaces and types, data, algorithm, a Mermaid diagram when a
 picture beats prose, a sample-code sketch, the files it touches, a RED-first test
 plan, acceptance criteria tied to requirement ids, and verification commands. It
-quizzes you on granularity and edges before writing, then publishes to
-`stories/NN-MM-<slug>.md` or the configured tracker.
+quizzes you on granularity, edges, and any requirement of the phase that no story
+serves before writing, then publishes to `stories/NN-MM-<slug>.md` or the
+configured tracker and fills the traceability table in `phases.md`.
 
 ### `design-interview`
 
 A general one-question-at-a-time interview for any space of coupled decisions.
 Every question carries a recommendation, the tradeoff, and the soft spot where you
 might overrule it. Tracks what is settled, deferred, and which seams were designed
-for later. `solution-design` calls it; you can also run it on its own for
-architecture, data-model, or scope questions.
+for later. `solution-design` and `vertical-slice-phasing` call it; you can also run
+it on its own for architecture, data-model, or scope questions.
 
 ### `planning-loop`
 

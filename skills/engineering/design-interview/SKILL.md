@@ -1,20 +1,12 @@
 ---
 name: design-interview
 description: >-
-  Drive a rigorous, one-question-at-a-time interview to nail down a design,
-  architecture, plan, proposal, spec, or decision-heavy problem before writing
-  anything up, then capture the agreed design in a markdown findings document.
-  Use whenever the user hands over a description, requirements doc, RFC,
-  proposal, or rough idea and wants to "think it through," "work out the
-  requirements," "interview me," "walk the design tree," "nail down the
-  approach," "resolve the open questions," or reach shared understanding through
-  deliberate Q&A rather than one dump of answers. Trigger it even when the user
-  never says "interview" but is clearly facing a branching set of coupled
-  decisions (auth and multi-tenancy, data model, API surface, infra topology,
-  product scope) and wants them resolved in dependency order with a
-  recommendation at each step. Prefer this over answering a design question in
-  one shot whenever the space has multiple interdependent decisions best
-  resolved one at a time.
+  Interview the user one decision at a time to resolve a design, architecture,
+  plan, or scope made of coupled decisions, recommending an answer at every
+  step, then write the agreed design to a findings document. Use when the user
+  says "interview me," "think it through," "walk the design tree," "nail down
+  the approach," or "resolve the open questions," or faces a branching set of
+  interdependent decisions best settled in dependency order.
 ---
 
 # Design Interview
@@ -43,6 +35,13 @@ libraries should I use"), for pure information retrieval, or when the user
 explicitly wants a fast one-shot answer. If the user wants you to just decide and
 write it up, do that instead. This skill is for when they want to be in the loop
 on every fork.
+
+## When another skill invokes this
+
+`solution-design` and `vertical-slice-phasing` run this interview on their own
+subject. The caller may supply what to absorb in step 0, the tree to map in step 1,
+names for the three lists, and the document to write in step 4. Those override the
+defaults below; the contract and the turn anatomy do not change.
 
 ## The contract
 
@@ -169,9 +168,9 @@ decisions the tree actually has.
 ## Step 4: Write the findings document
 
 Capture the agreed design in a markdown file. When another skill invoked this
-interview (solution-design does), hand the findings back to it. Otherwise save the
-file as `docs/planning/<slug>/findings.md` and present it. Use this structure unless
-the domain calls for adapting it:
+interview, hand the findings back to it and let it write its own document. Otherwise
+save the file as `docs/planning/<slug>/findings.md` and present it. Use this
+structure unless the domain calls for adapting it:
 
 ```markdown
 # [Subject]: [What was designed]

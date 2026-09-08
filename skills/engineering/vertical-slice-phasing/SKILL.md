@@ -1,130 +1,86 @@
 ---
 name: vertical-slice-phasing
 description: >-
-  Turn agreed requirements, an architecture, or a stack of design docs into a
-  phased implementation design document built from thin vertical slices, by
-  grilling the user one sequencing decision at a time. Use whenever someone
-  hands over requirements or finished designs and wants to figure out what to
-  build first, phase the work, sequence it into milestones, work out a build
-  order, or reach a walking-skeleton-first roadmap where each phase ships usable
-  functionality and founds the next. Trigger even when the user just asks "how
-  should I build this" or proposes their own phase list and wants it
-  pressure-tested. This decides BUILD ORDER, not the architecture (use
-  design-interview for that) and not writing the stories (elaborate-current-phase
-  and to-story do that). Prefer it whenever the architecture is mostly settled
-  and the open question is how to slice it into phases that each prove something
-  and stay additive.
+  Decide the build order for an agreed design by interviewing the user one
+  sequencing decision at a time, then write phases.md: thin vertical slices,
+  walking skeleton first. Use when the user says "phase this," "what do I build
+  first," "sequence the work," "build order," "milestones," or hands over a
+  draft phase list to pressure-test. Not for the architecture (design-interview)
+  or the stories (elaborate-current-phase, to-story).
 ---
 
 # Vertical-Slice Phasing
 
-A workflow for turning settled requirements into a phased implementation design,
-by interviewing the user relentlessly about sequencing, one decision at a time,
-walking the phase tree in dependency order, recommending a slicing at every step,
-and capturing the result in a phased design document built from thin vertical
-slices.
+Turn a settled design into an implementation order by running `design-interview`
+on sequencing decisions only, judging every recommendation by the phasing
+heuristics below, and writing the result as a phased design document built from
+thin vertical slices.
 
-The product of this skill is an implementation order, not an architecture. It
-assumes the architecture is mostly decided (the requirements or design docs the
-user hands over are the fixed input) and answers a different question: in what
-order do we build it so that every phase ships something usable, the riskiest
-claim is proven first, and no phase forces a rewrite of an earlier one.
+The product is an order, not an architecture. The design the user hands over is
+fixed input; the question this skill answers is in what order to build it so that
+every phase ships something usable, the riskiest claim is proven first, and no
+phase forces a rewrite of an earlier one.
 
 ## The through-line: thin vertical slices, walking skeleton first
 
-One principle shapes every decision this skill makes. Build a thin vertical slice
-that runs end to end before building any layer in full. The first phase should
-exercise the riskiest, most novel, most falsifiable claim in the whole system,
-proving it on a skeleton, and every later phase should thicken that skeleton with
-usable capability rather than assembling complete horizontal layers that only
-become useful once the last one lands.
+One principle shapes every decision. Build a thin vertical slice that runs end to
+end before building any layer in full. Phase one exercises the riskiest, most
+falsifiable claim in the system on a skeleton; every later phase thickens that
+skeleton with usable capability rather than assembling a complete horizontal layer
+that only becomes useful once the last one lands.
 
-The failure mode this exists to prevent is the horizontal plan: build all of
-storage, then all of auth, then all of the API, then finally something a user can
-touch in phase four. Horizontal plans back-load the falsifiable claims and ship
-nothing demoable until late. Vertical slices invert that: each phase is a working
-product, thinner than the last is wide.
+The failure mode is the horizontal plan: all of storage, then all of auth, then all
+of the API, then finally something a user can touch in phase four. Horizontal plans
+back-load the falsifiable claims and ship nothing demoable until late. Vertical
+slices invert that: each phase is a working product, thinner than the last is wide.
 
 ## When this applies (and when it does not)
 
 Use it when the architecture is settled or nearly so and the open problem is
-**sequencing**: what is phase one, where do the cut lines fall, what proves the
-thesis, what depends on what, what defers. The tell is that the user has
-requirements or design docs in hand and is asking about build order, milestones,
-or "what first," possibly with a draft phase list they want pressure-tested.
+sequencing: what is phase one, where the cut lines fall, what proves the thesis,
+what depends on what, what defers. The tell is a user with requirements or design
+docs in hand asking about build order, milestones, or "what first," possibly with a
+draft phase list to pressure-test.
 
-Do not use it to decide the architecture itself. If the coupled decisions are
-about what a tenant is, what the data model is, or what the trust boundary is,
-that is `design-interview`'s job; do that first, then phase the result with this.
-Do not use it to write the stories themselves; that is `elaborate-current-phase`,
-which details one phase at a time through `to-story`. This skill sits between them:
-the design is agreed, and you are deciding the order and the slices, through an
-interview, producing a design document a human reads.
+Do not use it to decide the architecture. If the coupled decisions are about what a
+tenant is or where the trust boundary sits, that is `solution-design` with
+`design-interview`; do that first, then phase the result. Do not use it to write
+stories; that is `elaborate-current-phase`, one phase at a time through `to-story`.
 
-## The contract
+## Run the interview
 
-Four rules govern every turn. They are what make the interview work, and breaking
-them is what makes it fail.
+Invoke `design-interview` and follow its contract unchanged: one decision per turn,
+a recommendation every turn, dependency order, explore before asking. What this
+skill supplies is the subject, the tree, the judgment, and the document.
 
-1. **One sequencing decision at a time.** Ask a single coherent phasing decision
-   per turn, then stop and wait. Do not stack a second decision "while we're at
-   it." Corollaries that depend on the current decision can ride along flagged as
-   "I'll pin this in a later question," but the turn has exactly one headline the
-   user must rule on.
-
-2. **Recommend a slicing, do not just ask.** Every turn carries your recommended
-   phase boundary, the reasoning, and an honest account of the tradeoff. The user
-   reacts to a concrete proposal. A bare "where should this go?" wastes their
-   attention; the recommendation is the value.
-
-3. **Walk the phase tree in dependency order.** Resolve the decision that unblocks
-   the most downstream decisions next. The sequencing philosophy (vertical versus
-   horizontal) is the root, because it reshapes the entire list. Then the
-   substrate everything sits on, then capability broadening, then deployment and
-   scale, then the cross-cutting concerns. Name where each question sits so the
-   user sees the shape.
-
-4. **Explore the requirements instead of asking.** Anything answerable from the
-   handed-over docs, an existing codebase, or prior conversation, go find it.
-   Spend the user's attention only on what needs their judgment: risk appetite,
-   what counts as the core thesis, where they want value to land first.
-
-## Step 0: Absorb the requirements before the first question
-
-Do not start cold. The inputs are `docs/planning/<slug>/design.md` and the
-requirements it links (a file or a tracker issue); read both in full, plus any
-`CONTEXT.md` and ADRs in the area. Treat the agreed architecture as fixed input you
-will not reopen; if you find yourself wanting to relitigate a design decision, stop,
-note it as an out-of-scope boundary, and stay on sequencing. While reading, extract
-four things, because they drive the whole plan:
+**Inputs.** `docs/planning/<slug>/design.md` and the requirements it links (a file
+or a tracker issue), plus any `CONTEXT.md` and ADRs in the area. Read all of it
+before the first question. Treat the architecture as fixed; when a sequencing
+question tempts a redesign, note it under out of scope and stay on sequencing.
+While reading, extract four things, because they drive the plan:
 
 - **The core thesis.** The single most novel, riskiest, most falsifiable claim the
-  system makes. This is what phase one must prove. If there are several, pick the
-  one whose failure would most invalidate the project.
-- **The acceptance criteria.** The user's own definition of done, including any
-  milestones. You will map these to phase boundaries at the end.
-- **The load-bearing interfaces and seams.** The places the design has already
-  separated concerns (a repository interface, a provider seam, a policy interface).
-  These are what let a thin slice survive its own growth.
+  system makes. Phase one must prove it. If there are several, pick the one whose
+  failure would most invalidate the project.
+- **The requirement ids and acceptance criteria.** The user's own definition of
+  done. Every requirement id gets a phase end or an explicit deferral.
+- **The load-bearing interfaces and seams.** Where the design has already
+  separated concerns. These are what let a thin slice survive its own growth.
 - **Constraints and non-negotiables.** Required dependencies, target platforms,
-  hard ordering forced by the domain. These prune branches before you walk them.
+  ordering the domain forces. These prune branches before you walk them.
 
 If the user handed over a draft phase list, read it as their instinct about the
-tree, not as the answer. You will honor its lineage and show how your slicing maps
-back to it, but you are free to re-slice.
+tree, not as the answer. Honor its lineage by showing how your slicing maps back to
+it and where you re-cut and why, but re-slice freely.
 
-## Step 1: Map the phase tree, then let the user steer
-
-Before the first question, set the frame explicitly: the architecture is fixed
-input, and the interview is only about sequencing. Then lay out the branches you
-intend to walk, in order, with a one-line rationale for the ordering. Keep it to a
-short paragraph or compact list of the major forks. A typical tree:
+**The tree.** Set the frame explicitly (architecture fixed, sequencing only), then
+map these branches in this order. Everything inherits from the root.
 
 1. **Sequencing philosophy (root).** Vertical walking skeleton versus horizontal
-   layers. Everything inherits from this.
+   layers.
 2. **The substrate.** What storage, identity, and resolution foundations the first
-   running slice sits on, and which of them must be present (even degenerately)
-   from phase one so later phases stay additive.
+   running slice sits on, and which must be present, even degenerately, from phase
+   one so later phases stay additive.
 3. **Capability broadening.** The order the remaining features arrive in, and where
    each cut falls.
 4. **Deployment and scale.** When the work targets each runtime environment, and
@@ -132,29 +88,21 @@ short paragraph or compact list of the major forks. A typical tree:
 5. **Cross-cutting concerns.** Observability, security, and the machine-readable
    contract, woven rather than phased.
 
-This lets the user reorder, add a branch you missed, or cut one out of scope, and
-sets the expectation that this is a sequence of single decisions, not a survey.
-Then ask the first question.
+**The questions.** Each turn recommends a phase boundary; a bare "where should this
+go?" is not a turn. Spend the user's attention only on what needs their judgment:
+risk appetite, what counts as the core thesis, where they want value to land
+first. A change to one boundary often moves another, so propagate before
+continuing.
 
-## Step 2: Walk the tree, one phasing decision per turn
+**The lists.** Carry design-interview's three lists under these names, because
+they become the spine of the document: settled phases (each with what it delivers,
+one line), deferred and out of scope (including architecture you declined to
+reopen), and designed seams (each with the phase that introduces it and what it
+enables).
 
-Each turn has the same anatomy. Following it consistently is most of the skill.
-
-- **Name the decision and its place in the tree.** "Question 3: where does real
-  authentication turn on relative to the first running feature?"
-- **State your recommended slicing plainly**, up front, before the reasoning.
-- **Give the reasoning**, including the tradeoff and why the alternatives lose.
-  Explain it to a sharp colleague who will push back.
-- **Flag the soft spot.** Name the one place a reasonable person with different
-  priors would slice differently, and invite the override, rather than burying it.
-  This is where trust is earned.
-- **End with the explicit decision you want**, posed as the sharpest version of the
-  open fork.
-
-When the user accepts, lock it and restate the settled phase in one line. When they
-refine or overrule, fold it in and propagate: a change to one phase boundary often
-moves another, so adjust the planned questions before continuing. Do not relitigate
-a locked decision.
+**Stopping.** Done when every branch is resolved or deferred, every requirement id
+has a phase or a deferral, and the definition of done maps to phase ends. Recap
+the spine and confirm before writing.
 
 ## The phasing heuristics
 
@@ -205,40 +153,23 @@ order. Lean on them when forming each recommendation.
    phase shipped something un-verifiable, which contradicts the thin-slice
    discipline that each phase be demoable on the day it lands.
 
-9. **Map acceptance criteria to phase boundaries.** State which phase end satisfies
-   each acceptance criterion. This anchors the plan to the user's definition of done
-   and exposes whether the slicing actually delivers value when promised. Write it
-   as a runnable end-to-end script, one line per capability, tagged by phase.
+9. **Map requirements to phase boundaries.** State which phase end satisfies each
+   requirement id and acceptance criterion. This anchors the plan to the user's
+   definition of done and exposes whether the slicing actually delivers value when
+   promised. Write it twice: as a runnable end-to-end script, one line per
+   capability, tagged by phase, and as a traceability table, one row per
+   requirement id, that to-story later fills with story ids.
 
 10. **Name the designed seams.** Every deferred capability should have the interface
     that will eventually receive it identified and placed in its enabling phase, so
     the deferral is a plug-point rather than a future rewrite. Naming these is often
     the most valuable output of the whole exercise.
 
-## Track three lists as you go
+## Write the phased design document
 
-Carry these forward through the interview; they become the spine of the document.
-
-- **Settled phases:** each phase and what it delivers, one line.
-- **Deferred / out of scope:** what is deliberately not in the plan, and the
-  boundary line, including architecture decisions you declined to reopen.
-- **Designed seams:** interfaces placed in an early phase specifically so a later
-  phase is additive, each noted with which phase introduces it and what it enables.
-
-## Step 3: Know when to stop
-
-The interview is done when every branch is resolved or explicitly deferred and no
-accepted decision has left a dangling dependency. Recap in one short pass: the
-phase spine you walked, the acceptance criteria mapped to phase ends, and the one
-or two boundaries left standing as out of scope. Confirm the user agrees you are
-done before writing up. Do not pad with low-value questions, and do not stop with
-open forks dangling. The right length is however many sequencing forks the tree
-actually has.
-
-## Step 4: Write the phased design document
-
-Capture the agreed plan as `docs/planning/<slug>/phases.md` and present it. Use
-this structure unless the domain calls for adapting it:
+Capture the agreed plan as `docs/planning/<slug>/phases.md`, in place of
+design-interview's findings document, and present it. Use this structure unless
+the domain calls for adapting it:
 
 ```markdown
 # [Subject]: Phased Implementation Design
@@ -279,6 +210,20 @@ makes it pass. This is the concrete form of the acceptance-criteria mapping and 
 contract for "shipped". elaborate-current-phase checks a phase's lines before
 marking it done.]
 
+## Traceability
+[One row per requirement id, in id order. Phase is the phase whose end satisfies
+the requirement, or "deferred" with the out-of-scope entry it points to. Leave
+Stories empty; to-story fills it with the story ids that serve the requirement
+when it explodes that phase. A blank Phase is a gap in the plan. A blank Stories
+cell in a current phase is a gap in the elaboration, visible before the phase is
+built.]
+
+| Requirement | Phase | Stories |
+|---|---|---|
+| R1 | 1 | |
+| R2 | 3 | |
+| R3 | deferred (see Out of scope) | |
+
 ## Cross-cutting concerns
 [Observability, security, contracts: the floor and how each phase carries its own,
 with the reasoning for weaving rather than phasing.]
@@ -298,24 +243,8 @@ lineage is visible.]
 
 The document should let someone who was not in the room understand not just what
 order was chosen but why, what each phase proves, and what was deliberately left
-open. Capture the reasoning, not only the conclusions.
-
-## Conventions
-
-- **Always recommend, even under uncertainty.** "I'm not sure, what do you think"
-  is not a turn. If torn between two slicings, recommend the one you lean toward and
-  say what would change your mind.
-- **Be honest about soft spots.** Surfacing where the user might reasonably re-slice
-  is a feature, not a hedge. The recommendation is more useful when its weaknesses
-  are visible.
-- **Honor the user's draft.** If they proposed a phase list, show how your slicing
-  maps back to it and where you re-cut and why, so they see the lineage rather than
-  feeling overridden.
-- **Hold the architecture boundary.** When a sequencing question tempts a redesign,
-  note it and defer it; do not drift into reopening settled decisions.
-- **Match the user's depth**, and default to prose over heavy formatting in both the
-  questions and the document. Use lists only for genuine enumerations (a phase
-  scope, the seams). Avoid em dashes in the written document.
+open. Capture the reasoning, not only the conclusions. Prose over heavy formatting;
+lists only for genuine enumerations (a phase scope, the seams). No em dashes.
 
 ## Hand off
 
