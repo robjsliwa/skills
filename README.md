@@ -249,6 +249,32 @@ nothing.
 Three rules hold the chain together: the bible is the center and every skill reads
 it first; the `beats/` folder is the pieces; flags have exactly one home, the bible.
 
+## Learning skills
+
+### `teach-me`
+
+Matt Pocock's `teach` skill with the chapter-writing method folded in, so one
+skill runs a whole learning session. The current directory is the teaching
+workspace, in the same layout and formats as `teach`: `MISSION.md`,
+`RESOURCES.md`, `learning-records/`, `reference/`, `lessons/`, `assets/`,
+`NOTES.md`. Each lesson is a chapter: an epigraph, numbered sections, motive
+before mechanism, a hand-drawn SVG figure of the whole machine and one per state
+change (generated from a `figs` script so a picture cannot disagree with the
+algorithm), each algorithm as steps and a hand trace before its code, code in
+labelled slices, try-its, a quiz, four Challenges and a Design Note. A per-lesson
+build script cuts the code slices from a verified scratch module, recomputes every
+value the prose quotes, checks every link and tag, and the page is rendered in
+headless Chrome and looked at before it reaches you. Ships the starter assets
+(stylesheet, quiz widget, figure CSS and JS) and the figure and build helpers.
+
+```
+/teach-me consistency proofs          # the next lesson, in the chapter style
+/teach-me rewrite lessons/0003-*.html # an old lesson, redone as a chapter
+```
+
+Needs Python 3 and Google Chrome for the figure renders. `NOTES.md` in the
+workspace outranks the skill: its hard rules and preferences apply as written.
+
 ## Deprecated
 
 Kept for reference under `skills/deprecated/`. They are not linked by
@@ -269,6 +295,7 @@ skills/
                    vertical-slice-phasing, elaborate-current-phase, to-story,
                    go-boilerplate, let-me-code
   gamedev/         narrative-grill, story-decompose, beat-grill, subquest-fill
+  learning/        teach-me
   productivity/    (reserved, none yet)
   deprecated/      init-go-project, phased-implementation-plan
 scripts/
