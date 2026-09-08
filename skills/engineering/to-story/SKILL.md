@@ -29,7 +29,10 @@ Work from what is already in context, then fetch what is not.
   exists to prevent.
 - **The phase to explode**, when elaborate-current-phase hands one over or the
   user names one: its scope, its acceptance checkpoint, the seams it introduces
-  or relies on. Stories go no wider than the phase.
+  or relies on, and the rows of the traceability table in
+  `docs/planning/<slug>/phases.md` that assign requirement ids to it. Stories go
+  no wider than the phase, and together they serve every requirement the table
+  gives it.
 - **The codebase.** Real ports, adapters, schema, `CONTEXT.md`, and ADRs in the
   area. Story vocabulary follows the glossary. Where built code and the design
   disagree, the code is ground truth; note the disagreement in the story.
@@ -105,7 +108,10 @@ subsection the story does not need; an empty heading is noise.
 ## 4. Quiz the user
 
 Present the breakdown as a numbered list. For each story: title, blocked by,
-and the end-to-end behaviour it delivers. Ask whether the granularity is right,
+the requirement ids it serves, and the end-to-end behaviour it delivers. Then
+name every requirement the traceability table assigns to this phase that no
+story serves. The user adds a story, moves the requirement to a later phase, or
+strikes it; it does not stay silent. Ask whether the granularity is right,
 whether each blocking edge is a real gate, and whether anything should merge or
 split. Iterate until the user approves. Only then write the full stories.
 
@@ -125,6 +131,20 @@ Read `docs/agents/issue-tracker.md`.
   order from `01`. Never one combined file.
 
 Do not close or modify the parent issue.
+
+### Fill the traceability table
+
+When `phases.md` exists, update its `## Traceability` table before committing.
+For every requirement this phase's stories serve, write the story ids into its
+Stories cell: `01-01, 01-03` for files, the issue references for a tracker. A
+requirement the table assigns to this phase that no story serves keeps an empty
+cell, so the gap stays visible until a story or a re-phasing closes it. If a
+story serves a requirement the table assigned to another phase, or to none,
+correct or add the row and say so in the hand-off; the phase map was wrong. If
+`phases.md` predates the table, add the section from the vertical-slice-phasing
+template first, one row per requirement id, filling Phase from the definition
+of done where the tag is clear. On the light path, with no `phases.md`, the
+story's `Serves` line is the only trace; skip this.
 
 ## Story template
 

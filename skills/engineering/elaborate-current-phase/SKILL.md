@@ -34,9 +34,10 @@ done.
 
 - If the current phase already has stories and every one is done (`Status: done`,
   or a closed issue), run the phase's lines from the definition-of-done script in
-  `phases.md`. If they pass, mark the phase done; the next planned phase becomes
-  current. If they fail, or the statuses look stale against `git log`, report it
-  and ask before assuming.
+  `phases.md` and check that every requirement its traceability table assigns to
+  the phase has a story. If both hold, mark the phase done; the next planned phase
+  becomes current. If a line fails, a requirement has no story, or the statuses
+  look stale against `git log`, report it and ask before assuming.
 - If it has stories and some are still open, report the frontier and stop. There is
   nothing to elaborate yet.
 - Built phases are evidence. Read their real ports, adapters, and schema, and note
@@ -67,11 +68,15 @@ only. It slices, carries the design into each story, quizzes the user, and publi
 ## 4. Record
 
 In `phases.md`, set this phase's `Status` to `current`, list its story ids beneath
-it, and keep the `Drift` notes. Commit.
+it, and keep the `Drift` notes. Read the traceability table to-story filled: a
+requirement assigned to this phase with an empty Stories cell is reported in the
+hand-off, not left for the build to discover. Commit.
 
 ## Self-check
 
 - [ ] Only the current phase has stories.
+- [ ] Every requirement the traceability table assigns to this phase has a story,
+      or the gap is reported.
 - [ ] Later phases remain sketches, untouched.
 - [ ] The built phases' real code was read, not just the original design.
 - [ ] Every divergence from the phased design is recorded under `Drift`, with its
