@@ -24,7 +24,9 @@ vertical-slice-phasing    the ORDER → phases.md, walking skeleton first
    │  (clear context)
 elaborate-current-phase   this phase only, via to-story → stories/NN-MM-*.md
    │  (clear context)         or tracker issues
-tdd                       one story per context window; flip Status to done
+tdd  or  code-along        one story per context window; flip Status to done
+   │                         tdd builds it for you; code-along builds it with you,
+   │                         as a lesson you code, then a debrief
    │
    └── every story in the phase done ──► elaborate-current-phase again,
                                           re-derived against the real code.
@@ -47,7 +49,8 @@ next step:
 | `requirements.md` (or the PRD issue), no `design.md` | `solution-design` |
 | `design.md`, no `phases.md` | `vertical-slice-phasing` |
 | `phases.md`, current phase has no stories | `elaborate-current-phase` |
-| Stories with open status | `tdd` on the first unblocked story |
+| A lesson under `lessons/` with `status: open` | `code-along` (debrief it) |
+| Stories with open status | `tdd` or `code-along` on the first unblocked story |
 | Every story in the current phase done | `elaborate-current-phase` |
 | Every phase done | Nothing. Ship it. |
 
@@ -55,11 +58,27 @@ When the user describes their state instead of having artifacts, map it the same
 way: "I have an idea" is row one, "requirements are agreed" is row two, "phase one
 shipped" is row six.
 
+## Build mode: tdd or code-along
+
+Both build one story per context window from the same story files; they differ
+in whose hands write the code.
+
+- **`tdd`** writes the code. Pick it for work you are happy to delegate and
+  review.
+- **`code-along`** writes a lesson for the story, you write the code, and a
+  debrief records what you built and why before the next lesson is written.
+  Pick it for code you will have to maintain, debug, or explain, or when you
+  want to learn the stack.
+
+The two mix freely, story by story. If `docs/code-along/NOTES.md` exists, the
+user has used code-along in this repo; name it first unless they say otherwise.
+
 ## Light path
 
 Not every change earns the loop. Judge by architectural weight, not diff size. A
 single coherent vertical slice with no real design choice takes the light path:
-`grill-with-docs`, then `to-story`, then `tdd`. The slice is its own design.
+`grill-with-docs`, then `to-story`, then `tdd` or `code-along`. The slice is
+its own design.
 
 The tell for the heavy path: you cannot name the ports without thinking, the work
 has an obvious phase-one-versus-later split, or a wrong call now means a rewrite

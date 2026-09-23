@@ -34,7 +34,7 @@ step; the next skill reads the previous artifact from disk.
 | 3. Design | `/solution-design` pointed at the requirements | `design.md` (the HOW), `CLAUDE.md` contract, ADRs |
 | 4. Phase | `/vertical-slice-phasing` | `phases.md` (the ORDER), walking skeleton first |
 | 5. Stories | `/elaborate-current-phase` | stories for the current phase only, via `to-story` |
-| 6. Build | `/tdd` pointed at one story | the code; mark the story done |
+| 6. Build | `/tdd` or `/code-along` pointed at one story | the code, or a lesson you code and a debrief; mark the story done |
 | 7. Next phase | `/elaborate-current-phase` again | the next phase's stories, re-derived from the real code |
 
 Repeat step 6 until every story in the phase is done, then step 7, until the last
@@ -58,6 +58,30 @@ track, `/planning-loop` reads `docs/planning/` and names the next step.
 /elaborate-current-phase docs/planning/acme-auth/phases.md   # phase 2, and so on
 ```
 
+### Building it yourself: the code-along loop
+
+Steps 1 to 5 are the same. For step 6, `/code-along` replaces `/tdd` when you
+want to write the code yourself and understand every line of it. Each story
+becomes a lesson: why the slice exists, a diagram of where it sits in the code
+you already have, the ideas it needs that you don't know yet, then RED to GREEN
+steps you type or paste into your own editor. When you are done, `/code-along`
+again debriefs: what you built, what you changed and why, a short recall check,
+and whether to carry on, finish the rest in a part b, or pivot. Only then is the
+next lesson written, against the code you actually wrote.
+
+```
+/code-along docs/planning/acme-auth/stories/01-01-tenant-port.md   # writes lesson 01-01
+# build it in your editor, at your pace; change what you think should change
+/clear
+/code-along                  # debriefs 01-01; you commit; it writes lesson 01-02
+/clear
+/code-along                  # debriefs 01-02, ... until the phase is done
+/elaborate-current-phase docs/planning/acme-auth/phases.md   # reads your debriefs
+```
+
+`tdd` and `code-along` mix freely, story by story: delegate the wiring, build
+the core yourself.
+
 ### Where things go
 
 ```
@@ -67,7 +91,12 @@ docs/
     design.md            solution-design
     phases.md            vertical-slice-phasing  (Status per phase, traceability table)
     stories/NN-MM-*.md   to-story                (or tracker issues)
+    lessons/NN-MM-*.md   code-along              (one per story, debrief appended,
+                                                  plus a verified .ref.patch)
   adr/NNNN-*.md          grill-with-docs, solution-design
+  code-along/
+    NOTES.md             code-along              (your preferences and session log)
+    learning-records/    code-along              (what you have shown you know)
 CONTEXT.md               grill-with-docs (the domain glossary)
 CLAUDE.md                solution-design (the agent contract; merged if it exists)
 ```
@@ -88,7 +117,7 @@ rewrite later, take the full loop.
 
 | From this repo | From `mattpocock/skills` |
 |---|---|
-| `write-requirements`, `solution-design`, `vertical-slice-phasing`, `elaborate-current-phase`, `to-story`, `design-interview`, `planning-loop` | `grill-with-docs` (with `grilling` and `domain-modeling`), `tdd`, `setup-matt-pocock-skills`; optionally `code-review` and `implement` |
+| `write-requirements`, `solution-design`, `vertical-slice-phasing`, `elaborate-current-phase`, `to-story`, `design-interview`, `planning-loop`, `code-along` | `grill-with-docs` (with `grilling` and `domain-modeling`), `tdd`, `setup-matt-pocock-skills`; optionally `code-review` and `implement` |
 
 ## Engineering skills
 
@@ -192,6 +221,30 @@ claude -p --permission-mode bypassPermissions \
 
 See `skills/engineering/go-boilerplate/INSTALL.md` for details.
 
+### `code-along`
+
+The human-in-the-loop build step. Turns one story into a lesson you code
+yourself, then debriefs you before writing the next one, so the lessons follow
+the code you actually wrote. Each lesson leads with why the slice exists and a
+Mermaid map of where it sits, teaches only the ideas your learning records say
+are new, and then walks RED to GREEN steps with exact placement. Every block is
+tagged `type this` (the decision-rich core) or `paste freely` (imports,
+fixtures, wiring), and the lesson runs in one of three modes: `type`, `paste`,
+or `attempt-first` with the implementation folded away. Every block and every
+expected output is cut from a reference built and run in a throwaway git
+worktree, so nothing unverified reaches you, and the skill never edits your
+source tree. The debrief diffs your work against that reference, asks about
+each divergence one question at a time, runs a short recall check on your own
+code, and records the outcome: done, done with changes (an `As built` note and,
+with your approval, amendments to dependent stories), partial (a part b), or a
+pivot routed to the right planning skill. Learner state lives in
+`docs/code-along/` and carries across features.
+
+```
+/code-along docs/planning/acme-auth/stories/01-01-tenant-port.md   # start
+/code-along                                                        # continue
+```
+
 ### `let-me-code`
 
 Writes a TDD-structured tutorial (`TUTORIAL.md`) that guides you to type each line
@@ -293,7 +346,7 @@ Kept for reference under `skills/deprecated/`. They are not linked by
 skills/
   engineering/     planning-loop, write-requirements, design-interview, solution-design,
                    vertical-slice-phasing, elaborate-current-phase, to-story,
-                   go-boilerplate, let-me-code
+                   go-boilerplate, let-me-code, code-along
   gamedev/         narrative-grill, story-decompose, beat-grill, subquest-fill
   learning/        teach-me
   productivity/    (reserved, none yet)

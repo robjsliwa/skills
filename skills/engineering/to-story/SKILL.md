@@ -207,6 +207,8 @@ choice. No em dashes.
 ## Hand off
 
 Work the frontier, any story whose blockers are done, one story at a time with
-`tdd`, clearing context between stories. When a story lands, flip its `Status`
-to `done` (or close the issue). When every story in the phase is done, run
+`tdd` (the agent builds it) or `code-along` (the user builds it from a lesson,
+then debriefs), clearing context between stories. `code-along` moves a story
+through `in-lesson` and may append an `As built` section. When a story lands,
+flip its `Status` to `done` (or close the issue). When every story in the phase is done, run
 `elaborate-current-phase` to re-derive the next phase against the real code.

@@ -24,6 +24,9 @@ phase at a time, and it is the return arrow that makes the planning loop a loop.
 - `docs/planning/<slug>/design.md` and the requirements it links.
 - Existing stories for this feature: files under `docs/planning/<slug>/stories/`,
   or issues in the tracker named by `docs/agents/issue-tracker.md`.
+- Lessons and their debriefs under `docs/planning/<slug>/lessons/`, when the
+  phase was built with `code-along`. The debriefs and the stories' `As built`
+  sections record where the code diverged from the design and why.
 - The codebase, which is the ground truth for every built phase.
 
 ## 1. Establish where you are
@@ -38,10 +41,13 @@ done.
   the phase has a story. If both hold, mark the phase done; the next planned phase
   becomes current. If a line fails, a requirement has no story, or the statuses
   look stale against `git log`, report it and ask before assuming.
-- If it has stories and some are still open, report the frontier and stop. There is
-  nothing to elaborate yet.
+- If it has stories and some are still open (`ready-for-agent` or `in-lesson`),
+  report the frontier and stop. There is nothing to elaborate yet. An open
+  lesson (`status: open`) means the next step is a `code-along` debrief.
 - Built phases are evidence. Read their real ports, adapters, and schema, and note
-  what turned out harder or easier than the design assumed.
+  what turned out harder or easier than the design assumed. Where the phase was
+  built with `code-along`, read every debrief and `As built` section too: they
+  say why the code differs, which the code alone cannot.
 - Later phases stay at the resolution phasing left them: a named capability, a
   rationale for its position, the seams it plugs into. The urge to detail them is
   the failure mode.
@@ -86,7 +92,8 @@ hand-off, not left for the build to discover. Commit.
 
 ## Hand off
 
-Work the frontier with `tdd`, one story per context window, flipping each story to
-`done` as it lands. When every story in the phase is done, run this skill again.
+Work the frontier one story per context window, flipping each story to `done` as
+it lands: with `tdd` to have the agent build it, or with `code-along` to build it
+yourself as a lesson followed by a debrief. When every story in the phase is done, run this skill again.
 Report drift like findings from a build, not an apology: the plan changing as the
 code teaches you is the system working.
