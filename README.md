@@ -332,6 +332,35 @@ than pasting. Trigger with "teach me to build X" or "don't write the code for me
 
 ## Pairing skills
 
+### The loop at a glance
+
+```
+/pair-setup                once per repo: stack, style, git flow, PR policy
+   │                       (lands on main through its own PR, as slice 0000)
+   ▼
+/pair-slice <spec> <piece> ◄──────────────────────────────┐
+   │  carve the piece, cut feat/NNNN-slug                  │
+   ▼                                                       │
+┌─ pairing: the step loop ─────────────────────┐           │
+│                                              │           │
+│  propose ──► build ──► prove ──► journal     │──► /pair-checkpoint
+│     ▲     (driver, navigator,       │        │      save, then /clear
+│     │      ping-pong, dictation)    ▼        │           │
+│     └────────── next step ◄──── commit       │◄── /pair  │
+│                                              │    resume brief
+└──────────────────────┬───────────────────────┘           │
+                       │ plan done                         │
+                       ▼                                   │
+/pair-ship    PR with the rationale journal, review, merge │
+   │                                                       │
+   └──────────────────── next piece ───────────────────────┘
+```
+
+Two loops. The inner one is a step: a few minutes, one observable change,
+proven by a run, journaled, committed. The outer one is a slice: one piece of
+the spec, one branch, one PR. Checkpoint and `/pair` are how you leave the
+inner loop and come back to it in a clean context.
+
 ### `pair-setup`
 
 Run once per repo. Explores what exists (manifests, configs, CI, the remote,
