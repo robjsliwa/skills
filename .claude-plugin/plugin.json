@@ -20,7 +20,13 @@
         "./skills/gamedev/narrative-grill",
         "./skills/gamedev/story-decompose",
         "./skills/gamedev/beat-grill",
-        "./skills/gamedev/subquest-fill"
+        "./skills/gamedev/subquest-fill",
+        "./skills/pairing/pairing",
+        "./skills/pairing/pair",
+        "./skills/pairing/pair-setup",
+        "./skills/pairing/pair-slice",
+        "./skills/pairing/pair-checkpoint",
+        "./skills/pairing/pair-ship"
       ]
     }
   ]
