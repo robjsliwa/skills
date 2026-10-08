@@ -119,6 +119,85 @@ rewrite later, take the full loop.
 |---|---|
 | `write-requirements`, `solution-design`, `vertical-slice-phasing`, `elaborate-current-phase`, `to-story`, `design-interview`, `planning-loop`, `code-along` | `grill-with-docs` (with `grilling` and `domain-modeling`), `tdd`, `setup-matt-pocock-skills`; optionally `code-review` and `implement` |
 
+## The pairing loop
+
+The planning loop decides a whole feature before any code. The pairing loop
+decides one small piece at a time, with you at the keyboard as much as the
+agent. You read the spec, name the piece you want to work on, and the two of
+you build it in steps: agree a step, write it (you, the agent, or both in
+ping-pong), run it, debug, journal why, commit on green, next step. Every
+piece goes through a feature branch and a PR whose body is the journal of how
+and why it was built.
+
+The state lives in a memory bank under `docs/pairing/`, committed with the
+code, so you can `/clear` at any point and `/pair` picks up exactly where you
+left off.
+
+| When | Run | Does |
+|---|---|---|
+| Once per repo | `/pair-setup [spec]` | interviews you on stack, style, testing, git flow, PR policy, pairing preferences; writes the working agreement, ADRs, `CLAUDE.md` pointer |
+| New piece of work | `/pair-slice <spec> <the piece>` | carves the piece into a slice (goal, acceptance, short plan), cuts the branch, starts pairing |
+| Every session start | `/pair` | reads the memory bank, git, and the PR; briefs you in a few lines; carries on |
+| While building | (the `pairing` skill) | the step loop, in driver, navigator, ping-pong, or dictation mode |
+| Before `/clear` or stopping | `/pair-checkpoint` | journal caught up, `STATE.md` rewritten, committed and pushed (wip if red) |
+| Plan done | `/pair-ship` | acceptance, full check, PR with rationale journal, three-axis review, address, merge, wrap |
+
+### A session, end to end
+
+```
+/pair-setup docs/spec.md          # one decision at a time; setup lands via its own PR
+/pair-ship                        # merge the setup PR
+/clear
+/pair-slice docs/spec.md the walking skeleton
+                                  # -> slices/0001-walking-skeleton.md, feat/0001-...
+# pair: "you drive" / "I'll write this one" / "write exactly: ..." / "ping-pong"
+/pair-checkpoint                  # end of the day
+/clear
+/pair                             # next morning: brief, then step 5
+/pair-ship                        # PR with the journal, review, merge
+/clear
+/pair-slice docs/spec.md invoice totals
+```
+
+### Modes
+
+- **driver**: the agent types the agreed step, nothing more.
+- **navigator**: you type; the agent reads your change from disk, runs it,
+  spots bugs, suggests. It does not touch the files you are working in.
+- **ping-pong**: one writes the failing test, the other makes it pass; swap.
+- **dictation**: you say exactly what to write; the agent types it verbatim.
+
+Switch any step by saying so. The journal records who wrote what.
+
+### Where things go
+
+```
+docs/pairing/
+  WORKING-AGREEMENT.md   pair-setup        (outranks every pair-* skill)
+  STATE.md               every pair-* skill (you are here; overwritten)
+  ROADMAP.md             pair-slice, pair-ship (sources, pieces, spec drift)
+  sources/NNNN-*.md      pair-slice        (pasted specs, kept verbatim)
+  slices/NNNN-*.md       pair-slice, pairing (goal, acceptance, plan, journal)
+GLOSSARY.md              pairing via domain-modeling (CONTEXT.md if you have one)
+docs/adr/NNNN-*.md       pair-setup, pairing
+CLAUDE.md                pair-setup        (a short ## Pairing block)
+```
+
+### Pairing or planning?
+
+Take the planning loop when the architecture is the hard part and a wrong call
+is a rewrite. Take the pairing loop when the spec is clear enough to start and
+the learning happens in the code. They share the glossary, ADRs, and
+`CLAUDE.md`, so a feature can be designed with `solution-design` and then
+built slice by slice with `/pair-slice` pointed at `design.md`. `code-along`
+is closer to a lesson (it writes a verified tutorial you follow); pairing is a
+conversation, one step at a time, in whichever hands suit the step.
+
+The pairing skills call these from `mattpocock/skills` when installed, and
+fall back to their own instructions when not: `domain-modeling` (glossary,
+ADRs), `diagnosing-bugs` (hard bugs), `code-review` (standards and spec axes),
+and `design-interview` from this repo (setup and carving).
+
 ## Engineering skills
 
 ### `write-requirements`
@@ -251,6 +330,69 @@ Writes a TDD-structured tutorial (`TUTORIAL.md`) that guides you to type each li
 yourself, one RED-to-GREEN cycle per step, with code blocks sized for typing rather
 than pasting. Trigger with "teach me to build X" or "don't write the code for me".
 
+## Pairing skills
+
+### `pair-setup`
+
+Run once per repo. Explores what exists (manifests, configs, CI, the remote,
+`gh auth`, the repo's allowed merge strategies), then interviews you one
+decision at a time, recommending every answer: product shape, language,
+libraries and dependency policy, persistence, layout, testing, coding style,
+git flow, PR and review policy, pairing preferences. In a brownfield repo most
+questions become "the code does X; keep it?". Writes
+`docs/pairing/WORKING-AGREEMENT.md`, ADRs for the lock-in choices, the
+`ROADMAP.md` and `STATE.md` skeleton, and a `## Pairing` block in `CLAUDE.md`,
+all on a `chore/0000-pairing-setup` branch as slice 0000, which ships through
+`/pair-ship` like everything else. It scaffolds nothing; code arrives as slice 0001.
+
+### `pair-slice`
+
+Point it at a spec file or pasted text and name the piece. Pasted or
+out-of-repo sources are copied into `docs/pairing/sources/` so a later session
+can read them. Reads the code, glossary, and ADRs the piece touches, then asks
+two to five questions (the boundary, what is out, observable acceptance
+checks, the first step), cuts anything too big for one PR into roadmap rows,
+writes `slices/NNNN-<slug>.md`, cuts `feat/NNNN-<slug>`, commits the slice as
+the branch's first commit, and proposes step 1.
+
+### `pairing`
+
+The step loop and the memory bank formats. Propose one step with the run that
+proves it, build it in the chosen mode, prove it with real output, debug
+(handing hard bugs to `diagnosing-bugs`), journal what, why, how, evidence,
+and alternatives, commit on green with `STATE.md` updated. Settled terms go to
+the glossary as they happen; decisions that clear the ADR bar get an ADR on
+the branch; a disagreement with the spec or an ADR is raised and recorded as
+drift, never silently fixed. Other pair-* skills load it for the formats.
+
+### `pair`
+
+The session entry point. Reads the working agreement, `STATE.md`, the slice
+and its whole journal, git, and the PR; reconciles them (work you did without
+the agent becomes a `User-coded` journal entry, with your reason); briefs you
+in at most ten lines; then continues the loop or routes to setup, a new slice,
+or shipping.
+
+### `pair-checkpoint`
+
+Moves everything still in the chat into the repo: missing journal entries, a
+session-end note including what you were about to try, a rewritten
+`STATE.md`, a commit (a labelled `wip` if red), and a push. Also parks a slice
+so another can start.
+
+### `pair-ship`
+
+Resumable from any stage. Runs the acceptance checks and full check, updates
+from main, and writes the PR body from the journal: why, a summary visual,
+what changed with the why and how per concern, the condensed rationale journal
+including dead ends, decisions and drift, evidence, review dispositions, merge
+danger, and follow-ups. Opens the PR on your yes, runs a three-axis review
+(standards, spec, decisions against ADRs and the glossary) as parallel
+sub-agents, takes each finding to fix, defer, or dismiss, updates the PR body,
+lands a close-out commit so `main` receives the finished memory bank, and
+merges only on an explicit yes. Local mode (no remote) merges with
+`--no-ff` and keeps the PR body as a file.
+
 ## Gamedev skills
 
 Four skills that take a game-story idea and turn it into an authored, branching
@@ -348,6 +490,7 @@ skills/
                    vertical-slice-phasing, elaborate-current-phase, to-story,
                    go-boilerplate, let-me-code, code-along
   gamedev/         narrative-grill, story-decompose, beat-grill, subquest-fill
+  pairing/         pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
   learning/        teach-me
   productivity/    (reserved, none yet)
   deprecated/      init-go-project, phased-implementation-plan
