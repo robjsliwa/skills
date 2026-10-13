@@ -41,7 +41,7 @@ Reference lives beside this file. Read each when its step says to.
 
 ```
 docs/planning/<slug>/
-  stories/NN-MM-*.md            Status: ready-for-agent → in-lesson → done
+  stories/NN-MM-*.md            Status: ready → in-lesson → done
                                 + "As built" section when the user diverged
   lessons/NN-MM-<slug>.md       one lesson per story; debrief appended at the end
   lessons/NN-MM-<slug>.ref.patch  the verified reference solution, as a patch
@@ -53,7 +53,7 @@ docs/code-along/
 
 A lesson split into parts is `NN-MM-a-<slug>.md`, `NN-MM-b-<slug>.md`, each with
 its own `.ref.patch`. When stories live in a tracker (per
-`docs/agents/issue-tracker.md`), name lessons by the issue reference instead of
+`docs/agents/profile.md`), name lessons by the issue reference instead of
 `NN-MM`, and track state with the tracker's label or status (`in-lesson`, then
 closed) rather than a `Status` line.
 
@@ -99,7 +99,8 @@ new lesson while one is open; the debrief is what shapes the next lesson.
 ## Write a lesson
 
 1. **Orient.** Read `NOTES.md`, every learning record, `CLAUDE.md`,
-   `CONTEXT.md`, the story, the design sections it cites, the previous
+   `CONTEXT.md`, `GLOSSARY.md`, the story (its Scenario, Demo, Picture, and
+   every task), the design sections it cites, the previous
    lesson's debrief, and every `As built` note in this phase's stories. Then
    read the code the story touches. The story's sample code is a sketch
    written before earlier stories were built; where the code disagrees, the
@@ -111,11 +112,13 @@ new lesson while one is open; the debrief is what shapes the next lesson.
    commit. Record `git rev-parse HEAD` as the base. Done when the tree is clean
    and the base SHA is known.
 
-3. **Plan the steps.** Turn the story's TDD plan into lesson steps, one RED to
-   GREEN cycle each, in the order the story lists, simplest first. Re-derive
+3. **Plan the steps.** Turn the story's tasks into lesson steps: each task's
+   TDD plan becomes one RED to GREEN cycle per test, tasks in order T1..Tn,
+   simplest test first within each. A v1 story with no tasks has one TDD plan;
+   use it as one task. Re-derive
    any step the built code has made wrong. Pick the mode from `NOTES.md`
    unless the user named one. If the plan exceeds eight steps, split into
-   parts per LESSON-FORMAT.md and plan part a only. List the ideas the lesson
+   parts at a task boundary per LESSON-FORMAT.md and plan part a only. List the ideas the lesson
    needs and drop every one a learning record or `NOTES.md` says the user
    already has. Show the user the step titles and the new ideas in five to ten
    lines and ask if the order and depth suit them. Done when they agree.

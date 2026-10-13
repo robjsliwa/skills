@@ -14,7 +14,7 @@ under `docs/planning/<slug>/` (or in the configured tracker), so the user can cl
 context between steps and the next skill picks up from disk.
 
 ```
-grill-with-docs           align; CONTEXT.md and ADRs grow as you go
+interview (align)         align; GLOSSARY.md, CONTEXT.md, ADRs grow as you go
    │
 write-requirements        the WHAT  → requirements.md, or a tracker issue
    │  (clear context)
@@ -23,10 +23,12 @@ solution-design           the HOW   → design.md, plus docs/adr/
 vertical-slice-phasing    the ORDER → phases.md, walking skeleton first
    │  (clear context)
 elaborate-current-phase   this phase only, via to-story → stories/NN-MM-*.md
-   │  (clear context)         or tracker issues
+   │  (clear context)         or tracker issues; each story a change a person can
+   │                          see, owning its tasks
 tdd  or  code-along        one story per context window; flip Status to done
-   │                         tdd builds it for you; code-along builds it with you,
-   │                         as a lesson you code, then a debrief
+   │                         tdd builds it for you, task by task; code-along builds
+   │                         it with you, as a lesson you code, then a debrief
+review-change              three-axis review against the story
    │
    └── every story in the phase done ──► elaborate-current-phase again,
                                           re-derived against the real code.
@@ -39,13 +41,13 @@ is.
 
 ## Find where the work is
 
-Look at `docs/planning/*/` and, if `docs/agents/issue-tracker.md` names a real
-tracker, at the tracker. Match the first row that describes what exists, and name its
+Look at `docs/planning/*/` and, if `docs/agents/profile.md` names a real
+tracker, at the tracker. If there is no profile, recommend `/repo-setup` first. Match the first row that describes what exists, and name its
 next step:
 
 | What exists | Next step |
 |---|---|
-| Nothing, or only an idea | `grill-with-docs`, then `write-requirements` |
+| Nothing, or only an idea | `interview` (align), then `write-requirements` |
 | `requirements.md` (or the PRD issue), no `design.md` | `solution-design` |
 | `design.md`, no `phases.md` | `vertical-slice-phasing` |
 | `phases.md`, current phase has no stories | `elaborate-current-phase` |
@@ -76,9 +78,10 @@ user has used code-along in this repo; name it first unless they say otherwise.
 ## Light path
 
 Not every change earns the loop. Judge by architectural weight, not diff size. A
-single coherent vertical slice with no real design choice takes the light path:
-`grill-with-docs`, then `to-story`, then `tdd` or `code-along`. The slice is
-its own design.
+single coherent vertical slice with no real design choice takes the light loop:
+`/light`, which runs a short align interview, writes one story that carries its
+own design in its tasks, then hands to `tdd` or `code-along`. When unsure which
+mode fits, `/start` decides.
 
 The tell for the heavy path: you cannot name the ports without thinking, the work
 has an obvious phase-one-versus-later split, or a wrong call now means a rewrite

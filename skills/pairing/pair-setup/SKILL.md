@@ -1,10 +1,12 @@
 ---
 name: pair-setup
 description: >-
-  First-time setup for pair programming in a repo: interview the user one
-  decision at a time on tech stack, layout, coding style, testing, git flow,
-  PR policy, and pairing preferences, then write the working agreement, the
-  memory bank skeleton, the CLAUDE.md pointer, and ADRs for lock-in choices.
+  First-time setup for pair programming in a repo. Extends repo-setup: makes
+  sure docs/agents/profile.md exists, then interviews the user one decision
+  at a time on what the profile does not settle (stack, layout, coding style,
+  testing, git flow, PR policy, pairing preferences), and writes the working
+  agreement, the memory bank skeleton, the CLAUDE.md pointer, ADRs for
+  lock-in choices, and CONTEXT.md if it is missing.
   Use once per repo before the first slice, when the user says "set up
   pairing," "decide the stack," "how should we work," or when pair finds no
   working agreement.
@@ -19,43 +21,59 @@ stack is, how to run the tests, how code should look, how a change reaches
 `docs/pairing/WORKING-AGREEMENT.md`, which every later pair-* skill reads
 first and obeys.
 
+It is an extension of `repo-setup`, not a replacement. `repo-setup` owns
+`docs/agents/profile.md` (tracker, docs paths, commands, diagram settings);
+this skill reuses what the profile says and adds the decisions only pairing
+needs.
+
 Call the Skill tool with `pairing` and read its MEMORY-BANK.md for the files
 this skill creates. The agreement's template is
 [assets/working-agreement-template.md](assets/working-agreement-template.md).
 
-## 1. Explore before asking
+## 1. Profile first, then explore
 
-Read whatever exists; every answer found here is a question not asked.
+If `docs/agents/profile.md` does not exist, call the Skill tool with
+`repo-setup` and let it finish before going on. If it exists, read it. Either
+way, what it settles (tracker, docs locations, fast tests, full check, how to
+run the app, diagram settings) is settled: reuse it, never re-ask it, and copy
+the commands into the agreement rather than inventing new ones.
+
+Then read whatever else exists; every answer found here is a question not
+asked.
 
 - The spec or idea the user pointed at, in full. It is the root of the stack
   decisions.
 - The repo: languages and manifests (`go.mod`, `package.json`,
   `pyproject.toml`, `Cargo.toml`), build files (`Makefile`, `justfile`), lint
   and format configs, test layout, CI under `.github/workflows/` or
-  `.gitlab-ci.yml`, `CLAUDE.md` or `AGENTS.md`, `GLOSSARY.md` or
-  `CONTEXT.md`, `docs/adr/`, and `docs/agents/` from
-  `setup-matt-pocock-skills`.
+  `.gitlab-ci.yml`, `CLAUDE.md` or `AGENTS.md`, `GLOSSARY.md`, `CONTEXT.md`,
+  and `docs/adr/`.
 - Git and hosting: `git rev-parse --is-inside-work-tree`, `git log -1`,
   `git remote -v`, the default branch, `gh auth status` (or `glab auth
   status`), and on GitHub
   `gh repo view --json defaultBranchRef,squashMergeAllowed,mergeCommitAllowed,rebaseMergeAllowed,deleteBranchOnMerge`.
 
 Classify the repo: **greenfield** (no code yet), **brownfield** (code with
-conventions to infer), or **partial**. Done when you can list what the repo
-already settles and what is still open.
+conventions to infer), or **partial**. Done when the profile exists and you
+can list what the profile and the repo already settle and what is still
+open.
 
 ## 2. Interview
 
-Run the `design-interview` contract (call that skill if installed): one
-decision per turn, a recommendation with its trade-off every time, the soft
-spot named, dependency order. In a brownfield repo, most turns become
-confirmations: "the code uses X; keep it?" Skip any branch the repo or the
-spec already settles, and say you skipped it.
+Call the Skill tool with `interview`, subject **decide**: one decision per
+turn, a recommendation with its trade-off every time, the soft spot named,
+dependency order. In a brownfield repo, most turns become confirmations: "the
+code uses X; keep it?" Skip any branch the profile, the repo, or the spec
+already settles, and say you skipped it. For product shape and layout, a
+**show, then ask** turn often settles more than a question: draw the
+deployables or the layers as one Mermaid diagram via `visualize` and ask what
+is wrong with it.
 
 Lay out the tree first, then walk it in this order:
 
 1. **Product shape**: what runs where (CLI, service, library, web app), from
-   the spec. Everything below inherits from it.
+   the spec. Everything below inherits from it. This also gives the actors
+   and outside systems for `CONTEXT.md`.
 2. **Language and runtime**, with versions.
 3. **Framework and key libraries**, and the dependency policy (stdlib first,
    or a short closed list).
@@ -63,7 +81,8 @@ Lay out the tree first, then walk it in this order:
 5. **Layout**: the top-level directories and the one rule that keeps them
    apart.
 6. **Testing**: framework, where tests live, the seams worth testing, the TDD
-   stance, the fast command and the full command.
+   stance. The fast and full commands come from the profile; ask only if it
+   left them blank.
 7. **Coding style**: formatter and linter, plus the few rules no tool
    enforces (error handling, naming, comments, file size).
 8. **Git flow**: default branch, branch naming, commit convention, who
@@ -87,6 +106,7 @@ Show the user, before writing anything:
 
 - the filled working agreement,
 - the `## Pairing` block for `CLAUDE.md` (below),
+- the `CONTEXT.md` draft, if the repo has none (step 4),
 - the list of ADRs you propose: one per choice that clears the bar (hard to
   reverse, surprising without context, a real trade-off). Usually the
   language, the persistence, and any deliberate deviation. Not the formatter.
@@ -102,8 +122,8 @@ Everything reaches `main` through a PR, including this.
    is no repo, ask before `git init`.
 2. Create the branch `chore/0000-pairing-setup` (or the agreement's naming).
 3. Write `docs/pairing/WORKING-AGREEMENT.md`, the ADRs in
-   `docs/adr/NNNN-<slug>.md` (domain-modeling format, numbered after any that
-   exist), and `docs/pairing/ROADMAP.md` with the spec as source S1 (copy it
+   `docs/adr/NNNN-<slug>.md` (the `glossary` skill's format,
+   the `glossary` skill's `ADR-FORMAT.md`, numbered after any that exist), and `docs/pairing/ROADMAP.md` with the spec as source S1 (copy it
    to `docs/pairing/sources/` if it lives outside the repo or was pasted).
    Setup is itself slice 0000, so `pair-ship` can carry it like any other:
    write `docs/pairing/slices/0000-pairing-setup.md` per MEMORY-BANK.md with
@@ -113,11 +133,19 @@ Everything reaches `main` through a PR, including this.
    journal entry listing every settled decision with its one-line reason and
    every deferred one. Write `docs/pairing/STATE.md` with slice 0000 active,
    `Phase: building`, and `Next step: /pair-ship the setup`.
-4. Seed `GLOSSARY.md` only with terms the interview actually settled.
+4. Call the Skill tool with `glossary`. Seed `GLOSSARY.md`, the language,
+   only with terms the interview actually settled. If `CONTEXT.md` is
+   missing, seed it as system context (C4 level 1) in the glossary skill's
+   CONTEXT format: why the system exists, its actors, what sits outside the
+   boundary, and one Mermaid context diagram drawn via `visualize` and
+   validated. If `CONTEXT.md` exists but holds glossary terms (a v1 repo),
+   leave it and say `repo-setup` offers that migration.
 5. Add or update the `## Pairing` block in whichever of `CLAUDE.md` or
    `AGENTS.md` exists (ask which to create if neither). Update an existing
    block in place; leave every other section alone.
-6. Commit with the agreement's convention, e.g.
+6. Commit, including `docs/agents/profile.md` if `repo-setup` wrote it in
+   this session and it is not yet committed, with the agreement's
+   convention, e.g.
    `chore(pairing): working agreement and memory bank`.
 
 The `CLAUDE.md` block:
@@ -130,9 +158,11 @@ This repo is built by pair programming with an agent. Before any change, read
 `docs/pairing/STATE.md`. Run `/pair` to resume.
 
 - Stack: <one line>. Fast tests: `<cmd>`. Full check: `<cmd>`.
+- Profile: `docs/agents/profile.md`.
 - Every change: slice branch, small green commits with a journal, PR whose
   body carries the rationale journal, review, merge. Never commit to `main`.
-- Domain language: `GLOSSARY.md`. Decisions: `docs/adr/`.
+- Language: `GLOSSARY.md`. System context: `CONTEXT.md`. Decisions:
+  `docs/adr/`.
 ```
 
 Done when the branch has one commit containing all of the above and the tree
@@ -149,8 +179,8 @@ walking skeleton (the stack scaffolded, one end-to-end path, CI green), via
 ## Rules
 
 - **One decision per turn**, always with a recommendation.
-- **Infer, then confirm** in a brownfield repo. Do not ask what the code
-  already answers.
+- **Infer, then confirm** in a brownfield repo. Do not ask what the code or
+  the profile already answers.
 - **The agreement is a contract, not an essay.** Rules and commands only; the
   reasons go in ADRs.
 - **No scaffolding here.** Code arrives through slices, starting with 0001.

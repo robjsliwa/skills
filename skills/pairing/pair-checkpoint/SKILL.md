@@ -15,8 +15,8 @@ argument-hint: "Optional: 'parked' to park the active slice, or a note on what's
 A session ends; the work does not. This skill moves everything that lives
 only in the chat (the half-finished step, the open question, what the user
 was about to try) into the memory bank and git, so `/clear` then `/pair`
-resumes exactly here. It is the repo-resident cousin of `handoff`: the next
-session reads the memory bank, not a temp file.
+resumes exactly here. The next session reads the memory bank, not a temp
+file.
 
 Call the Skill tool with `pairing` and read its MEMORY-BANK.md for the
 formats.

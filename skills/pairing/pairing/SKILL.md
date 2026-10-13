@@ -34,7 +34,7 @@ exist, stop and hand off to `pair-setup`.
 ## Orient (once per session)
 
 Read `WORKING-AGREEMENT.md`, `STATE.md`, the active slice file in full,
-`GLOSSARY.md` (or `CONTEXT.md` if that is what the repo uses), every ADR the
+`GLOSSARY.md` (the language), `CONTEXT.md` (the system context), every ADR the
 slice lists, then run `git status` and `git log <base>..HEAD --oneline`
 (`<base>` as MEMORY-BANK.md defines it). If you
 arrived through `pair`, this is already done. Done when you can state the slice
@@ -71,10 +71,11 @@ follow the switch without comment and record the mode in the journal entry.
 
 4. **Debug** when the run surprises you. Read the error, state one
    hypothesis, test it. After two wrong hypotheses, or when there is no fast
-   red signal, say so and call the Skill tool with `diagnosing-bugs` if it is
-   installed, starting from its feedback loop. Tag any debug logging with a
-   `[DEBUG-xxxx]` prefix and grep it out before committing. Journal the dead
-   ends; the wrong hypotheses are the most valuable part for the PR reader.
+   red signal, say so and call the Skill tool with `diagnose`, starting from
+   its feedback loop; its phases become this step, and its record is a
+   `Debug:` journal entry. Tag any debug logging with a `[DEBUG-xxxx]` prefix
+   and grep it out before committing. Journal the dead ends; the wrong
+   hypotheses are the most valuable part for the PR reader.
 
 5. **Journal.** Append an entry to the slice's `Journal` per MEMORY-BANK.md:
    what, why, how, evidence, what was considered. Write it now; the why is
@@ -98,12 +99,14 @@ re-plan the rest as new plan lines, tell the user.
 
 ## Decisions as they happen
 
-- **A term gets settled.** Update the glossary in place, in the
-  `domain-modeling` format (call that skill if it is installed). Challenge a
-  term that conflicts with the glossary the moment it is used.
+- **A term gets settled.** Call the Skill tool with `glossary` and update
+  `GLOSSARY.md` in place, in its format. Challenge a term that conflicts with
+  the glossary the moment it is used. If the step adds an actor or an outside
+  system, update `CONTEXT.md` the same way.
 - **A decision clears the ADR bar**: hard to reverse, surprising without
   context, and the result of a real trade-off. Offer an ADR in one line. On
-  yes, write it on this branch so it ships with the PR, add its number to the
+  yes, write it in the `glossary` skill's ADR format
+  (the `glossary` skill's `ADR-FORMAT.md`) on this branch so it ships with the PR, add its number to the
   slice's `adrs`, and link it from the journal entry.
 - **Code and an ADR or the spec disagree.** Stop and raise it. Three ways out:
   change the code, supersede the ADR with a new one, or record spec drift in

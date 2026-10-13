@@ -106,6 +106,6 @@ Most repos already have a `CLAUDE.md` (or `AGENTS.md`). Edit the one that exists
 never create the other alongside it. Map each template section onto the existing
 file: a `## Stack` heading already there gets updated in place, not duplicated;
 a missing section is added; everything else in the file is left untouched,
-including any `## Agent skills` block written by `setup-matt-pocock-skills`. For a
+including any `## Agent skills` block written by `repo-setup`. For a
 feature added to an existing system, the typical merge is a few new public-surface
 lines, a new persistence or auth rule, and nothing else.

@@ -2,9 +2,10 @@
 
 Built from the slice's journal, its ADRs, and the diff. Brief prose, no
 preamble, the glossary's domain language throughout. Remove a section that
-has nothing to say rather than writing "n/a". The `Summary` visual follows
-Matt Pocock's `pr` skill: pick the smallest picture that makes the point
-(pseudocode, call tree, file tree, Mermaid, or a diff-sketch).
+has nothing to say rather than writing "n/a". The `Summary` visual is one
+Mermaid before/after diagram of what the change did, drawn per the
+`visualize` skill's notation (glossary terms as labels, about 12 nodes, a
+caption sentence) and validated before it goes in the body.
 
 Title: `<type>(<scope>): <what this slice makes true>` per the agreement's
 commit convention, e.g. `feat(invoice): totals in cents with half-even rounding`.
@@ -19,7 +20,8 @@ Slice: `docs/pairing/slices/0003-invoice-totals.md` · Source: S1 §3.2
 
 ## Summary
 
-<the smallest visual that shows the shape of the change>
+<one Mermaid before/after diagram, e.g. two subgraphs "Before" and "After",
+then one caption sentence saying what changed>
 
 ## What changed
 

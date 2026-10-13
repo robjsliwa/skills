@@ -3,8 +3,9 @@ name: pair-slice
 description: >-
   Start a new piece of paired work from a spec: take a file or pasted text
   describing the main idea plus "I want to work on this piece," carve that
-  piece into a slice small enough for one PR (goal, scope, acceptance checks,
-  a short plan), cut its feature branch, record it in the memory bank, and
+  piece into a slice small enough for one PR (a human header with scenario,
+  demo, and picture, then goal, scope, acceptance checks, a short plan),
+  check the header with the story critic, cut its feature branch, record it in the memory bank, and
   hand off to the step loop. Use when the user points at a spec, idea, or
   requirements and names what to build next, says "let's work on X," "next
   piece," or "start a slice."
@@ -15,13 +16,16 @@ argument-hint: "A spec file path or pasted text, plus the piece to work on (e.g.
 
 A slice is the unit of pairing: one piece of the spec, one branch, one PR, one
 to a few sessions. This skill turns "here's the idea, I want to work on this
-part" into a slice file with a goal, observable acceptance checks, and a short
-plan whose first step is tiny, then cuts the branch and starts pairing. It
+part" into a slice file with a human header a reader can see (who it is for,
+what they will do and see, one picture), a goal, observable acceptance checks,
+and a short plan whose first step is tiny, then cuts the branch and starts
+pairing. It
 asks only what it takes to get to step 1; everything else is learned by
 building.
 
 Call the Skill tool with `pairing` and read its MEMORY-BANK.md for the slice,
-STATE, and ROADMAP formats.
+STATE, and ROADMAP formats. The slice header follows the `story` skill's
+format, the `story` skill's `FORMAT.md`.
 
 ## 1. Preflight
 
@@ -39,8 +43,8 @@ STATE, and ROADMAP formats.
 
 Done when you are on an up-to-date default branch with a clean tree.
 
-Steps 2 to 4 read and talk; they write nothing. Every file is written in step
-5, after the branch exists, so nothing is ever left uncommitted on the default
+Steps 2 to 5 read and talk; they write nothing. Every file is written in step
+6, after the branch exists, so nothing is ever left uncommitted on the default
 branch.
 
 ## 2. Take in the source
@@ -60,32 +64,58 @@ Done when you have read the whole source and know how it will be recorded.
 
 ## 3. Ground in the code and the decisions
 
-Read the glossary, the ADR titles (and the full text of any that touch this
-piece), the previous slice's `Drift` and `Parked` lists, and the code the
+Read `GLOSSARY.md`, `CONTEXT.md`, the ADR titles (and the full text of any
+that touch this piece), the previous slice's `Drift` and `Parked` lists, and the code the
 piece will touch. Note every term the piece uses that the glossary defines
 differently, and every ADR that constrains it. Done when you can name the
 files likely to change and the ADRs that apply.
 
 ## 4. Carve
 
-Run the `design-interview` contract (call that skill if installed): one
-question per turn, each with a recommendation and its trade-off. Usually two
-to five questions, in this order, skipping any the source already answers:
+Call the Skill tool with `interview`, subject **decide**: one question per
+turn, each with a recommendation and its trade-off. Usually two to five
+questions, in this order, skipping any the source already answers:
 
 1. **The piece**: quote the source lines it covers. Confirm the boundary.
-2. **In and out**: what this slice does not do, especially the tempting
+   When the piece is structural (new actors, a flow, states, a boundary),
+   make this a **show, then ask** turn: draw your understanding as one
+   Mermaid diagram via `visualize` and ask what is wrong with it. That
+   diagram, corrected, usually becomes the slice's `Picture`.
+2. **Who and what they see**: the person this serves and why it matters now
+   (the `Scenario`), and what they will do and see once it merges (the
+   `Demo`). Propose both from the source; the user corrects.
+3. **In and out**: what this slice does not do, especially the tempting
    neighbours. Out-of-slice work becomes `later` rows in `ROADMAP.md`.
-3. **Acceptance**: two to five observable checks, each with how it will be
+4. **Acceptance**: two to five observable checks, each with how it will be
    checked (a test name, a command, a manual action).
-4. **First step and mode**: the smallest thing that proves the direction,
+5. **First step and mode**: the smallest thing that proves the direction,
    often a single failing test or a walking-skeleton path.
 
 Size test: one PR a reviewer can read in one sitting, three to eight plan
-steps. Bigger means split; propose the cut, keep the first part, and put the
-rest in `ROADMAP.md`. Done when the acceptance checks are observable and the
-plan's step 1 can start right now.
+steps. Bigger means split; propose the cut (the story skill's `SPLITTING.md`
+has patterns), keep the first part, and put the rest in `ROADMAP.md`. Plan
+steps stay smaller than story tasks: each is a few minutes of work proven by
+one run. The slice has no `Tasks` section; the plan plays that role. Done when
+the acceptance checks are observable and the plan's step 1 can start right
+now.
 
-## 5. Write and branch
+## 5. Critic
+
+Draft the header (title, `Scenario`, `Demo`, `Picture`) and the `Acceptance`
+lines, and check them against the story critic,
+the `story` skill's `CRITIC.md`, before anything is written. Use the rules
+that apply to one story: title, demo, scenario, picture, acceptance. Skip the
+task-count and breakdown rules; a slice has plan steps, not tasks.
+
+Run the critic in a fresh sub-agent when one is available, passing it the
+draft, `GLOSSARY.md`, and CRITIC.md, and nothing from this conversation. With
+no sub-agent tool, re-read CRITIC.md and check the draft yourself, line by
+line, and say so. Revise and re-check until it passes. After three failed
+rounds, show the user the critic's objection and let them decide. Validate the
+`Picture` as `visualize` says. Done when the critic passes or the user has
+overruled it.
+
+## 6. Write and branch
 
 1. Number the slice: one more than the highest number found under
    `docs/pairing/slices/`, in `ROADMAP.md`, and in slice branch names from
@@ -96,10 +126,10 @@ plan's step 1 can start right now.
 3. Bring the previous slice up to date if `main` still shows it `merging`
    and its PR is merged: its slice file and roadmap row become `merged`.
 4. Write the source copy or entry from step 2, any `later` rows, and the
-   slice file per MEMORY-BANK.md with `status: building`, the
-   applicable ADRs in `adrs`, an empty `Journal` except a first `Decision:
-   Slice carved` entry that records the questions asked, the answers, and
-   what was cut.
+   slice file per MEMORY-BANK.md with `status: building`, the header the
+   critic passed, the applicable ADRs in `adrs`, an empty `Journal` except a
+   first `Decision: Slice carved` entry that records the questions asked, the
+   answers, what was cut, and any critic objection the user overruled.
 5. Update `ROADMAP.md` (the row's slice number and status) and `STATE.md`
    (active slice, branch, `Phase: building`, next step = plan step 1, the
    previous slice under `Recently shipped`).
@@ -109,9 +139,9 @@ plan's step 1 can start right now.
 
 Done when the branch exists with that one commit and the tree is clean.
 
-## 6. Hand off
+## 7. Hand off
 
-Show the slice in a few lines (goal, acceptance, plan), then call the Skill
+Show the slice in a few lines (demo, goal, acceptance, plan), then call the Skill
 tool with `pairing` and propose plan step 1 in its step-loop format.
 
 ## Rules
@@ -120,6 +150,8 @@ tool with `pairing` and propose plan step 1 in its step-loop format.
   done. Later questions are answered by building, in the journal.
 - **The user's words for the goal.** Quote them where possible.
 - **Acceptance must be observable**, each with its check.
+- **The header is for a person.** Scenario, demo, and picture use glossary
+  words and name no implementation artifact.
 - **One active slice.** Park or finish before starting another.
 - **The spec is respected or the drift is written down.** If the user wants
   something the source contradicts, record it in the slice's `Drift` and in

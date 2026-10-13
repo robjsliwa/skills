@@ -9,8 +9,8 @@ description: >-
   yet, or says "design this," "how should we build this," "work out the
   architecture," or "write the design doc." Produces a design, not a build
   order; phasing the design is the next step. For genuinely coupled, branching
-  architecture decisions, invoke design-interview from inside this skill rather
-  than guessing.
+  architecture decisions, run interview (subject: decide) from inside this
+  skill rather than guessing.
 ---
 
 # Solution Design
@@ -40,13 +40,15 @@ A design is a set of resolved decisions. Two ways to resolve them:
 
 - When the decisions are independent or obvious, make them, and record the reasoning.
 - When they are coupled and branching, where one choice reshapes the next (what is a
-  tenant, what is the trust boundary, what is the data model), invoke `design-interview`
-  and walk the tree one decision at a time. Do not guess your way through a coupled
+  tenant, what is the trust boundary, what is the data model), run `interview` with
+  the subject **decide** and walk the tree one decision at a time. When a decision
+  has two or three structural alternatives, show them as an options block of small
+  diagrams (`visualize`), so the user compares pictures rather than paragraphs. Do not guess your way through a coupled
   tree; that is exactly what the interview exists to prevent. Come back here to write
   up the result.
 
-Explore before asking or assuming. Existing ports, adapters, `CONTEXT.md`, and prior
-ADRs answer many questions outright and constrain the rest. Read the code. Use the
+Explore before asking or assuming. Existing ports, adapters, `CONTEXT.md`,
+`GLOSSARY.md`, and prior ADRs answer many questions outright and constrain the rest. Read the code. Use the
 glossary's vocabulary; flag any conflict with an ADR rather than overriding it.
 
 ## Write to the template
@@ -69,9 +71,28 @@ sections that carry this repo's standards, and where designs usually fail:
 - **Testing strategy.** Map each acceptance criterion to the layer that proves it, RED
   test first.
 
+## Draw the design
+
+Use C4 concepts drawn as flowcharts, and the behaviour diagrams that fit, per
+`visualize` (NOTATION.md for which diagram answers which question, C4-STYLE.md
+for the shared classes). Every diagram is validated with its
+`scripts/mermaid_check.py` and looked at before the design is published.
+
+- **Architecture overview:** a C4 level 2 container diagram, the system boundary
+  as a subgraph. Add a level 3 component diagram only for the container this
+  design changes, and only when the components are not obvious.
+- **Control flow:** a `sequenceDiagram` per non-obvious flow across components.
+- **Concurrency and state:** a `stateDiagram-v2` for anything with a lifecycle.
+- **Data:** an `erDiagram` for the persistent shape.
+- **Ports:** a small `classDiagram` only when the port set is large enough that a
+  picture beats the typed sketch.
+
+One idea per diagram, about a dozen nodes, glossary terms as labels, a caption
+sentence after each.
+
 Write with the stories in mind. Typed interface sketches, a schema, a sequence
 diagram, and pseudocode for the non-obvious algorithm are what `to-story` later
-carries into each story, so put them here once rather than describing them in prose.
+carries into each story's tasks, so put them here once rather than describing them in prose.
 
 ## Write the agent contract
 
@@ -84,8 +105,8 @@ keep story-specific detail. If a rule needs a paragraph of justification, it is
 design, not contract; link to the section instead.
 
 If `CLAUDE.md` (or `AGENTS.md`) already exists, merge into it section by section as
-the template describes. Do not overwrite user content or the block
-`setup-matt-pocock-skills` wrote. If neither exists, create `CLAUDE.md`.
+the template describes. Do not overwrite user content or the `## Agent skills`
+block `repo-setup` wrote. If neither exists, create `CLAUDE.md`.
 
 ## ADRs, not prose monuments
 
@@ -108,6 +129,8 @@ A twelve-line Go interface says more than a page of description.
 - [ ] Every new dependency is justified against the stdlib, or there are none.
 - [ ] Designed seams name what they enable and the phase that fills them.
 - [ ] Acceptance criteria are each mapped to a test layer.
+- [ ] The overview has a validated C4 level 2 diagram, and every non-obvious flow,
+      lifecycle, and persistent shape has its diagram.
 - [ ] Hard-to-reverse surprising decisions have ADRs; reversible ones do not.
 - [ ] `CLAUDE.md` carries every rule that applies to all stories (stack, layering,
       persistence, auth, public surface, definition of done) and nothing

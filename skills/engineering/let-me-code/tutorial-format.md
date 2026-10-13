@@ -131,7 +131,7 @@ PASSED
 ```markdown
 ## Step 2: Cart class
 
-We need to implement the Cart class with a list to store items and methods
+We need to write the Cart class with a list to store items and methods
 to add items and count them.
 
 Type this in cart.py:
@@ -146,7 +146,7 @@ The test should pass now.
 ```
 
 Red flags in the bad step:
-- Explanation says "implement... with a list" — describes implementation, not behavior
+- Explanation says "write the Cart class with a list": describes implementation, not behavior
 - "Add this to the existing Cart class" implies partial snippet without full context
 - No expected failure shown before implementation
 - No expected pass output

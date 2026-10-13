@@ -23,7 +23,7 @@ phase at a time, and it is the return arrow that makes the planning loop a loop.
   exist, stop and phase first.
 - `docs/planning/<slug>/design.md` and the requirements it links.
 - Existing stories for this feature: files under `docs/planning/<slug>/stories/`,
-  or issues in the tracker named by `docs/agents/issue-tracker.md`.
+  or issues in the tracker named by `docs/agents/profile.md`.
 - Lessons and their debriefs under `docs/planning/<slug>/lessons/`, when the
   phase was built with `code-along`. The debriefs and the stories' `As built`
   sections record where the code diverged from the design and why.
@@ -41,7 +41,8 @@ done.
   the phase has a story. If both hold, mark the phase done; the next planned phase
   becomes current. If a line fails, a requirement has no story, or the statuses
   look stale against `git log`, report it and ask before assuming.
-- If it has stories and some are still open (`ready-for-agent` or `in-lesson`),
+- If it has stories and some are still open (`ready`, `in-progress`, or
+  `in-lesson`; `ready-for-agent` in v1 stories),
   report the frontier and stop. There is nothing to elaborate yet. An open
   lesson (`status: open`) means the next step is a `code-along` debrief.
 - Built phases are evidence. Read their real ports, adapters, and schema, and note
@@ -67,9 +68,12 @@ Before exploding, check the phase against the built code:
 
 ## 3. Explode the current phase
 
-Invoke `to-story` with the current phase (its scope, acceptance checkpoint, and
-seams), the design doc, and the reconciliation notes. Constrain it to this phase
-only. It slices, carries the design into each story, quizzes the user, and publishes.
+Invoke `to-story` with the current phase (its scope, acceptance checkpoint,
+seams, and its section of the story map), the design doc, and the reconciliation
+notes. Constrain it to this phase only. It finds the changes a person would see,
+gives each story its tasks with the design carried in, runs the critic, quizzes
+the user, and publishes. If built phases changed what a person can do, redraw the
+story map in `phases.md` first.
 
 ## 4. Record
 
@@ -93,7 +97,8 @@ hand-off, not left for the build to discover. Commit.
 ## Hand off
 
 Work the frontier one story per context window, flipping each story to `done` as
-it lands: with `tdd` to have the agent build it, or with `code-along` to build it
-yourself as a lesson followed by a debrief. When every story in the phase is done, run this skill again.
+it lands: with `tdd` to have the agent build it task by task, or with
+`code-along` to build it yourself as a lesson followed by a debrief. Run
+`review-change` with the story as the spec before merging each one. When every story in the phase is done, run this skill again.
 Report drift like findings from a build, not an apology: the plan changing as the
 code teaches you is the system working.

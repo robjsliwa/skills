@@ -1,14 +1,24 @@
 {
   "metadata": {
-    "name": "somos-engineering-skills"
+    "name": "somos-engineering-skills",
+    "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "somos-engineering",
       "skills": [
+        "./skills/modes/start",
+        "./skills/modes/light",
+        "./skills/kernel/repo-setup",
+        "./skills/kernel/interview",
+        "./skills/kernel/glossary",
+        "./skills/kernel/visualize",
+        "./skills/kernel/story",
+        "./skills/kernel/tdd",
+        "./skills/kernel/diagnose",
+        "./skills/kernel/review-change",
         "./skills/engineering/planning-loop",
         "./skills/engineering/write-requirements",
-        "./skills/engineering/design-interview",
         "./skills/engineering/solution-design",
         "./skills/engineering/vertical-slice-phasing",
         "./skills/engineering/elaborate-current-phase",
@@ -27,7 +37,9 @@
         "./skills/pairing/pair-slice",
         "./skills/pairing/pair-checkpoint",
         "./skills/pairing/pair-ship"
-      ]
+      ],
+      "version": "2.0.0",
+      "description": "Four ways to build software with an agent (full loop, light loop, code-along, pairing) on a shared kernel, with stories people can see and Mermaid pictures in the docs."
     }
   ]
 }

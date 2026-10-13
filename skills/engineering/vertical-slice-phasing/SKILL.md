@@ -5,14 +5,14 @@ description: >-
   sequencing decision at a time, then write phases.md: thin vertical slices,
   walking skeleton first. Use when the user says "phase this," "what do I build
   first," "sequence the work," "build order," "milestones," or hands over a
-  draft phase list to pressure-test. Not for the architecture (design-interview)
-  or the stories (elaborate-current-phase, to-story).
+  draft phase list to pressure-test. Not for the architecture (solution-design
+  with interview) or the stories (elaborate-current-phase, to-story).
 ---
 
 # Vertical-Slice Phasing
 
-Turn a settled design into an implementation order by running `design-interview`
-on sequencing decisions only, judging every recommendation by the phasing
+Turn a settled design into an implementation order by running `interview` (subject:
+decide) on sequencing decisions only, judging every recommendation by the phasing
 heuristics below, and writing the result as a phased design document built from
 thin vertical slices.
 
@@ -44,17 +44,17 @@ draft phase list to pressure-test.
 
 Do not use it to decide the architecture. If the coupled decisions are about what a
 tenant is or where the trust boundary sits, that is `solution-design` with
-`design-interview`; do that first, then phase the result. Do not use it to write
+`interview`; do that first, then phase the result. Do not use it to write
 stories; that is `elaborate-current-phase`, one phase at a time through `to-story`.
 
 ## Run the interview
 
-Invoke `design-interview` and follow its contract unchanged: one decision per turn,
+Invoke `interview` with the subject **decide** and follow its contract unchanged: one decision per turn,
 a recommendation every turn, dependency order, explore before asking. What this
 skill supplies is the subject, the tree, the judgment, and the document.
 
 **Inputs.** `docs/planning/<slug>/design.md` and the requirements it links (a file
-or a tracker issue), plus any `CONTEXT.md` and ADRs in the area. Read all of it
+or a tracker issue), plus `CONTEXT.md`, `GLOSSARY.md`, and ADRs in the area. Read all of it
 before the first question. Treat the architecture as fixed; when a sequencing
 question tempts a redesign, note it under out of scope and stay on sequencing.
 While reading, extract four things, because they drive the plan:
@@ -94,7 +94,7 @@ risk appetite, what counts as the core thesis, where they want value to land
 first. A change to one boundary often moves another, so propagate before
 continuing.
 
-**The lists.** Carry design-interview's three lists under these names, because
+**The lists.** Carry the interview's three lists under these names, because
 they become the spine of the document: settled phases (each with what it delivers,
 one line), deferred and out of scope (including architecture you declined to
 reopen), and designed seams (each with the phase that introduces it and what it
@@ -113,7 +113,9 @@ order. Lean on them when forming each recommendation.
    slice that exercises the core thesis. Resist completing any single layer before
    something runs end to end.
 
-2. **Every phase ships usable, demoable functionality** and founds the next. If a
+2. **Every phase ships usable, demoable functionality** and founds the next.
+   Check it on the story map: a phase whose section has no step a person takes
+   is a layer, not a slice. If a
    phase produces only internal scaffolding nobody can exercise, it is a layer, not
    a slice. Fold it into a slice, or justify it explicitly as a hard dependency that
    unblocks the next usable thing.
@@ -167,8 +169,8 @@ order. Lean on them when forming each recommendation.
 
 ## Write the phased design document
 
-Capture the agreed plan as `docs/planning/<slug>/phases.md`, in place of
-design-interview's findings document, and present it. Use this structure unless
+Capture the agreed plan as `docs/planning/<slug>/phases.md`, in place of the
+interview's findings document, and present it. Use this structure unless
 the domain calls for adapting it:
 
 ```markdown
@@ -185,6 +187,13 @@ and the walking-skeleton philosophy that shapes the cuts.]
 ## Decisions at a glance
 [Numbered list, one line per phase plus the key cross-cutting calls. The executive
 summary a reader skims first.]
+
+## Story map
+[The requirements' user journey, re-cut by phase: a `journey` diagram whose
+sections are the phases, each step placed in the phase that makes it work for a
+person. Phase 1's section is the walking skeleton. Drawn and validated with
+`visualize`. One sentence after it saying what a person can do at the end of each
+phase. to-story reads the current phase's section to find its stories.]
 
 ## How to read this plan
 [The sequencing philosophy in prose: prove the thesis early, make the skeleton
