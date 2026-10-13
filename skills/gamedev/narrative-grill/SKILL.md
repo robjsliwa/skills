@@ -22,7 +22,7 @@ relentlessly, one decision at a time, walking a narrative tree in dependency
 order, recommending an answer at every step, and shaping the spine against a real
 plot framework.
 
-This is a narrative fork of the design-interview engine. Same discipline, a
+This is a narrative fork of the `interview` engine. Same discipline, a
 different tree, and a story bible instead of a findings doc. The bible is the
 **main context**: the single document the rest of the chain reads to stay on the
 rails. Keep it prose-first and human-readable. It carries one piece of shared
@@ -30,12 +30,12 @@ structured state, a plain **flag list** that names the world-state the branches
 will gate on, and nothing heavier than that.
 
 The failure mode this prevents is the improv dump: a story generated all at once
-that sprawls, contradicts itself, and has no structural spine. The grilling
+that sprawls, contradicts itself, and has no structural spine. The interview
 authors the spine and the constraints; later skills fill inside them.
 
 ## The contract (four rules, every turn)
 
-From design-interview. Breaking them is what makes a session fail.
+From `interview`. Breaking them is what makes a session fail.
 
 1. **One question at a time.** One coherent narrative decision per turn, then
    stop and wait. A downstream concern can ride along as "I'll formalize this

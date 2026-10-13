@@ -1,532 +1,470 @@
-# Skills
+<h1 align="center">Skills</h1>
 
-Skills for Claude Code and other AI coding agents. Each skill is a directory with a
-`SKILL.md` that the agent loads on demand, either when you type `/<skill>` or when
-the agent decides the skill applies.
+<p align="center">
+  <b>Agent skills for building software the way people actually build it.</b><br/>
+  Plan a feature, build it yourself, ship a small change, or pair with the agent,<br/>
+  with stories a person can see and pictures that live in the docs.
+</p>
 
-## Install
+<p align="center">
+  <img alt="version" src="https://img.shields.io/badge/version-2.0.0-1168bd">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-438dd5">
+  <img alt="works with" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20any%20SKILL.md%20agent-85bbf0">
+</p>
+
+<p align="center">
+  <a href="#-install">Install</a> ·
+  <a href="#-quick-start">Quick start</a> ·
+  <a href="#-the-four-modes">The four modes</a> ·
+  <a href="#-stories-people-can-see">Stories</a> ·
+  <a href="#-pictures-in-the-docs">Pictures</a> ·
+  <a href="#-skill-reference">Reference</a>
+</p>
+
+---
+
+## ✨ What this is
+
+A set of skills (folders with a `SKILL.md` that your coding agent loads on
+demand) organised as **one small kernel and four ways of working**:
+
+```mermaid
+flowchart TB
+  s(["/start"]) --> full & light & along & pair
+  subgraph full["🗺️ Full loop"]
+    direction TB
+    f1["interview: align"] --> f2["write-requirements"] --> f3["solution-design"] --> f4["vertical-slice-phasing"] --> f5["elaborate-current-phase<br/>to-story"] --> f6["tdd or code-along<br/>per story"] --> f5
+  end
+  subgraph light["⚡ Light loop"]
+    direction TB
+    l1["interview: align"] --> l2["one story"] --> l3["tdd or code-along"]
+  end
+  subgraph along["🧑‍💻 Code-along"]
+    direction TB
+    a1["lesson from a story"] --> a2["you code it"] --> a3["debrief"] --> a1
+  end
+  subgraph pair["🤝 Pairing"]
+    direction TB
+    p1["pair-setup"] --> p2["pair-slice"] --> p3["pairing steps"] --> p4["pair-ship"]
+  end
+```
+
+Every mode reads and writes the same files in your repo, so you can switch
+modes per story without losing anything.
+
+**What's new in 2.0:** no dependency on any other skill repo, stories written
+for people (with agent tasks inside them), and Mermaid diagrams everywhere,
+validated before you see them, with a local viewer. See the
+[changelog](CHANGELOG.md).
+
+---
+
+## 📦 Install
+
+**Prerequisites:** an agent that loads `SKILL.md` skills (Claude Code, Codex,
+Cursor, and others). Python 3 for the diagram tools. Node.js (for `npx`) if you
+want diagrams validated; everything else works without it.
+
+**Option A: the skills CLI** (copies the skills into your agent's skills folder)
 
 ```bash
 npx skills@latest add robjsliwa/skills
 ```
 
-Restart Claude Code after installing. The planning loop below also uses a few
-skills from Matt Pocock's set:
+**Option B: clone and link** (edit the skills in place, pull to update)
 
 ```bash
-npx skills@latest add mattpocock/skills
+git clone https://github.com/robjsliwa/skills.git
+bash skills/scripts/link-skills.sh      # symlinks every skill into ~/.claude/skills/
 ```
 
-Then, once per repo, run `/setup-matt-pocock-skills`. It writes
-`docs/agents/issue-tracker.md`, which tells the loop whether requirements and
-stories go to GitHub, GitLab, Jira, or local files.
+Restart your agent (or start a new session) so it picks the skills up.
 
-## The planning loop
+> **Upgrading from 1.x?** 2.0 no longer needs `mattpocock/skills`. If you
+> installed it only for these skills, remove it: its `tdd` has the same name
+> as ours and would shadow it. Then run `/repo-setup` once per repo; it moves
+> `docs/agents/issue-tracker.md` into the new profile and offers to split an
+> old glossary-style `CONTEXT.md` into `GLOSSARY.md` plus a real system-context
+> page.
 
-Takes one feature from idea to shipped code, one artifact per step. Every artifact
-is a file under `docs/planning/<feature-slug>/`, so you can clear context after any
-step; the next skill reads the previous artifact from disk.
+---
 
-| Step | Run | Produces |
+## 🚀 Quick start
+
+In the repo you are working on:
+
+```
+/repo-setup      # once per repo: tracker, test commands, docs layout, diagrams
+/start           # tells you which mode fits what you want to do, and the first command
+```
+
+That's it. `/start` reads what is already in the repo (a plan in progress, an
+open lesson, an active pairing slice) and points you at the next step. You can
+also skip it and call any mode directly.
+
+---
+
+## 🧭 The four modes
+
+| | Mode | Pick it when | Start with |
+|---|---|---|---|
+| 🗺️ | **Full loop** | The architecture is the hard part. A wrong call now means a rewrite later. | `/interview` then `/write-requirements` |
+| ⚡ | **Light loop** | One coherent change, no real design choice. You could open the editor now. | `/light <the change>` |
+| 🧑‍💻 | **Code-along** | A story exists and you want to write the code yourself and understand every line. | `/code-along <story>` |
+| 🤝 | **Pairing** | The spec is clear enough to start; you want to build one small piece at a time, together. | `/pair-setup`, then `/pair-slice` |
+
+Judge by weight, not size: a two-line change that decides the tenancy model is
+full loop; a big mechanical change is light.
+
+### 🗺️ Full loop
+
+One feature, from idea to shipped code, one artifact per step. Each artifact is
+a file under `docs/planning/<feature>/`, so you can `/clear` after any step and
+the next skill picks up from disk.
+
+| Step | Run | You get |
 |---|---|---|
-| 1. Align | `/grill-with-docs` | shared understanding; `CONTEXT.md` and ADRs as you go |
-| 2. Requirements | `/write-requirements` | `requirements.md` (the WHAT), or a tracker issue |
-| 3. Design | `/solution-design` pointed at the requirements | `design.md` (the HOW), `CLAUDE.md` contract, ADRs |
-| 4. Phase | `/vertical-slice-phasing` | `phases.md` (the ORDER), walking skeleton first |
-| 5. Stories | `/elaborate-current-phase` | stories for the current phase only, via `to-story` |
-| 6. Build | `/tdd` or `/code-along` pointed at one story | the code, or a lesson you code and a debrief; mark the story done |
-| 7. Next phase | `/elaborate-current-phase` again | the next phase's stories, re-derived from the real code |
+| 1. Align | `/interview` | shared understanding; `GLOSSARY.md`, `CONTEXT.md`, ADRs as you go |
+| 2. Requirements | `/write-requirements` | `requirements.md`: the what and why, with a context diagram and the user journey |
+| 3. Design | `/solution-design` | `design.md`: the how, with C4 container and behaviour diagrams; `CLAUDE.md`; ADRs |
+| 4. Phase | `/vertical-slice-phasing` | `phases.md`: build order, walking skeleton first, with a story map |
+| 5. Stories | `/elaborate-current-phase` | stories for this phase only, each one a change a person can see |
+| 6. Build | `/tdd` or `/code-along` | the code, one story per session; then `/review-change` |
+| 7. Next phase | `/elaborate-current-phase` | the next phase's stories, re-derived from the real code |
 
-Repeat step 6 until every story in the phase is done, then step 7, until the last
-phase ships. Clear context between any two steps and between stories. If you lose
-track, `/planning-loop` reads `docs/planning/` and names the next step.
-
-### A session, end to end
-
-```
-/grill-with-docs                       # one question at a time until aligned
-/write-requirements                    # -> docs/planning/acme-auth/requirements.md
+```text
+/interview align on invoice reminders
+/write-requirements                 → docs/planning/invoice-reminders/requirements.md
 /clear
-/solution-design docs/planning/acme-auth/requirements.md
-/clear                                 # -> design.md, CLAUDE.md, docs/adr/0007-*.md
-/vertical-slice-phasing docs/planning/acme-auth/design.md
-/clear                                 # -> phases.md
-/elaborate-current-phase docs/planning/acme-auth/phases.md
-/clear                                 # -> stories/01-01-*.md, 01-02-*.md, ...
-/tdd docs/planning/acme-auth/stories/01-01-tenant-port.md
-/clear                                 # repeat per story; flip its Status to done
-/elaborate-current-phase docs/planning/acme-auth/phases.md   # phase 2, and so on
+/solution-design docs/planning/invoice-reminders/requirements.md
+/clear                              → design.md, CLAUDE.md, docs/adr/0004-*.md
+/vertical-slice-phasing docs/planning/invoice-reminders/design.md
+/clear                              → phases.md
+/elaborate-current-phase docs/planning/invoice-reminders/phases.md
+/clear                              → stories/01-01-owner-sees-overdue-invoices.md, ...
+/tdd docs/planning/invoice-reminders/stories/01-01-owner-sees-overdue-invoices.md
+/clear                              # one story per session; repeat until the phase is done
+/elaborate-current-phase ...        # then the next phase, against the code you now have
 ```
 
-### Building it yourself: the code-along loop
+Lost? `/planning-loop` reads `docs/planning/` and names the next step.
 
-Steps 1 to 5 are the same. For step 6, `/code-along` replaces `/tdd` when you
-want to write the code yourself and understand every line of it. Each story
-becomes a lesson: why the slice exists, a diagram of where it sits in the code
-you already have, the ideas it needs that you don't know yet, then RED to GREEN
-steps you type or paste into your own editor. When you are done, `/code-along`
-again debriefs: what you built, what you changed and why, a short recall check,
-and whether to carry on, finish the rest in a part b, or pivot. Only then is the
-next lesson written, against the code you actually wrote.
+### ⚡ Light loop
 
+A short align interview, one story (its tasks carry the small design), then
+build. No requirements, design, or phases documents. If the change turns out
+heavier than it looked, it tells you and hands over to the full loop.
+
+```text
+/light let owners resend an invoice email
+# a few questions, a picture to correct, then one story to approve
+/tdd docs/planning/resend-invoice/stories/01-01-owner-resends-an-invoice.md
 ```
-/code-along docs/planning/acme-auth/stories/01-01-tenant-port.md   # writes lesson 01-01
+
+### 🧑‍💻 Code-along
+
+For any story from either loop, when you want to write it yourself. Each story
+becomes a **lesson**: who it is for and the demo you will perform, a picture of
+where it sits in the code you already have, only the ideas that are new to you,
+then RED to GREEN steps you type into your own editor. Every code block in a
+lesson comes from a reference solution that was actually built and run. When
+you finish, a **debrief** looks at what you built, asks about anything you did
+differently, and records what you now know. Only then is the next lesson written,
+against the code you actually wrote.
+
+```text
+/code-along docs/planning/invoice-reminders/stories/01-01-owner-sees-overdue-invoices.md
 # build it in your editor, at your pace; change what you think should change
 /clear
-/code-along                  # debriefs 01-01; you commit; it writes lesson 01-02
-/clear
-/code-along                  # debriefs 01-02, ... until the phase is done
-/elaborate-current-phase docs/planning/acme-auth/phases.md   # reads your debriefs
+/code-along           # debriefs 01-01; you commit; it writes the next lesson
 ```
 
-`tdd` and `code-along` mix freely, story by story: delegate the wiring, build
-the core yourself.
+`tdd` and `code-along` mix freely, story by story: delegate the wiring, build the
+core yourself.
 
-### Where things go
+### 🤝 Pairing
 
-```
-docs/
-  planning/<feature-slug>/
-    requirements.md      write-requirements      (or a tracker issue / epic)
-    design.md            solution-design
-    phases.md            vertical-slice-phasing  (Status per phase, traceability table)
-    stories/NN-MM-*.md   to-story                (or tracker issues)
-    lessons/NN-MM-*.md   code-along              (one per story, debrief appended,
-                                                  plus a verified .ref.patch)
-  adr/NNNN-*.md          grill-with-docs, solution-design
-  code-along/
-    NOTES.md             code-along              (your preferences and session log)
-    learning-records/    code-along              (what you have shown you know)
-CONTEXT.md               grill-with-docs (the domain glossary)
-CLAUDE.md                solution-design (the agent contract; merged if it exists)
-```
-
-If `docs/agents/issue-tracker.md` names a real tracker (GitHub, GitLab, Jira,
-Linear), the requirements and the stories are filed there instead of as files.
-The design and the phases are always files in the repo. With the local-markdown
-tracker, or no setup at all, everything is a file.
-
-### Light path
-
-A single vertical slice with no real design choice does not need the loop:
-`/grill-with-docs`, `/to-story`, `/tdd`. Judge by architectural weight, not diff
-size. If you cannot name the ports without thinking, or a wrong call now means a
-rewrite later, take the full loop.
-
-### Which skill comes from where
-
-| From this repo | From `mattpocock/skills` |
-|---|---|
-| `write-requirements`, `solution-design`, `vertical-slice-phasing`, `elaborate-current-phase`, `to-story`, `design-interview`, `planning-loop`, `code-along` | `grill-with-docs` (with `grilling` and `domain-modeling`), `tdd`, `setup-matt-pocock-skills`; optionally `code-review` and `implement` |
-
-## The pairing loop
-
-The planning loop decides a whole feature before any code. The pairing loop
-decides one small piece at a time, with you at the keyboard as much as the
-agent. You read the spec, name the piece you want to work on, and the two of
-you build it in steps: agree a step, write it (you, the agent, or both in
-ping-pong), run it, debug, journal why, commit on green, next step. Every
-piece goes through a feature branch and a PR whose body is the journal of how
-and why it was built.
-
-The state lives in a memory bank under `docs/pairing/`, committed with the
-code, so you can `/clear` at any point and `/pair` picks up exactly where you
-left off.
+The planning loop decides a whole feature up front. Pairing decides one small
+piece at a time, with you at the keyboard as much as the agent. Every piece goes
+through a branch and a PR whose body is the journal of how and why it was built.
+State lives in `docs/pairing/`, so `/clear` costs nothing.
 
 | When | Run | Does |
 |---|---|---|
-| Once per repo | `/pair-setup [spec]` | interviews you on stack, style, testing, git flow, PR policy, pairing preferences; writes the working agreement, ADRs, `CLAUDE.md` pointer |
-| New piece of work | `/pair-slice <spec> <the piece>` | carves the piece into a slice (goal, acceptance, short plan), cuts the branch, starts pairing |
-| Every session start | `/pair` | reads the memory bank, git, and the PR; briefs you in a few lines; carries on |
-| While building | (the `pairing` skill) | the step loop, in driver, navigator, ping-pong, or dictation mode |
-| Before `/clear` or stopping | `/pair-checkpoint` | journal caught up, `STATE.md` rewritten, committed and pushed (wip if red) |
-| Plan done | `/pair-ship` | acceptance, full check, PR with rationale journal, three-axis review, address, merge, wrap |
+| Once per repo | `/pair-setup` | extends `/repo-setup` with stack, style, git flow, PR policy, pairing habits |
+| New piece | `/pair-slice <spec> <piece>` | carves a slice with a scenario, demo, and picture; cuts the branch |
+| Every session | `/pair` | reads the memory bank, briefs you, carries on |
+| While building | (the `pairing` skill) | one step at a time: driver, navigator, ping-pong, or dictation |
+| Before stopping | `/pair-checkpoint` | journal caught up, state saved, committed and pushed |
+| Piece done | `/pair-ship` | PR with the journal, three-axis review, merge on your yes |
 
-### A session, end to end
-
-```
-/pair-setup docs/spec.md          # one decision at a time; setup lands via its own PR
-/pair-ship                        # merge the setup PR
-/clear
+```text
+/pair-setup docs/spec.md
 /pair-slice docs/spec.md the walking skeleton
-                                  # -> slices/0001-walking-skeleton.md, feat/0001-...
-# pair: "you drive" / "I'll write this one" / "write exactly: ..." / "ping-pong"
-/pair-checkpoint                  # end of the day
+# "you drive" / "I'll write this one" / "write exactly: ..." / "ping-pong"
+/pair-checkpoint
 /clear
-/pair                             # next morning: brief, then step 5
-/pair-ship                        # PR with the journal, review, merge
-/clear
-/pair-slice docs/spec.md invoice totals
+/pair                  # next morning: a short brief, then the next step
+/pair-ship
 ```
 
-### Modes
+---
 
-- **driver**: the agent types the agreed step, nothing more.
-- **navigator**: you type; the agent reads your change from disk, runs it,
-  spots bugs, suggests. It does not touch the files you are working in.
-- **ping-pong**: one writes the failing test, the other makes it pass; swap.
-- **dictation**: you say exactly what to write; the agent types it verbatim.
+## 👀 Stories people can see
 
-Switch any step by saying so. The journal records who wrote what.
+AI-written stories tend to read like work orders: "Create the database,"
+"Tenant port," "Wire the adapter." Each is real work, and none is something a
+person can see. In 2.0 a **story** is one change a person can see, and the
+work orders become **tasks** inside it.
 
-### Where things go
+| | Story (for people) | Task (for the agent) |
+|---|---|---|
+| Sized by | a change someone can see or use | one context window, one red-green run |
+| Says | Scenario, Demo, Picture, Acceptance | interfaces, data, algorithm, sample code, TDD plan, Verify |
+| Title | "Visitor follows a short link" | "Resolve route for `GET /{slug}`" |
 
+Every story starts like this:
+
+```markdown
+# 02-04: Visitor follows a short link
+
+## Scenario
+Maya posted her bakery's short link on three sites. Her customers tap it on
+their phones and expect to land on today's menu, not an error page.
+
+## Demo
+After this ships, I create a link to https://example.com/menu, open
+http://localhost:8080/menu-1 in a browser, and land on the menu page.
+
+## Picture
+(one Mermaid diagram of the change a person notices)
+
+## Acceptance
+- [ ] Opening a short link lands on its target page. (R4)
+
+## Tasks
+- [ ] T1: Resolve route for GET /{slug}
+- [ ] T2: Not-found page for unknown slugs
 ```
-docs/pairing/
-  WORKING-AGREEMENT.md   pair-setup        (outranks every pair-* skill)
-  STATE.md               every pair-* skill (you are here; overwritten)
-  ROADMAP.md             pair-slice, pair-ship (sources, pieces, spec drift)
-  sources/NNNN-*.md      pair-slice        (pasted specs, kept verbatim)
-  slices/NNNN-*.md       pair-slice, pairing (goal, acceptance, plan, journal)
-GLOSSARY.md              pairing via domain-modeling (CONTEXT.md if you have one)
-docs/adr/NNNN-*.md       pair-setup, pairing
-CLAUDE.md                pair-setup        (a short ## Pairing block)
+
+Before you ever see a breakdown, a **critic** reads it in a fresh context, as a
+stakeholder would, and rejects stories whose titles name implementation, whose
+demo is only a test run, or that exist only to set up another story. Big stories
+are split by workflow step, business rule, happy then unhappy path, or one data
+variation first, never by layer. The full format, the splitting patterns, and
+the critic's rules live in the [`story`](skills/kernel/story) skill.
+
+---
+
+## 🖼️ Pictures in the docs
+
+A picture is worth a thousand words, so the skills draw one whenever it makes a
+question clearer, and they draw it in **Mermaid, inside the markdown file it
+explains**. GitHub renders it, PR diffs show it change, and it sits right next
+to the requirements, design, story, or ADR it belongs to.
+
+- **C4 thinking, flowchart drawing.** Context (level 1) in `CONTEXT.md` and the
+  requirements, containers (level 2) in the design, components (level 3) only
+  when needed. They are drawn as flowcharts with a shared style, because
+  Mermaid's own C4 types are still experimental and can't be laid out.
+- **The right diagram for the question.** Journeys for what a person goes
+  through, screen flows for which screen comes next, sequences for how a request
+  flows, state diagrams for lifecycles, ER diagrams for data.
+- **Show, then ask.** During interviews the agent draws what it thinks you mean
+  and asks what is wrong with the picture. Correcting a drawing beats answering
+  five questions.
+- **Wireframes as sidecars.** A low-fidelity HTML mockup next to the markdown,
+  linked from a Mermaid screen flow that stays the canonical record.
+- **Checked before you see them.** Every diagram is validated with mermaid-cli,
+  and the agent renders and looks at it before showing it to you.
+
+### The docs viewer
+
+A small local web page that renders your `docs/` with every diagram drawn, live
+reloads as the agent writes, shows design options as cards you can pick, opens
+mockups beside the text, and lets you click a box in a diagram to comment on it.
+Your clicks go back to the agent through `.viewer/events.jsonl`.
+
+```bash
+python3 ~/.claude/skills/visualize/scripts/docs_viewer.py --open
 ```
 
-### Pairing or planning?
+(Use the path where your skills are installed. Or ask the agent to "open the
+viewer.") It needs only Python 3 and binds to `127.0.0.1`.
 
-Take the planning loop when the architecture is the hard part and a wrong call
-is a rewrite. Take the pairing loop when the spec is clear enough to start and
-the learning happens in the code. They share the glossary, ADRs, and
-`CLAUDE.md`, so a feature can be designed with `solution-design` and then
-built slice by slice with `/pair-slice` pointed at `design.md`. `code-along`
-is closer to a lesson (it writes a verified tutorial you follow); pairing is a
-conversation, one step at a time, in whichever hands suit the step.
+---
 
-The pairing skills call these from `mattpocock/skills` when installed, and
-fall back to their own instructions when not: `domain-modeling` (glossary,
-ADRs), `diagnosing-bugs` (hard bugs), `code-review` (standards and spec axes),
-and `design-interview` from this repo (setup and carving).
+## 📁 Where things go
 
-## Engineering skills
+```text
+CONTEXT.md                 who uses the system, what's outside it, why it exists (C4 level 1)
+GLOSSARY.md                the project's language; every skill uses these words
+CLAUDE.md                  the agent contract (stack, layering, definition of done)
+docs/
+  agents/profile.md        tracker, docs locations, test and run commands, diagram settings
+  adr/NNNN-*.md            decisions that are hard to reverse
+  planning/<feature>/
+    requirements.md        write-requirements
+    design.md              solution-design
+    phases.md              vertical-slice-phasing
+    stories/NN-MM-*.md     to-story or light (or issues in your tracker)
+    mockups/*.html         wireframe sidecars
+    lessons/NN-MM-*.md     code-along, with debriefs
+  pairing/                 the pairing memory bank
+  code-along/              your learner notes and learning records
+.viewer/events.jsonl       viewer clicks (gitignored, safe to delete)
+```
 
-### `write-requirements`
+If `docs/agents/profile.md` names a real tracker (GitHub, GitLab, Jira, Linear),
+requirements and stories are filed there instead of as files. Design and phases
+are always files.
 
-Turns a finished grilling into a template-driven requirements document: the WHAT
-and the WHY, never the mechanism. Non-goals, non-functional rows (latency,
-durability, trust boundaries, retention), failure modes, and acceptance criteria
-are all mandatory, so the dimensions that usually cause rewrites are visibly
-present or visibly struck. Requirements are numbered (R1, R2, ...) and every later
-artifact references them by id. Refuses to write from a cold start; if no grilling
-happened, it sends you to do that first. Publishes to `requirements.md` or the
-configured tracker.
+---
 
-### `solution-design`
+## 📚 Skill reference
 
-Turns the requirements into the design document: ports before adapters, the domain
-model, data and persistence, the deterministic-versus-probabilistic split, a
-stdlib-first dependency policy, designed seams, trust boundaries, a testing
-strategy, and the few hard-to-reverse decisions that become ADRs. Invokes
-`design-interview` for genuinely coupled decisions instead of guessing. Writes
-`design.md` with typed interface sketches, schemas, and diagrams that `to-story`
-later carries into each story, and writes or merges `CLAUDE.md`: the agent
-contract (stack, layering, persistence and auth rules, public surface, definition
-of done) that every story inherits.
+<details open>
+<summary><b>Modes</b>: where you start</summary>
 
-### `vertical-slice-phasing`
+| Skill | What it does |
+|---|---|
+| `start` | Reads the repo and your goal, recommends a mode and its first command. |
+| `light` | Align briefly, write one story with its own small design, build it. Escalates when the change is heavy. |
+| `planning-loop` | The full loop's router: reads `docs/planning/` and names the next step. |
+| `code-along` | Turns a story into a verified lesson you code yourself, then debriefs you. |
+| `pair` and friends | The pairing loop: `pair-setup`, `pair-slice`, `pair`, `pairing`, `pair-checkpoint`, `pair-ship`. |
 
-Runs `design-interview` on build order alone, one sequencing decision at a time,
-judged by ten phasing heuristics, and writes `phases.md`. Phase one is a thin
-walking skeleton that proves the riskiest claim; every later phase thickens it with
-demoable capability. Names the seams placed early so later phases are a swap, not a
-rewrite, and maps requirements to phase boundaries twice: as an end-to-end
-definition-of-done script, one line per capability, tagged by phase, and as a
-traceability table, one row per requirement id, that `to-story` fills with story
-ids so a requirement with no story is visible before the phase is built. Each phase
-carries a Status line that `elaborate-current-phase` updates.
+</details>
 
-### `elaborate-current-phase`
+<details open>
+<summary><b>Kernel</b>: the shared disciplines every mode uses</summary>
 
-Details exactly one phase into stories, through `to-story`, and refuses to detail
-the rest. It is also the loop's return arrow: run it again when a phase ships, and
-it reads the built code as ground truth, reconciles the next phase against it,
-records any drift in `phases.md`, and recommends re-phasing if the drift reaches
-later phases.
+| Skill | What it does |
+|---|---|
+| `repo-setup` | Writes `docs/agents/profile.md`; migrates 1.x repos. |
+| `interview` | One question per turn, a recommendation every turn. **Align** on intent and language, or **decide** a tree of coupled decisions. Draws a picture and asks what's wrong with it. |
+| `glossary` | Owns `GLOSSARY.md`, `CONTEXT.md`, and the ADR format; challenges fuzzy terms the moment they appear. |
+| `visualize` | Mermaid notation guide, C4 style, mockup sidecars, the validator, and the docs viewer. |
+| `story` | The story format, splitting patterns, and the critic. |
+| `tdd` | Builds a story task by task, red-green-refactor, then performs the demo. |
+| `diagnose` | A gated loop for hard bugs: red signal first, then hypotheses, then the fix. |
+| `review-change` | Three parallel reviews of a change: standards, spec (the story or slice), and decisions (ADRs, glossary). |
 
-### `to-story`
+</details>
 
-The exploder. Slices a phase (or a whole design, on the light path) into
-tracer-bullet stories, each a complete vertical slice sized for one PR and one
-context window, with blocking edges declared. Unlike a plain ticket, each story
-carries its design: interfaces and types, data, algorithm, a Mermaid diagram when a
-picture beats prose, a sample-code sketch, the files it touches, a RED-first test
-plan, acceptance criteria tied to requirement ids, and verification commands. It
-quizzes you on granularity, edges, and any requirement of the phase that no story
-serves before writing, then publishes to `stories/NN-MM-<slug>.md` or the
-configured tracker and fills the traceability table in `phases.md`.
+<details>
+<summary><b>Full loop</b>: planning skills</summary>
 
-### `design-interview`
+| Skill | What it does |
+|---|---|
+| `write-requirements` | Template-driven requirements: goals, non-goals, actors (with a context diagram), the user journey, numbered requirements, non-functional rows, failure modes, acceptance criteria. Refuses to write from a cold start. |
+| `solution-design` | The design document: ports before adapters, the deterministic and probabilistic split, data, seams, trust boundaries, testing strategy, C4 and behaviour diagrams, ADRs, and the `CLAUDE.md` contract. |
+| `vertical-slice-phasing` | Interviews you on build order alone and writes `phases.md` with a story map, a walking skeleton first, a definition-of-done script, and a traceability table. |
+| `elaborate-current-phase` | Details only the current phase into stories, and re-derives the next one from the built code. |
+| `to-story` | Finds the changes a person would see, gives each story its tasks with the design carried in, runs the critic, and publishes. |
 
-A general one-question-at-a-time interview for any space of coupled decisions.
-Every question carries a recommendation, the tradeoff, and the soft spot where you
-might overrule it. Tracks what is settled, deferred, and which seams were designed
-for later. `solution-design` and `vertical-slice-phasing` call it; you can also run
-it on its own for architecture, data-model, or scope questions.
+</details>
 
-### `planning-loop`
+<details>
+<summary><b>Learning</b>: <code>teach-me</code>, <code>let-me-code</code></summary>
 
-The router. Reads `docs/planning/` and tells you which step to run next. It
-points; it never does the step.
+**`teach-me`** teaches a topic over many sessions in a teaching workspace. Every
+lesson is a chapter: motive before mechanism, a hand-drawn figure of the whole
+machine and one per state change, algorithms traced by hand before code, try-its,
+a quiz, challenges, and a design note. A build script cuts code from a verified
+module, recomputes every value the prose quotes, and the page is rendered and
+looked at before it reaches you. Needs Python 3 and Google Chrome.
 
-### `go-boilerplate`
+```text
+/teach-me consistency proofs
+```
 
-Scaffolds a new Go REST API service from a fixed boilerplate using Chi,
-OpenTelemetry, and Swagger: Go module and router, tracing and metrics wiring,
-code-first OpenAPI via swaggo, Makefile, Dockerfile, docker-compose, and a GitHub
-Actions workflow.
+**`let-me-code`** writes a TDD tutorial that guides you to type each line
+yourself. Trigger with "teach me to build X" or "don't write the code for me."
+
+</details>
+
+<details>
+<summary><b>Gamedev</b>: branching stories for games</summary>
+
+Four skills that turn a game-story idea into an authored, branching story you
+build one piece at a time, with story content in git next to the code.
+
+```text
+narrative-grill ──► story-bible.md ──► story-decompose ──► beats/*.md
+                        ▲                                      │
+                        └──────────── beat-grill ◄─────────────┘ (one beat at a time)
+                  subquest-fill ──► beats/subquests/<faction>/*.md
+```
+
+| Skill | What it does |
+|---|---|
+| `narrative-grill` | Interviews you into `story-bible.md`: premise, theme, world rules, factions, arc, tone, a structural spine, and the world-state flags. |
+| `story-decompose` | Breaks the spine into a `beats/` folder of stubs, in order. Refuses to invent plot. |
+| `beat-grill` | Expands one beat into branching content: choices, flags, consequences, dialog. |
+| `subquest-fill` | Seeds side quests hanging off existing factions and flags. |
+
+</details>
+
+<details>
+<summary><b>Scaffolding</b>: <code>go-boilerplate</code></summary>
+
+Scaffolds a Go REST API service with Chi, OpenTelemetry, and Swagger: module and
+router, tracing and metrics, code-first OpenAPI, Makefile, Dockerfile,
+docker-compose, and a GitHub Actions workflow.
 
 | Parameter | Required | Default | Description |
 |---|---|---|---|
-| `project_name` | Yes | | Project name in kebab-case, e.g. `my-service` |
-| `github_user` | Yes | | GitHub username or org that will own the repo |
-| `description` | Yes | | One-sentence description of the service |
-| `dest_dir` | No | `.` | Directory to install the project files into |
+| `project_name` | Yes | | Kebab-case name, e.g. `my-service` |
+| `github_user` | Yes | | GitHub user or org that owns the repo |
+| `description` | Yes | | One-sentence description |
+| `dest_dir` | No | `.` | Where to install the files |
 | `module_path` | No | `github.com/{github_user}/{project_name}` | Go module path override |
 
-```
+```text
 Run go-boilerplate with project_name=widget-svc, github_user=acme,
 description="Service for managing inventory widgets."
 ```
 
-Missing required parameters are asked for one at a time. Headless:
+See [`INSTALL.md`](skills/engineering/go-boilerplate/INSTALL.md) for headless use.
+
+</details>
+
+---
+
+## 🛠️ Working on this repo
 
 ```bash
-mkdir my-service && cd my-service
-claude -p --permission-mode bypassPermissions \
-  "Run go-boilerplate skill non-interactively:
-   project_name=my-service github_user=acme
-   description='Service for tracking certificate lifecycles.'"
+python3 scripts/check-skills.py                               # frontmatter, unique names, no outside dependencies
+python3 skills/kernel/visualize/scripts/mermaid_check.py .    # every Mermaid block parses
+bash scripts/list-skills.sh                                   # list skill folders
 ```
 
-See `skills/engineering/go-boilerplate/INSTALL.md` for details.
+Skills refer to each other by name ("the `story` skill's `FORMAT.md`"), never by
+path, so they work however your agent installs them. The plan for 2.0, written
+with these skills, is in [`docs/planning/skills-v2/`](docs/planning/skills-v2/),
+with its decisions in [`docs/adr/`](docs/adr/).
 
-### `code-along`
-
-The human-in-the-loop build step. Turns one story into a lesson you code
-yourself, then debriefs you before writing the next one, so the lessons follow
-the code you actually wrote. Each lesson leads with why the slice exists and a
-Mermaid map of where it sits, teaches only the ideas your learning records say
-are new, and then walks RED to GREEN steps with exact placement. Every block is
-tagged `type this` (the decision-rich core) or `paste freely` (imports,
-fixtures, wiring), and the lesson runs in one of three modes: `type`, `paste`,
-or `attempt-first` with the implementation folded away. Every block and every
-expected output is cut from a reference built and run in a throwaway git
-worktree, so nothing unverified reaches you, and the skill never edits your
-source tree. The debrief diffs your work against that reference, asks about
-each divergence one question at a time, runs a short recall check on your own
-code, and records the outcome: done, done with changes (an `As built` note and,
-with your approval, amendments to dependent stories), partial (a part b), or a
-pivot routed to the right planning skill. Learner state lives in
-`docs/code-along/` and carries across features.
-
-```
-/code-along docs/planning/acme-auth/stories/01-01-tenant-port.md   # start
-/code-along                                                        # continue
-```
-
-### `let-me-code`
-
-Writes a TDD-structured tutorial (`TUTORIAL.md`) that guides you to type each line
-yourself, one RED-to-GREEN cycle per step, with code blocks sized for typing rather
-than pasting. Trigger with "teach me to build X" or "don't write the code for me".
-
-## Pairing skills
-
-### The loop at a glance
-
-```
-/pair-setup                once per repo: stack, style, git flow, PR policy
-   │                       (lands on main through its own PR, as slice 0000)
-   ▼
-/pair-slice <spec> <piece> ◄──────────────────────────────┐
-   │  carve the piece, cut feat/NNNN-slug                  │
-   ▼                                                       │
-┌─ pairing: the step loop ─────────────────────┐           │
-│                                              │           │
-│  propose ──► build ──► prove ──► journal     │──► /pair-checkpoint
-│     ▲     (driver, navigator,       │        │      save, then /clear
-│     │      ping-pong, dictation)    ▼        │           │
-│     └────────── next step ◄──── commit       │◄── /pair  │
-│                                              │    resume brief
-└──────────────────────┬───────────────────────┘           │
-                       │ plan done                         │
-                       ▼                                   │
-/pair-ship    PR with the rationale journal, review, merge │
-   │                                                       │
-   └──────────────────── next piece ───────────────────────┘
-```
-
-Two loops. The inner one is a step: a few minutes, one observable change,
-proven by a run, journaled, committed. The outer one is a slice: one piece of
-the spec, one branch, one PR. Checkpoint and `/pair` are how you leave the
-inner loop and come back to it in a clean context.
-
-### `pair-setup`
-
-Run once per repo. Explores what exists (manifests, configs, CI, the remote,
-`gh auth`, the repo's allowed merge strategies), then interviews you one
-decision at a time, recommending every answer: product shape, language,
-libraries and dependency policy, persistence, layout, testing, coding style,
-git flow, PR and review policy, pairing preferences. In a brownfield repo most
-questions become "the code does X; keep it?". Writes
-`docs/pairing/WORKING-AGREEMENT.md`, ADRs for the lock-in choices, the
-`ROADMAP.md` and `STATE.md` skeleton, and a `## Pairing` block in `CLAUDE.md`,
-all on a `chore/0000-pairing-setup` branch as slice 0000, which ships through
-`/pair-ship` like everything else. It scaffolds nothing; code arrives as slice 0001.
-
-### `pair-slice`
-
-Point it at a spec file or pasted text and name the piece. Pasted or
-out-of-repo sources are copied into `docs/pairing/sources/` so a later session
-can read them. Reads the code, glossary, and ADRs the piece touches, then asks
-two to five questions (the boundary, what is out, observable acceptance
-checks, the first step), cuts anything too big for one PR into roadmap rows,
-writes `slices/NNNN-<slug>.md`, cuts `feat/NNNN-<slug>`, commits the slice as
-the branch's first commit, and proposes step 1.
-
-### `pairing`
-
-The step loop and the memory bank formats. Propose one step with the run that
-proves it, build it in the chosen mode, prove it with real output, debug
-(handing hard bugs to `diagnosing-bugs`), journal what, why, how, evidence,
-and alternatives, commit on green with `STATE.md` updated. Settled terms go to
-the glossary as they happen; decisions that clear the ADR bar get an ADR on
-the branch; a disagreement with the spec or an ADR is raised and recorded as
-drift, never silently fixed. Other pair-* skills load it for the formats.
-
-### `pair`
-
-The session entry point. Reads the working agreement, `STATE.md`, the slice
-and its whole journal, git, and the PR; reconciles them (work you did without
-the agent becomes a `User-coded` journal entry, with your reason); briefs you
-in at most ten lines; then continues the loop or routes to setup, a new slice,
-or shipping.
-
-### `pair-checkpoint`
-
-Moves everything still in the chat into the repo: missing journal entries, a
-session-end note including what you were about to try, a rewritten
-`STATE.md`, a commit (a labelled `wip` if red), and a push. Also parks a slice
-so another can start.
-
-### `pair-ship`
-
-Resumable from any stage. Runs the acceptance checks and full check, updates
-from main, and writes the PR body from the journal: why, a summary visual,
-what changed with the why and how per concern, the condensed rationale journal
-including dead ends, decisions and drift, evidence, review dispositions, merge
-danger, and follow-ups. Opens the PR on your yes, runs a three-axis review
-(standards, spec, decisions against ADRs and the glossary) as parallel
-sub-agents, takes each finding to fix, defer, or dismiss, updates the PR body,
-lands a close-out commit so `main` receives the finished memory bank, and
-merges only on an explicit yes. Local mode (no remote) merges with
-`--no-ff` and keeps the PR body as a file.
-
-## Gamedev skills
-
-Four skills that take a game-story idea and turn it into an authored, branching
-story you build one piece at a time while keeping the whole coherent. Story content
-lives in git next to the code. The chain is `narrative-grill`, then
-`story-decompose`, then `beat-grill` one beat at a time, with `subquest-fill`
-branching off once the bible exists.
-
-```
-narrative-grill ──► story-bible.md ──► story-decompose ──► beats/*.md
-                        ▲   ▲                                  │
-                        │   └──────────── beat-grill ◄─────────┘ (one beat at a time)
-                        │                     │ appends new flags
-                        │
-                  subquest-fill ──► beats/subquests/<faction>/*.md
-```
-
-### `narrative-grill`
-
-A one-question-at-a-time interview that turns a premise into `story-bible.md`:
-premise, theme, world rules, factions, protagonist arc, tone, and a numbered
-structural spine, plotted against James Scott Bell's LOCK and two doorways by
-default (swappable). The bible also holds the single list of world-state flags.
-Name a tone comp up front ("Disco Elysium, but colder") so the recommendations
-have an anchor.
-
-### `story-decompose`
-
-Breaks the bible's spine into a `beats/` folder of stub files, one per beat in spine
-order, each linking back to the bible. The folder is the work list. Asks at most two
-light questions (granularity, act boundaries) and refuses to invent plot; if it would
-have to, it tells you to re-grill the bible.
-
-### `beat-grill`
-
-Expands one beat from a stub into full branching content: for each player choice,
-which flag guards it and what consequence it writes back, plus the dialog in the
-bible's voice. Flips the beat to `Status: grilled` and appends any new flags to the
-bible. Usage: `/beat-grill beats/03-first-doorway.md`. One beat per session keeps
-each grill small and the dialog consistent.
-
-### `subquest-fill`
-
-Seeds side quests that hang off existing factions and flags, as stubs under
-`beats/subquests/<faction>/` in the same shape `story-decompose` produces, so
-`beat-grill` expands them with no special case. Skips generic errands that anchor to
-nothing.
-
-Three rules hold the chain together: the bible is the center and every skill reads
-it first; the `beats/` folder is the pieces; flags have exactly one home, the bible.
-
-## Learning skills
-
-### `teach-me`
-
-Matt Pocock's `teach` skill with the chapter-writing method folded in, so one
-skill runs a whole learning session. The current directory is the teaching
-workspace, in the same layout and formats as `teach`: `MISSION.md`,
-`RESOURCES.md`, `learning-records/`, `reference/`, `lessons/`, `assets/`,
-`NOTES.md`. Each lesson is a chapter: an epigraph, numbered sections, motive
-before mechanism, a hand-drawn SVG figure of the whole machine and one per state
-change (generated from a `figs` script so a picture cannot disagree with the
-algorithm), each algorithm as steps and a hand trace before its code, code in
-labelled slices, try-its, a quiz, four Challenges and a Design Note. A per-lesson
-build script cuts the code slices from a verified scratch module, recomputes every
-value the prose quotes, checks every link and tag, and the page is rendered in
-headless Chrome and looked at before it reaches you. Ships the starter assets
-(stylesheet, quiz widget, figure CSS and JS) and the figure and build helpers.
-
-```
-/teach-me consistency proofs          # the next lesson, in the chapter style
-/teach-me rewrite lessons/0003-*.html # an old lesson, redone as a chapter
-```
-
-Needs Python 3 and Google Chrome for the figure renders. `NOTES.md` in the
-workspace outranks the skill: its hard rules and preferences apply as written.
-
-## Deprecated
-
-Kept for reference under `skills/deprecated/`. They are not linked by
-`scripts/link-skills.sh` and are user-invoked only, so they never fire on their own.
-
-- `init-go-project`: superseded by `go-boilerplate`.
-- `phased-implementation-plan`: exploded a whole proposal into a phase/story bundle
-  in one pass. Superseded by `vertical-slice-phasing` plus `to-story` via
-  `elaborate-current-phase`, which detail one phase at a time. Its `CLAUDE.md`
-  contract now comes from `solution-design`; its definition-of-done script from
-  `vertical-slice-phasing`.
-
-## Repository layout
-
-```
+```text
 skills/
-  engineering/     planning-loop, write-requirements, design-interview, solution-design,
-                   vertical-slice-phasing, elaborate-current-phase, to-story,
-                   go-boilerplate, let-me-code, code-along
-  gamedev/         narrative-grill, story-decompose, beat-grill, subquest-fill
-  pairing/         pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
-  learning/        teach-me
-  productivity/    (reserved, none yet)
-  deprecated/      init-go-project, phased-implementation-plan
-scripts/
-  link-skills.sh   symlink every non-deprecated skill into ~/.claude/skills/
-  list-skills.sh   list skill directories
+  kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change
+  modes/         start, light
+  engineering/   planning-loop, write-requirements, solution-design, vertical-slice-phasing,
+                 elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate
+  pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
+  learning/      teach-me
+  gamedev/       narrative-grill, story-decompose, beat-grill, subquest-fill
+  deprecated/    design-interview, init-go-project, phased-implementation-plan (not linked)
 ```
+
+## 🙏 Credits
+
+Version 1 was built on top of [Matt Pocock's skills](https://github.com/mattpocock/skills),
+and the grilling interview, the glossary-as-shared-language idea, and tracer-bullet
+slicing all started there. The visual brainstorming idea was inspired by
+[Superpowers](https://github.com/obra/superpowers). Story splitting follows the
+Humanizing Work guide to splitting user stories, and the diagrams borrow Simon
+Brown's [C4 model](https://c4model.com).
 
 ## License
 

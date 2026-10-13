@@ -1,15 +1,22 @@
 ---
 name: design-interview
 description: >-
-  Interview the user one decision at a time to resolve a design, architecture,
+  DEPRECATED, superseded by interview. Interview the user one decision at a time to resolve a design, architecture,
   plan, or scope made of coupled decisions, recommending an answer at every
   step, then write the agreed design to a findings document. Use when the user
   says "interview me," "think it through," "walk the design tree," "nail down
   the approach," or "resolve the open questions," or faces a branching set of
   interdependent decisions best settled in dependency order.
+disable-model-invocation: true
 ---
 
 # Design Interview
+
+> **Deprecated.** Superseded by `interview` (`skills/kernel/interview`), which
+> keeps this contract and turn anatomy as its **decide** subject, adds an
+> **align** subject for shared intent and language, and adds the "show, then
+> ask" diagram turn and options blocks. Kept for reference; do not invoke it
+> for new work.
 
 A workflow for turning a vague description plus optional attachments into a
 fully-resolved design, by interviewing the user relentlessly, one decision at a

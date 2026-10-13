@@ -11,12 +11,17 @@ docs/pairing/
   STATE.md               "You are here." Overwritten, never appended. Short.
   ROADMAP.md             Sources, the pieces carved from them, spec drift.
   sources/NNNN-*.md      Pasted or out-of-repo specs, copied verbatim.
-  slices/NNNN-<slug>.md  One per piece: goal, acceptance, plan, journal.
+  slices/NNNN-<slug>.md  One per piece: scenario, demo, picture, goal,
+                         acceptance, plan, journal.
   slices/NNNN-<slug>.pr.md  Local mode only: the PR body, when there is no
                          remote to open a PR on.
-GLOSSARY.md              domain-modeling. Domain language only. (Use
-                         CONTEXT.md instead if the repo already has one.)
-docs/adr/NNNN-*.md       domain-modeling ADR format. Hard-to-reverse decisions.
+GLOSSARY.md              glossary skill. The language: terms, definitions,
+                         _Avoid_ words.
+CONTEXT.md               glossary skill. System context: the C4 level 1
+                         picture, actors, what is outside, why it exists.
+docs/adr/NNNN-*.md       glossary skill's ADR format. Hard-to-reverse decisions.
+docs/agents/profile.md   repo-setup. Tracker, docs paths, commands, diagram
+                         settings. The agreement builds on it.
 CLAUDE.md                A short "## Pairing" block pointing here.
 ```
 
@@ -97,7 +102,7 @@ added when the user names a piece or work spills out of a slice.
 
 ## Slice file
 
-```markdown
+````markdown
 ---
 slice: 0003
 title: Invoice totals
@@ -111,6 +116,21 @@ started: 2026-10-08
 ---
 
 # 0003 Invoice totals
+
+## Scenario
+Dana, who bills clients monthly, sends an invoice and needs the total to match
+the spec's worked example to the cent, or the client disputes it.
+
+## Demo
+After this merges, I run `invoice show examples/s1-3-2.json` and see the
+total 10.00, matching S1 §3.2.
+
+## Picture
+```mermaid
+flowchart LR
+  lines["Invoice lines"] --> total["Invoice total<br/>rounded half-even once"] --> shown["Total shown to Dana"]
+```
+Lines add up exactly; rounding happens once, on the total.
 
 ## Goal
 One to three sentences, in the user's words where possible: what will be true
@@ -139,11 +159,17 @@ Out: tax (later piece), currency conversion (not in the spec).
 
 ## Journal
 (entries, oldest first)
-```
+````
 
-Acceptance lines are observable and each names its check. The plan has three
-to eight steps, step 1 tiny; it is rewritten freely as we learn, and the
-journal records why it changed.
+The header (`Scenario`, `Demo`, `Picture`) follows the `story` skill's format
+(the `story` skill's `FORMAT.md`): a real person and their reason, something a
+person does and sees, and one Mermaid diagram of the user-visible slice drawn
+via `visualize`. It is written for a human; the rest of the file is for the
+pair. A slice has no `Tasks` section: plan steps play that role, and they are
+smaller than story tasks. Acceptance lines are observable and each names its
+check. The plan has three to eight steps, step 1 tiny; it is rewritten freely
+as we learn, and the journal records why it changed. Slice files written
+before the header existed are read as they are.
 
 ## Journal entries
 

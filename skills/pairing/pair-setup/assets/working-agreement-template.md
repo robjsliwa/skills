@@ -23,6 +23,8 @@ Sources: see `docs/pairing/ROADMAP.md`.
   names it and an ADR if it carries lock-in>
 
 ## Commands
+Fast tests, full check, and run come from `docs/agents/profile.md`; keep them
+identical here.
 - Fast tests (every step): `<cmd>`
 - Full check (before commit on ship, and in CI): `<cmd>`
 - Lint: `<cmd>`   Format: `<cmd>`   Typecheck: `<cmd>`
@@ -60,7 +62,8 @@ Rules no tool enforces:
 - Mode: <github | gitlab | local (no remote; merge --no-ff with the PR body
   as the merge message)>
 - Open as: <draft | ready>
-- Agent review axes: standards, spec, decisions (ADRs and glossary)
+- Agent review: `review-change` axes standards, spec, decisions (ADRs,
+  glossary, context)
 - Post agent review as a PR comment: <yes | no>
 - Human reviewers: <none | @handle>
 - Who merges: <agent after explicit yes in chat | user only>

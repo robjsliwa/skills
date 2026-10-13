@@ -4,7 +4,7 @@ description: >-
   Grill a single beat file (from story-decompose) into its branch points: the
   scenes, the player choices, the world-state flag that guards each choice, the
   consequences each choice writes back to state, and the actual dialog lines. This
-  is the design-interview engine scoped to one beat. Use whenever the user points
+  is the `interview` engine scoped to one beat. Use whenever the user points
   at a beat or scene and wants to "grill this beat", "work out the branches",
   "write the choices and dialog", "flesh out this scene", or "fill in this beat".
   Trigger on a single beat at a time, after a bible and decomposed beat files
@@ -19,7 +19,7 @@ description: >-
 Take one beat file and grill it from a stub into full branching content: the
 scenes play out, the player's choices are named, each choice is gated by a
 world-state flag where it should be, each choice writes its consequences back to
-state, and the dialog is written. One beat at a time. This is the design-interview
+state, and the dialog is written. One beat at a time. This is the `interview`
 engine pointed at a single beat instead of a whole design.
 
 Working one beat at a time, with the bible open as the center, is the whole point
@@ -28,7 +28,7 @@ consistent with the same world.
 
 ## The contract (four rules, every turn)
 
-From design-interview, scoped to this beat.
+From `interview`, scoped to this beat.
 
 1. **One question at a time.** One fork in this beat per turn. Do not stack.
 2. **Recommend, don't just ask.** Every fork carries your recommended choice
@@ -115,4 +115,4 @@ not grill the next beat automatically; one beat per session is the discipline.
   a branch. That is fine occasionally, but if a whole beat has no consequences, the
   beat does not move the state and that is worth flagging to the user.
 - **Match the bible's voice.** Dialog adopts the bible's tone and sample voice.
-- **Default to prose for the grilling. Avoid em dashes.**
+- **Default to prose for the questions. Avoid em dashes.**

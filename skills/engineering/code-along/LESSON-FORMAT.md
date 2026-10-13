@@ -32,10 +32,11 @@ estimate: 45 min
 
 ## Why this slice
 
-Two to four sentences: what becomes possible when this is done, in the user's
-terms, and why it comes now (what earlier lessons set up, what later ones need
-from this one). Name the requirement ids it serves. End with the one-line
-demo: "When you're done, `<command>` prints `<output>`."
+Start from the story's Scenario and Demo: who this is for, what they can do
+when it is done, and the Demo itself, as the user will perform it at the end.
+Then why it comes now (what earlier lessons set up, what later ones need from
+this one) and the requirement ids it serves. Include the story's Picture so the
+user sees the change a person will notice before the code that makes it.
 
 ## Where it sits
 
@@ -216,10 +217,10 @@ Rules for steps:
 
 ## Splitting into parts
 
-A lesson should take thirty to ninety minutes. When the story's TDD plan
-needs more than eight steps, split the lesson into parts at a point where the
-suite is green and something is demoable, usually where the story's
-acceptance criteria fall into two groups.
+A lesson should take thirty to ninety minutes. When the story's tasks need
+more than eight steps, split the lesson into parts at a task boundary: part a
+covers T1..Tk, part b the rest. The suite is green at every task boundary, and
+each task's Verify gives the part its own check.
 
 - Write part a only. Its "Why this slice" names what part b will add.
 - Each part has its own lesson file, reference patch, base SHA, and debrief.

@@ -30,7 +30,7 @@ here.
 - `docs/pairing/STATE.md`, then the active slice file in full: goal,
   acceptance, plan, parked, drift, and the whole journal (the last session's
   `Session end` entry first).
-- `ROADMAP.md`, the glossary, and the ADRs the slice lists. Skim the titles of
+- `ROADMAP.md`, `GLOSSARY.md`, `CONTEXT.md`, and the ADRs the slice lists. Skim the titles of
   the rest of `docs/adr/`.
 - Git: `git branch --show-current`, `git status --short`,
   `git log <base>..HEAD --oneline`, `git log -1 --format=%cd`, and

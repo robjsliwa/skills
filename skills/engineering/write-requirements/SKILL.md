@@ -1,7 +1,7 @@
 ---
 name: write-requirements
 description: >-
-  Turn a finished grilling or design-interview session into a detailed,
+  Turn a finished align interview into a detailed,
   template-driven requirements document (a PRD with teeth), then publish it as
   docs/planning/<slug>/requirements.md or as an issue in the configured
   tracker. Use whenever the user is ready to capture requirements, write a
@@ -26,13 +26,14 @@ because it enumerates those dimensions and makes their absence visible.
 A good requirements doc is the residue of a good interrogation. Before writing,
 confirm the understanding is actually shared:
 
-- If a grilling session (`grill-with-docs` or `grilling`) or a `design-interview`
-  already happened in this conversation, use it. The decisions are the raw material.
-- If it did not, stop and run the grilling first. Writing requirements from an
-  unexamined one-line brief is how thin requirements happen. Say so plainly and
-  invoke the interview rather than papering over the gap.
+- If an `interview` (align or decide) already happened in this conversation, use
+  it. The decisions are the raw material.
+- If it did not, stop and run `interview` with the subject **align** first.
+  Writing requirements from an unexamined one-line brief is how thin requirements
+  happen. Say so plainly and invoke the interview rather than papering over the gap.
 - Explore before asking. Anything answerable from the codebase, the uploads, prior
-  ADRs, or `CONTEXT.md` should be read, not asked. Use the glossary's vocabulary.
+  ADRs, `CONTEXT.md`, or `GLOSSARY.md` should be read, not asked. Use the
+  glossary's vocabulary.
 
 ## Write to the template, fill every section
 
@@ -49,6 +50,24 @@ present. The discipline is in the sections you are tempted to skip:
 - **Acceptance criteria** are checkable, each tied to a numbered requirement. "It
   works" is not a criterion; "`centon validate` rejects an unsigned INVITE with a 4xx
   and a structured reason" is.
+
+## Draw the people and their path
+
+Two pictures belong in requirements, drawn with `visualize` (its NOTATION.md has
+the patterns) and validated before publishing:
+
+- **Actors and surfaces** gets a C4 level 1 context diagram: the people and
+  outside systems, the system as one box, labelled relationships. If `CONTEXT.md`
+  is missing or older than this picture, update it with `glossary` (its
+  CONTEXT-FORMAT.md) so the repo's front page matches.
+- **User journey** gets a `journey` diagram (or a screen-flow flowchart when the
+  surface is screens) of the main path a person takes. Phasing turns it into the
+  story map, and stories light up slices of it. When screens matter, each screen
+  node may link to an HTML mockup sidecar per `visualize`'s MOCKUPS.md; the
+  diagram stays the canonical record.
+
+Node labels are glossary terms. A picture that needs a term the glossary lacks
+means the term is not settled yet; settle it with `glossary` before publishing.
 
 Keep behavioral requirements numbered (R1, R2, ...) so the design, the phasing, and
 the stories can all reference them by id. That id is the thread that runs through the
@@ -69,16 +88,18 @@ have drifted into the design; cut it and note it for solution-design.
 - [ ] Non-functional rows are all filled or explicitly struck.
 - [ ] Acceptance criteria are checkable and each maps to a requirement id.
 - [ ] Out-of-scope items carry the phase or milestone where they return.
+- [ ] The context diagram and the journey are present, validated, and use
+      glossary terms; `CONTEXT.md` agrees with the context diagram.
 
 ## Publish
 
-Read `docs/agents/issue-tracker.md` (written by `setup-matt-pocock-skills`) and
-publish where it points:
+Read `docs/agents/profile.md` (written by `repo-setup`) and publish where its
+`Tracker` section points:
 
 - **A real tracker** (GitHub, GitLab, Jira, Linear, or a freeform workflow the
   config describes): file the document as one issue, an epic where the tracker has
   them, titled `<Feature>: Requirements`, with the full document as the body. Apply
-  the `ready-for-agent` label. Report the issue reference; it is the input to the
+  the profile's ready label. Report the issue reference; it is the input to the
   next step.
 - **Local markdown, or no config:** save to `docs/planning/<slug>/requirements.md`,
   where `<slug>` is a short kebab-case feature name. Create the folder; the design,

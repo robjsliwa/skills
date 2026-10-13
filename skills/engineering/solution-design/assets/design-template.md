@@ -16,10 +16,29 @@ back to the requirements.
 
 ## Architecture overview
 
-The shape, described at C4 container and component level, not as a wall of prose.
-What are the containers, what are the components inside the one this design touches,
-and how do they talk. If a `c4check` contract exists or should exist for this, name
-it and note that the design must remain consistent with it.
+The shape, at C4 container level, drawn as a flowchart (see `visualize`
+NOTATION.md and C4-STYLE.md), with a component-level diagram only for the
+container this design changes. What are the containers, what are the components
+inside the one this design touches, and how do they talk.
+
+```mermaid
+flowchart LR
+  user(["[Actor]<br/>[Person]"]):::person
+  subgraph boundary["[System name]"]
+    app["[Container]<br/>[Container: tech]<br/>[responsibility]"]:::container
+    db[("[Store]<br/>[Container: tech]<br/>[what it holds]")]:::db
+  end
+  ext["[Outside system]<br/>[External system]"]:::external
+  user -->|"[uses] [HTTPS]"| app
+  app -->|"[reads and writes] [SQL]"| db
+  app -->|"[calls] [protocol]"| ext
+  classDef person fill:#08427b,stroke:#052e56,color:#fff
+  classDef container fill:#438dd5,stroke:#2e6295,color:#fff
+  classDef db fill:#438dd5,stroke:#2e6295,color:#fff
+  classDef external fill:#8a8a8a,stroke:#5e5e5e,color:#fff
+```
+
+One sentence after the diagram saying what to look at.
 
 ## Ports
 

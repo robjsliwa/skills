@@ -135,7 +135,7 @@ Name the smallest step that fixes the plan:
 | This phase's scope or order is wrong | `elaborate-current-phase` (it will record Drift and re-plan) |
 | Later phases are wrong too | `vertical-slice-phasing` on the remaining phases |
 | The mechanism is wrong (a port, the data model, a boundary) | `solution-design`, then re-phase |
-| What we are building is wrong | `write-requirements` (after a `grill-with-docs` if it is a big change) |
+| What we are building is wrong | `write-requirements` (after an `interview`, subject align, if it is a big change) |
 
 Write the `Drift` note, stop, and hand off. Do not write another lesson against
 a plan you both believe is stale.
@@ -144,7 +144,8 @@ a plan you both believe is stale.
 
 - **The lesson:** append the debrief section (below) and set frontmatter
   `status: debriefed`.
-- **The story:** status and `As built` per the outcome.
+- **The story:** status and `As built` per the outcome, and a tick on every task
+  whose steps the user completed and whose Verify passes.
 - **`phases.md`:** `Drift` notes only when the outcome calls for them.
 - **Learning records:** per the next section.
 - **`NOTES.md`:** any preference the user voiced ("less explanation of Go

@@ -25,7 +25,7 @@ See [tutorial-format.md](tutorial-format.md) for examples of well-formed vs poor
 | Refactor | Agent modifies source files | Agent writes refactor section in tutorial |
 | Final output | Working code in project | `TUTORIAL.md` only; zero source files |
 
-In the `tdd` skill, the agent writes code.
+In the `tdd` skill, the agent writes the code and builds a story task by task.
 
 In `let-me-code`, the agent **never writes code into the project**. Instead, it writes a `TUTORIAL.md` file (or `docs/tutorials/<feature-name>.md`) that contains all the code the user will type themselves.
 
@@ -52,7 +52,7 @@ A tutorial where code blocks are 200-line dumps encourages copy-paste behavior. 
 
 Before writing the tutorial, understand the problem deeply. Use the project's domain glossary, check for ADRs, explore existing interfaces.
 
-- [ ] Ask: "What feature or concept do you want to learn to implement?"
+- [ ] Ask: "What feature or concept do you want to learn to build?"
 - [ ] Confirm the language, test framework, and project structure
 - [ ] Confirm which behaviors to cover (prioritize — you can't teach everything)
 - [ ] Identify opportunities for [deep modules](deep-modules.md)

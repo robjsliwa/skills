@@ -71,8 +71,8 @@ context; the beat files are the pieces.
 ## Step 3: Hand off
 
 Present the beats folder and the list of files. Tell the user the natural next
-step is to run beat-grill on the first beat. Do not start grilling beats yourself;
-decompose's job ends at the stubs.
+step is to run beat-grill on the first beat. Do not start on beat-grill's work
+yourself; decompose's job ends at the stubs.
 
 ## Conventions
 

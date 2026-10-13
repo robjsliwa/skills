@@ -1,214 +1,154 @@
 ---
 name: to-story
 description: >-
-  Break a design, or one phase of a phased design, into tracer-bullet stories
-  that carry the design detail an implementer needs: interfaces, data
-  structures, algorithms, sample code, diagrams, a RED-first test plan, and
-  blocking edges. Publishes them to the configured issue tracker or as story
-  files. Use when the user says "write the stories," "break this into
-  stories," "explode this phase," or when elaborate-current-phase hands over a
-  phase to detail.
+  Break a design, or one phase of a phased design, into stories a person can
+  see: each with a Scenario, a Demo, a Picture, and Acceptance in the user's
+  words, owning the context-window sized Tasks that carry the design detail
+  (interfaces, data, algorithm, sample code, RED-first TDD plan). A critic in a
+  fresh context checks the breakdown before the user sees it. Publishes to the
+  configured tracker or as story files. Use when the user says "write the
+  stories," "break this into stories," "explode this phase," or when
+  elaborate-current-phase or light hands work over.
 ---
 
 # To Story
 
-Turn a design into stories an agent can build one per context window. Each story
-is a tracer bullet: a narrow but complete vertical slice, demoable on its own,
-that declares which stories block it. Unlike a bare ticket, a story carries its
-design. The interfaces, structures, algorithm, sample code, and diagrams the
-design doc already settled ride along, trimmed to what this slice needs, so the
-implementer inherits a mechanism instead of inventing one per session.
+Turn a design into stories. Each story is one change a person can see, in the
+format the `story` skill owns (its `FORMAT.md`). Each story owns
+one to five tasks, and each task is what an agent builds in one context window,
+with the design detail the design doc already settled riding along. People read
+the top of the file; agents read the tasks.
+
+The order matters. Slice by what a person would notice first, then decide the
+tasks that deliver it. Slicing by tasks first is how a breakdown turns into
+"tenant port, Postgres adapter, redirect endpoint."
 
 ## Inputs
 
 Work from what is already in context, then fetch what is not.
 
 - **The design doc**, `docs/planning/<slug>/design.md`, and the requirements it
-  traces to (their R-ids). If there is no design, stop and say so; stories written
-  from requirements alone guess at mechanism, which is what solution-design
-  exists to prevent.
+  traces to (their R-ids). If there is no design, stop and say so, unless `light`
+  handed over a single change, whose story carries its own small design.
 - **The phase to explode**, when elaborate-current-phase hands one over or the
-  user names one: its scope, its acceptance checkpoint, the seams it introduces
-  or relies on, and the rows of the traceability table in
-  `docs/planning/<slug>/phases.md` that assign requirement ids to it. Stories go
-  no wider than the phase, and together they serve every requirement the table
-  gives it.
-- **The codebase.** Real ports, adapters, schema, `CONTEXT.md`, and ADRs in the
-  area. Story vocabulary follows the glossary. Where built code and the design
-  disagree, the code is ground truth; note the disagreement in the story.
-- **The tracker config**, `docs/agents/issue-tracker.md`. It decides where stories
-  are published (step 5).
+  user names one: its scope, its acceptance checkpoint, its seams, its part of
+  the story map, and the rows of the traceability table in `phases.md` that
+  assign requirement ids to it. Stories go no wider than the phase and together
+  serve every requirement the table gives it.
+- **`GLOSSARY.md` and `CONTEXT.md`.** The actors and the words. Story titles,
+  scenarios, and pictures use them.
+- **The codebase.** Real ports, adapters, schema, and ADRs in the area. Where
+  built code and the design disagree, the code is ground truth; say so in the
+  task.
+- **`docs/agents/profile.md`.** Where stories are published, and the `Run the
+  app` command the Demos use.
 
-## 1. Slice
+## 1. Find the changes a person would see
 
-Break the work into tracer-bullet stories.
+Walk the phase's slice of the journey (the story map in `phases.md`, or the
+journey in the requirements) and list the moments where somebody can do
+something new. Each one is a candidate story. Write each as a title and a Demo
+sentence, nothing else yet.
 
-- Each story cuts a narrow but complete path through every layer it touches
-  (schema, port, adapter, surface, tests): vertical, never one layer.
-- A completed story is demoable or verifiable on its own.
-- One story is one PR and fits one fresh context window. Split when the
-  acceptance criteria fall into two groups with no shared prerequisite, or when
-  the design section would run past a screen of code.
-- Front-load the contract. The first story in a phase usually defines the
-  interfaces, types, or schema the rest implement behind, so later stories test
-  against stable signatures.
-- Prefactoring comes first. If a small refactor makes the slice easy, it is its
-  own story at the head of the chain: make the change easy, then make the easy
-  change.
+- The first story is a walking skeleton: the thinnest path a person can see
+  working end to end, hardcoded where that keeps it thin.
+- Split big candidates with the `story` skill's `SPLITTING.md`: workflow steps,
+  rule variations, happy then unhappy, one data variation, one interface,
+  hardcode then generalize, defer performance, spike the unknown. Never by layer.
+- A candidate with no possible human demo is not a story. It becomes a task in
+  the first story that needs it, or a spike if the unknown is the work.
 
-Give every story its **blocking edges**: the stories that must finish before it
-can start. A story with no blockers can start immediately.
+## 2. Decide each story's tasks
 
-Wide refactors are the exception to slicing. A mechanical change whose blast
-radius spans the codebase (rename a column, retype a shared symbol) cannot land
-green as one slice. Sequence it as expand, migrate, contract: add the new form
-beside the old; migrate call sites in batches sized by blast radius, each batch a
-story blocked by the expand; delete the old form in a story blocked by every
-batch.
+For each story, the tasks that deliver its Demo, one to five, in build order.
 
-## 2. Carry the design
+- A task is one context window and one TDD plan with its own Verify.
+- **Contract first, inside the story.** The walking skeleton's T1 usually fixes
+  the interface, schema, or route table that later tasks and stories build
+  behind, so they test against stable signatures.
+- **Prefactoring** that makes a story easy is that story's first task: make the
+  change easy, then make the easy change.
+- **Wide refactors** are the exception. A mechanical change whose blast radius
+  spans the codebase cannot land green as one task. Sequence it as expand,
+  migrate in batches, contract: each batch a task, or a story of its own whose
+  Demo is "everything still works and the old form is gone."
 
-This is what separates a story from a ticket. For each story, pull from the
-design doc the parts this slice touches, and only those:
+Give every story its **blocking edges**: the stories that must finish first.
 
-- **Interfaces and types.** Signatures in the repo's language: the port, the
-  domain type, the request and response shape.
-- **Data.** Schema or struct sketch, invariants, the isolation rule if
-  multi-tenant.
-- **Algorithm.** Numbered steps or pseudocode for anything a reader could get
-  wrong: ordering, retries, state transitions, validation order.
-- **Diagram.** A Mermaid block when a picture beats prose: a sequence diagram for
-  a flow across components, a state diagram for a state machine, an ER diagram
-  for data.
-- **Sample code.** A sketch of the decision-rich core, ten to forty lines, not a
-  working implementation. It shows the shape the implementer should land on.
-- **Files.** The paths the story creates or touches.
+## 3. Carry the design into the tasks
 
-Stories inherit `CLAUDE.md`, the agent contract solution-design wrote. A rule that
-applies to every story (layering, the persistence contract, the definition of done)
-lives there and is not restated per story; a story carries only what is specific
-to its slice.
+For each task, pull from the design doc the parts it touches, and only those:
+interfaces and types in the repo's language; data and invariants; the algorithm
+as numbered steps where a reader could get it wrong; a Mermaid diagram (per
+`visualize`) when a picture beats prose; a ten to forty line sketch of the
+decision-rich core; the files it creates or touches. Then a RED-first TDD plan
+(`Subject_Condition_Outcome`, simplest first, each at a named seam) and Verify
+commands with expected output.
 
-Derive, do not invent. If a story needs a decision the design does not make,
-make it in the story, mark it `(story decision)`, and say so in the hand-off so
-the design doc can absorb it. Trim to the decision-rich parts. Omit any
-subsection the story does not need; an empty heading is noise.
+Stories inherit `CLAUDE.md`, the agent contract solution-design wrote. A rule for
+every story lives there, not in each task. Derive, do not invent: a decision the
+design does not make is marked `(story decision)` and listed in the hand-off so
+the design can absorb it.
 
-## 3. Prove it
+## 4. Write the human header
 
-- **TDD plan.** Numbered tests, RED first, named `Subject_Condition_Outcome`,
-  ordered the way they should be written (simplest pure function first, the
-  most integrated last), each at a named seam. Name the fake or fixture where
-  it matters.
-- **Acceptance criteria.** Checkable, each tied to a requirement id. "It works"
-  is not a criterion.
-- **Verification.** The commands that prove the story, with expected output,
-  including one manual smoke (a curl, a CLI call) that produces visible output.
+For each story, per FORMAT.md: the Scenario (a person and a reason), the Demo,
+the Picture (one diagram of the change a person notices, glossary terms as
+labels, drawn and validated with `visualize`), Acceptance tied to R-ids, Out of
+scope, and Verification (the Demo as commands, plus the full test command).
 
-## 4. Quiz the user
+## 5. Run the critic
 
-Present the breakdown as a numbered list. For each story: title, blocked by,
-the requirement ids it serves, and the end-to-end behaviour it delivers. Then
+Follow "Check a breakdown" in the `story` skill: a fresh sub-agent
+reads only the drafts, `GLOSSARY.md`, `CONTEXT.md`, and CRITIC.md, and rules
+PASS or REJECT per story, then on the breakdown. Revise and rerun. Three
+rejections on one rule go to the user with the objection attached.
+
+## 6. Quiz the user
+
+Present the breakdown as a numbered list. For each story: the title, its Demo
+sentence, blocked by, the R-ids it serves, and its task titles on one line. Then
 name every requirement the traceability table assigns to this phase that no
-story serves. The user adds a story, moves the requirement to a later phase, or
-strikes it; it does not stay silent. Ask whether the granularity is right,
-whether each blocking edge is a real gate, and whether anything should merge or
-split. Iterate until the user approves. Only then write the full stories.
+story serves; the user adds a story, moves the requirement, or strikes it. Ask
+whether each story is something they would want to see, whether the edges are
+real gates, and whether anything should merge or split. When the viewer is
+running, also write the list to `docs/planning/<slug>/stories/BREAKDOWN.md` so it
+renders with its pictures. Iterate until the user approves; only then write the
+full stories. Delete `BREAKDOWN.md` after publishing.
 
-## 5. Publish
+## 7. Publish
 
-Read `docs/agents/issue-tracker.md`.
+Read `docs/agents/profile.md`.
 
-- **A real tracker** (GitHub, GitLab, Jira, Linear, or a freeform workflow the
-  config describes): one issue per story, blockers first so edges can reference
-  real ids. Use the platform's native blocking or sub-issue relationship where
-  it has one; otherwise a `Blocked by` line. Apply the `ready-for-agent` label.
-  Link the parent (the PRD issue or epic) when there is one. The body is the
-  template below without the `Status` line; the tracker holds the state.
-- **Local markdown, or no config:** one file per story at
-  `docs/planning/<slug>/stories/NN-MM-<story-slug>.md`, `NN` the phase number
-  (`01` when there is no phased design) and `MM` the story index in dependency
-  order from `01`. Never one combined file.
+- **A real tracker:** one issue per story, blockers first so edges reference real
+  ids, using the native blocking or sub-issue relationship where the tracker has
+  one. Apply the profile's ready label. Link the parent (requirements issue or
+  epic). The body is the story without the `Status` line.
+- **Local files, or no profile:** one file per story at
+  `docs/planning/<slug>/stories/NN-MM-<slug>.md`, `NN` the phase (`01` with no
+  phases), `MM` the dependency order from `01`, the slug taken from the title.
 
 Do not close or modify the parent issue.
 
 ### Fill the traceability table
 
-When `phases.md` exists, update its `## Traceability` table before committing.
-For every requirement this phase's stories serve, write the story ids into its
-Stories cell: `01-01, 01-03` for files, the issue references for a tracker. A
-requirement the table assigns to this phase that no story serves keeps an empty
-cell, so the gap stays visible until a story or a re-phasing closes it. If a
-story serves a requirement the table assigned to another phase, or to none,
-correct or add the row and say so in the hand-off; the phase map was wrong. If
-`phases.md` predates the table, add the section from the vertical-slice-phasing
-template first, one row per requirement id, filling Phase from the definition
-of done where the tag is clear. On the light path, with no `phases.md`, the
-story's `Serves` line is the only trace; skip this.
-
-## Story template
-
-````markdown
-# NN-MM: <Story title>
-
-**Status:** ready-for-agent
-**Phase:** <phase number and name, or "none">
-**Blocked by:** <NN-MM title, ...> or "None, can start immediately"
-**Serves:** R3, R7; design: Ports, Control flow
-
-## What to build
-
-The end-to-end behaviour this story makes work, from the user's perspective.
-Two to four sentences. Name what is deliberately kept simple.
-
-## Design
-
-### Interfaces and types
-### Data
-### Algorithm
-### Diagram
-### Sample code
-### Files
-
-(Keep only the subsections this story needs.)
-
-## TDD plan
-
-1. **Subject_Condition_Outcome** at <seam>: what it asserts.
-2. ...
-
-## Acceptance criteria
-
-- [ ] <checkable statement> (R3)
-- [ ] ...
-
-## Out of scope
-
-What this story does not do, and which story or phase does.
-
-## Verification
-
-```bash
-<test command>
-<manual smoke>   # expect: ...
-```
-````
-
-A worked example is in `references/example-story.md`; read it before writing the
-first story of a session so the density is right.
+When `phases.md` exists, write the story ids into the Stories cell of every
+requirement this phase's stories serve. A requirement assigned to this phase that
+no story serves keeps an empty cell, so the gap stays visible. If a story serves a
+requirement assigned elsewhere or nowhere, correct the row and say so. On the
+light path, with no `phases.md`, the story's `Serves` line is the only trace.
 
 ## Style
 
-Practitioner notes, not ticket-speak. Direct and concrete: "set `app.tenant_id`
-inside the transaction; never write `WHERE tenant_id = ?` in app code." Prose
-where prose works, code where code is shorter. State the default when there is a
-choice. No em dashes.
+Two registers in one file. The human header is plain and concrete, in the
+user's words: "Maya taps the link and lands on her menu." The tasks are
+practitioner notes: "set `app.tenant_id` inside the transaction; never write
+`WHERE tenant_id = ?` in app code." No em dashes.
 
 ## Hand off
 
 Work the frontier, any story whose blockers are done, one story at a time with
-`tdd` (the agent builds it) or `code-along` (the user builds it from a lesson,
-then debriefs), clearing context between stories. `code-along` moves a story
-through `in-lesson` and may append an `As built` section. When a story lands,
-flip its `Status` to `done` (or close the issue). When every story in the phase is done, run
-`elaborate-current-phase` to re-derive the next phase against the real code.
+`tdd` (the agent builds it, task by task) or `code-along` (the user builds it
+from a lesson, then debriefs), clearing context between stories. When every story
+in the phase is done, run `elaborate-current-phase` to re-derive the next phase
+against the real code.

@@ -3,7 +3,7 @@
 **Status:** Draft | Reviewed | Agreed
 **Date:** [date]
 **Owner:** [name]
-**Related:** [links to prior grilling session, ADRs, upstream proposals, IETF drafts]
+**Related:** [links to the interview findings, ADRs, upstream proposals, IETF drafts]
 
 One paragraph stating what this is and why it exists now. No solution language. If a
 reader cannot tell from this paragraph what problem is being solved and for whom,
@@ -27,6 +27,37 @@ Who or what interacts with this, and through which surface. Be specific about ma
 actors as well as humans: an upstream carrier, an SBC, an agent, a cron job, an MCP
 client. For each, name the surface they touch (CLI, REST, SIP, MCP, library API,
 webhook) and what they are trying to accomplish.
+
+Draw it as a C4 level 1 context diagram (see `visualize` NOTATION.md): people and
+outside systems around one box for this system, every arrow labelled with what
+crosses it. Follow it with one sentence saying what to look at.
+
+```mermaid
+flowchart LR
+  user(["[Actor]<br/>[Person]<br/>[what they want]"]):::person
+  sys["[This system]<br/>[System]<br/>[one-line purpose]"]:::system
+  ext["[Outside system]<br/>[External system]<br/>[what it provides]"]:::external
+  user -->|"[does what]"| sys
+  sys -->|"[asks for what]"| ext
+  classDef person fill:#08427b,stroke:#052e56,color:#fff
+  classDef system fill:#1168bd,stroke:#0b4884,color:#fff
+  classDef external fill:#8a8a8a,stroke:#5e5e5e,color:#fff
+```
+
+## User journey
+
+The main path a person takes, step by step, as a `journey` diagram (or a screen
+flow, with nodes linking to `mockups/*.html`, when the surface is screens). The
+phasing step slices this into a story map, and each story lights up part of it.
+
+```mermaid
+journey
+  title [Actor] [gets what done]
+  section [First stage]
+    [Step]: 3: [Actor]
+  section [Second stage]
+    [Step]: 4: [Actor]
+```
 
 ## Behavioral requirements
 

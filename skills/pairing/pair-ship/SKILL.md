@@ -3,8 +3,8 @@ name: pair-ship
 description: >-
   Ship the active slice: verify acceptance and the full check, update from
   main, open a PR whose body carries the rationale journal and a what, why,
-  and how of every change, run a three-axis review (standards, spec,
-  decisions), address findings, close out the memory bank, merge on an
+  and how of every change, run review-change on its three axes (standards,
+  spec, decisions), address findings, close out the memory bank, merge on an
   explicit yes, and wrap up. Resumable at any stage. Use when the slice's
   plan is done, or the user runs /pair-ship.
 argument-hint: "Nothing. The stage is read from the slice and the PR."
@@ -19,8 +19,8 @@ including the dead ends, the decisions, and the evidence. A reviewer who was
 not in the room should be able to agree or disagree with every choice.
 
 Call the Skill tool with `pairing` and read its MEMORY-BANK.md. The PR body
-template is [assets/pr-template.md](assets/pr-template.md); the review is
-[REVIEW.md](REVIEW.md).
+template is [assets/pr-template.md](assets/pr-template.md); the review is the
+`review-change` skill, with the slice as its spec.
 
 `WORKING-AGREEMENT.md` decides the PR mode (GitHub, GitLab, or local), draft
 or ready, the merge strategy, whether reviews are posted, and who merges. In
@@ -88,11 +88,18 @@ when the PR exists and the memory bank points at it.
 
 ## 4. Review
 
-Follow [REVIEW.md](REVIEW.md): standards, spec, and decisions, as parallel
-sub-agents against `<base>...HEAD`. Present the three reports side by side,
-unmerged. If the agreement says to post reviews, post the combined report with
-`gh pr comment <n> --body-file <file>`. Done when the reports are in front of
-the user.
+Call the Skill tool with `review-change`, passing the slice file as the spec
+source and the slice's `base` as the fixed point (recompute it with
+`git merge-base <default> HEAD` if the branch was rebased). It runs
+standards, spec, and decisions as parallel sub-agents against
+`<base>...HEAD` and presents the three reports side by side, unmerged. Its
+Decisions axis reads the working agreement's `Stack` and `Layout` along with
+the ADRs, `GLOSSARY.md`, and `CONTEXT.md`.
+
+If the agreement says to post reviews, write the three reports to a scratch
+file and post it with `gh pr comment <n> --body-file <file>`. In local mode,
+the reports go in the `Review round N` journal entry instead. Done when the
+reports are in front of the user.
 
 ## 5. Address
 
