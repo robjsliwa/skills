@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice reminders (prototype)</title>
+<!-- prototype: UI branch, standalone, made from the prototype skill's ui-variants-template.html.
+     Use this only when there is no app to host the variants yet; otherwise put
+     the variants on the real route (see switcher-snippet.md).
+     Throwaway. This file is the record of a decision, never the spec.
+     To fill it: replace the EDIT HERE blocks (the question, the sample data,
+     the variants, the tradeoffs, and the variant CSS). Leave the chrome alone.
+     Switch variants with ?variant=a|b|c, the pill at the bottom, or the Left and Right arrow keys. -->
+<style>
+/* ===== Base and prototype chrome. Shared by every prototype template. ===== */
+:root {
+  --bg: #f6f6f3; --surface: #ffffff; --surface-2: #f0efeb; --ink: #1c1c1a; --muted: #67665f;
+  --line: #e0ded7; --accent: #2f5bd3; --accent-ink: #ffffff; --accent-soft: #e9eefc;
+  --bad: #b3261e; --bad-soft: #fbeceb; --pill: #1c1c1a; --pill-ink: #f4f3ef;
+  --shadow: 0 8px 28px rgba(20, 20, 10, .14);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141517; --surface: #1c1d20; --surface-2: #25262a; --ink: #e8e7e3; --muted: #9c9b95;
+    --line: #34353a; --accent: #8ea8ff; --accent-ink: #0f1320; --accent-soft: #232a42;
+    --bad: #f2948b; --bad-soft: #3a2222; --pill: #ecebe7; --pill-ink: #18191b;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; padding-bottom: 104px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.top { max-width: 1160px; margin: 0 auto; padding: 16px 20px 6px; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 34px; padding-right: 120px; }
+.badge { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  padding: 6px 8px; border-radius: 4px; background: var(--ink); color: var(--bg); }
+.kind { font: 12px/1 var(--mono); color: var(--muted); }
+.top h1 { font-size: 24px; line-height: 1.25; margin: 10px 0 6px; letter-spacing: -.01em; }
+.question { margin: 0; max-width: 78ch; color: var(--muted); }
+.question strong { color: var(--ink); font-weight: 600; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 14px 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.card > h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+  margin: 0 0 12px; font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 7px 12px; line-height: 1.3; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { cursor: default; opacity: .45; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+pre.code { margin: 0; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; overflow: auto;
+  font: 12.5px/1.5 var(--mono); white-space: pre; }
+
+.pt-trade-btn { position: fixed; top: 14px; right: 14px; z-index: 40; border: 1px solid var(--line);
+  background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 13px; box-shadow: var(--shadow); }
+.pt-trade-btn[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pt-drawer { position: fixed; top: 56px; right: 14px; z-index: 40; width: min(360px, calc(100vw - 28px));
+  max-height: calc(100vh - 150px); overflow: auto; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 12px 16px 6px; display: none; }
+.pt-drawer.open { display: block; }
+.pt-drawer-head { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+.pt-t { border-top: 1px solid var(--line); padding: 10px 0 10px 10px; margin-left: -10px; border-left: 3px solid transparent; }
+.pt-t.current { border-left-color: var(--accent); }
+.pt-t h3 { margin: 0 0 4px; font-size: 14px; }
+.pt-t .on { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: 6px; text-transform: uppercase; letter-spacing: .05em; }
+.pt-tl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.pt-t ul { margin: 2px 0 0; padding-left: 18px; font-size: 13.5px; }
+
+.pt-pill { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40;
+  display: flex; align-items: center; gap: 2px; padding: 5px; border-radius: 999px;
+  background: var(--pill); color: var(--pill-ink); box-shadow: var(--shadow);
+  max-width: calc(100vw - 16px); font-size: 14px; }
+.pt-pill button { background: transparent; border: 0; color: inherit; padding: 7px 12px; border-radius: 999px; white-space: nowrap; }
+.pt-pill button:hover { background: rgba(128, 128, 128, .28); }
+.pt-pill .pt-arrow { padding: 7px 11px; font-size: 16px; line-height: 1; }
+.pt-pill .pt-label { padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+.pt-pill .pt-label b { font-family: var(--mono); margin-right: 6px; }
+.pt-sep { width: 1px; align-self: stretch; background: currentColor; opacity: .25; margin: 6px 4px; flex: none; }
+
+.pt-note { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 41;
+  width: min(440px, calc(100vw - 24px)); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 12px; display: none; }
+.pt-note.open { display: block; }
+.pt-note label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.pt-note label b { color: var(--ink); }
+.pt-note textarea { width: 100%; min-height: 84px; resize: vertical; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 7px; padding: 8px; }
+.pt-about { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.pt-about b { color: var(--ink); font-weight: 600; }
+.pt-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.pt-toast { position: fixed; left: 50%; bottom: 74px; transform: translate(-50%, 12px); z-index: 42; opacity: 0;
+  background: var(--pill); color: var(--pill-ink); padding: 8px 14px; border-radius: 8px; font-size: 13.5px;
+  max-width: calc(100vw - 24px); transition: opacity .15s, transform .15s; pointer-events: none; }
+.pt-toast.show { opacity: 1; transform: translate(-50%, 0); }
+[data-node] { cursor: pointer; }
+.pt-picked { outline: 2px dashed var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .top { padding: 14px 16px 4px; }
+  .top h1 { font-size: 20px; }
+  .wrap { padding: 12px 16px; }
+  .pt-pill { font-size: 13px; }
+  .pt-pill button { padding: 7px 9px; }
+}
+/* ===== Low-fi screen kit: greys only, so the layout is judged, not the paint. ===== */
+.stage { max-width: 1160px; margin: 0 auto; padding: 14px 20px; }
+.app { display: grid; grid-template-columns: 180px minmax(0, 1fr); min-height: 560px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.side { background: var(--surface-2); border-right: 1px solid var(--line); padding: 14px 10px; font-size: 14px; }
+.side .logo { font-weight: 700; padding: 4px 10px 14px; }
+.side a { display: block; padding: 6px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; }
+.side a.on { background: var(--surface); color: var(--ink); font-weight: 600; border: 1px solid var(--line); }
+.screen { padding: 20px 24px 28px; min-width: 0; }
+.crumbs { font-size: 13px; color: var(--muted); }
+.screen h2.title { font-size: 21px; margin: 2px 0 4px; }
+.screen .lead { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; background: var(--surface); }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1; min-width: 0; }
+.lbl { font-size: 13px; color: var(--muted); }
+.input { border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; background: var(--bg); min-width: 0; }
+.input.num { width: 64px; text-align: right; }
+.sw { width: 38px; height: 22px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); position: relative; flex: none; padding: 0; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: left .12s; }
+.sw[aria-checked="true"] { background: var(--ink); border-color: var(--ink); }
+.sw[aria-checked="true"]::after { left: 18px; background: var(--bg); }
+.tagx { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+.sbtn { border: 1px solid var(--ink); background: var(--surface); border-radius: 6px; padding: 7px 14px; font-weight: 600; }
+.sbtn.dark { background: var(--ink); color: var(--bg); }
+.hint { font-size: 12.5px; color: var(--muted); }
+.app input[type="checkbox"] { accent-color: var(--ink); }
+
+/* EDIT HERE: variant-specific CSS. Prefix each rule with its variant class. */
+/* A: one form */
+.va .sect { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 24px; padding: 16px 0; border-top: 1px solid var(--line); }
+.va .sect:first-of-type { border-top: 0; padding-top: 0; }
+.va .sect h3 { margin: 0; font-size: 14.5px; }
+.va .sect .hint { margin-top: 2px; }
+.va .stack { display: grid; gap: 10px; }
+.va .foot { display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
+/* B: timeline */
+.vb .rail { position: relative; display: flex; justify-content: space-between; gap: 8px; padding: 34px 6px 6px; }
+.vb .rail::before { content: ""; position: absolute; left: 24px; right: 24px; top: 46px; border-top: 2px solid var(--line); }
+.vb .pt { position: relative; flex: 1; text-align: center; background: none; border: 0; padding: 0; }
+.vb .pt .dot { width: 26px; height: 26px; margin: 0 auto 8px; border-radius: 50%; border: 2px solid var(--ink); background: var(--surface); position: relative; z-index: 1; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.vb .pt.due .dot { background: var(--ink); color: var(--bg); }
+.vb .pt.sel .dot { box-shadow: 0 0 0 4px var(--surface-2), 0 0 0 6px var(--ink); }
+.vb .pt .when { font-weight: 600; font-size: 14px; display: block; }
+.vb .pt .how { font-size: 12.5px; color: var(--muted); display: block; }
+.vb .add { border: 1px dashed var(--muted); border-radius: 50%; width: 26px; height: 26px; display: grid; place-items: center; margin: 0 auto 8px; color: var(--muted); background: var(--surface); position: relative; z-index: 1; }
+.vb .editor { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.vb .field { display: grid; gap: 4px; margin-bottom: 12px; }
+.vb .mail { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; }
+/* C: inbox preview */
+.vc .split { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.vc .list { border-right: 1px solid var(--line); background: var(--surface-2); }
+.vc .item { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 10px 14px; }
+.vc .item.sel { background: var(--surface); box-shadow: inset 3px 0 0 var(--ink); }
+.vc .item .d { font-size: 12px; color: var(--muted); }
+.vc .item .s { font-weight: 600; font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vc .item .c { font-size: 12px; }
+.vc .preview { padding: 16px 20px; }
+.vc .hdr { font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 12px; line-height: 1.7; }
+.vc .hdr b { color: var(--ink); }
+.vc .body p { margin: 0 0 10px; }
+.vc .pay { display: inline-block; border: 2px solid var(--ink); border-radius: 6px; padding: 7px 16px; font-weight: 700; margin: 4px 0 12px; }
+.vc .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+/* END EDIT */
+
+@media (max-width: 760px) {
+  .stage { padding: 10px 12px; }
+  .app { grid-template-columns: 1fr; }
+  .side { display: none; }
+  .screen { padding: 16px 14px 22px; }
+  .va .sect { grid-template-columns: 1fr; }
+  .vb .rail { flex-direction: column; padding: 4px 0; gap: 4px; }
+  .vb .rail::before { left: 18px; right: auto; top: 12px; bottom: 12px; border-top: 0; border-left: 2px solid var(--line); }
+  .vb .pt { display: grid; grid-template-columns: 36px 1fr; text-align: left; align-items: center; padding: 6px 0; }
+  .vb .pt .dot, .vb .add { margin: 0 0 0 5px; grid-row: span 2; }
+  .vb .editor { grid-template-columns: 1fr; }
+  .vc .split { grid-template-columns: 1fr; }
+  .vc .list { border-right: 0; border-bottom: 1px solid var(--line); }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="badge-row"><span class="badge">Prototype, throwaway</span><span class="kind">ui variants</span></div>
+  <h1 id="title"></h1>
+  <p class="question"><strong>Question:</strong> <span id="question"></span></p>
+</header>
+
+<div class="stage">
+  <div class="app">
+    <nav class="side" aria-label="App navigation (fake)">
+      <div class="logo">Books</div>
+      <a>Dashboard</a><a>Invoices</a><a>Customers</a><a class="on">Settings</a>
+    </nav>
+    <section class="screen" id="screen" aria-live="polite"></section>
+  </div>
+</div>
+
+<nav class="pt-pill pt-chrome" aria-label="Prototype controls">
+  <button class="pt-arrow" id="v-prev" aria-label="Previous variant">&#8249;</button>
+  <span class="pt-label" id="v-label"></span>
+  <button class="pt-arrow" id="v-next" aria-label="Next variant">&#8250;</button>
+  <span class="pt-sep"></span>
+  <button id="pt-pick">Pick this</button><button id="pt-note-btn">Add a note</button>
+</nav>
+<!-- Prototype chrome: tradeoff drawer, note box, toast. No edits needed. -->
+<div class="pt-chrome">
+  <button class="pt-trade-btn" id="pt-trade-btn" aria-expanded="false" aria-controls="pt-drawer">Tradeoffs</button>
+  <aside class="pt-drawer" id="pt-drawer" aria-label="Tradeoffs">
+    <div class="pt-drawer-head">What each one gains and gives up</div>
+    <div id="pt-drawer-list"></div>
+  </aside>
+  <div class="pt-note" id="pt-note" role="dialog" aria-label="Add a note">
+    <label for="pt-note-text">Note on <b id="pt-note-on"></b></label>
+    <textarea id="pt-note-text" placeholder="What feels wrong, missing, or right?"></textarea>
+    <div class="pt-about">About: <b id="pt-about">the whole thing</b> <span class="muted">(click any labelled part of the page to point at it)</span></div>
+    <div class="pt-row"><button class="btn" data-act="cancel">Cancel</button><button class="btn primary" data-act="send">Send note</button></div>
+  </div>
+  <div class="pt-toast" id="pt-toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+/* EDIT HERE (1 of 3): the question, and the sample data every variant shows. */
+const PROTO = {
+  title: "Invoice reminders: which settings screen?",
+  question: "Which layout lets a small-business owner see, at a glance, when reminders go out and what the customer will read, and change it without help?",
+};
+const DATA = {
+  invoice: { id: "INV-2041", customer: "Northwind Studio", amount: "£1,840.00", due: "Fri 17 Oct" },
+  reminders: [
+    { id: "r1", offset: -3, date: "Tue 14 Oct", channels: ["Email"], tone: "Friendly", subject: "Invoice INV-2041 is due on Friday" },
+    { id: "r2", offset: 0, date: "Fri 17 Oct", channels: ["Email"], tone: "Friendly", subject: "Invoice INV-2041 is due today" },
+    { id: "r3", offset: 7, date: "Fri 24 Oct", channels: ["Email", "SMS"], tone: "Firm", subject: "Invoice INV-2041 is 7 days overdue" },
+    { id: "r4", offset: 14, date: "Fri 31 Oct", channels: ["Email"], tone: "Final", subject: "Final reminder: INV-2041 is 14 days overdue" },
+  ],
+};
+const when = (o) => (o === 0 ? "On the due date" : Math.abs(o) + " days " + (o < 0 ? "before" : "after"));
+const short = (o) => (o === 0 ? "Due" : (o < 0 ? "−" : "+") + Math.abs(o) + " d");
+const body = (r) => ({
+  Friendly: "Hi Northwind Studio, a quick heads-up that invoice " + DATA.invoice.id + " for " + DATA.invoice.amount + " is due " + (r.offset < 0 ? "on " + DATA.invoice.due : "today") + ". Thanks!",
+  Firm: "Hi Northwind Studio, invoice " + DATA.invoice.id + " for " + DATA.invoice.amount + " was due on " + DATA.invoice.due + " and is now " + r.offset + " days overdue. Please pay or reply if something is wrong.",
+  Final: "Hi Northwind Studio, this is the last automatic reminder for " + DATA.invoice.id + " (" + DATA.invoice.amount + "). After today we will contact you by phone.",
+})[r.tone];
+/* END EDIT */
+
+/* EDIT HERE (2 of 3): the variants. Three by default, five at most. Each one
+   must disagree with the others about structure (layout, hierarchy, primary
+   affordance), not colour or copy. render(el) fills the screen; mount(el) wires
+   in-memory interactions. Every interesting part gets a data-node label so
+   notes can point at it. */
+const VARIANTS = [
+  {
+    id: "a", name: "One form",
+    render: () => `<div class="va">
+      <div class="crumbs">Settings / Invoice reminders</div>
+      <h2 class="title">Invoice reminders</h2>
+      <p class="lead">Rules for every unpaid invoice. Customers can be excluded on their own page.</p>
+      <div class="box">
+        <div class="sect" data-node="On or off"><div><h3>Automatic reminders</h3><div class="hint">Off means no reminder is ever sent.</div></div>
+          <div class="row"><button class="sw" role="switch" aria-checked="true" aria-label="Send automatic reminders"></button><span>Send reminders for unpaid invoices</span></div></div>
+        <div class="sect" data-node="Timing"><div><h3>Timing</h3><div class="hint">Counted from the invoice due date.</div></div>
+          <div class="stack">
+            <label class="row"><input class="input num" value="3" inputmode="numeric" aria-label="Days before"> <span>days before the due date</span></label>
+            <label class="row"><input type="checkbox" checked> <span>On the due date</span></label>
+            <label class="row"><span>Then every</span><input class="input num" value="7" inputmode="numeric" aria-label="Days between"><span>days, up to</span><input class="input num" value="2" inputmode="numeric" aria-label="Times"><span>times</span></label>
+          </div></div>
+        <div class="sect" data-node="Channels"><div><h3>Channels</h3><div class="hint">SMS costs 4p per message.</div></div>
+          <div class="stack"><label class="row"><input type="checkbox" checked> Email</label><label class="row"><input type="checkbox" checked> SMS, only once overdue</label></div></div>
+        <div class="sect" data-node="Wording"><div><h3>Wording</h3><div class="hint">Tone gets firmer as the invoice ages.</div></div>
+          <div class="stack"><div class="row"><span class="tagx">Friendly</span><span class="hint">then</span><span class="tagx">Firm</span><span class="hint">then</span><span class="tagx">Final</span></div>
+          <textarea class="input" rows="3" aria-label="Message">${body(DATA.reminders[0])}</textarea></div></div>
+        <div class="sect" data-node="Stop rules"><div><h3>Stop when</h3></div>
+          <div class="stack"><label class="row"><input type="checkbox" checked> The invoice is paid</label><label class="row"><input type="checkbox" checked> The customer disputes it</label></div></div>
+        <div class="foot"><button class="sbtn">Cancel</button><button class="sbtn dark" data-node="Save button">Save changes</button></div>
+      </div></div>`,
+    mount: (el) => el.querySelectorAll(".sw").forEach((s) => (s.onclick = () => s.setAttribute("aria-checked", String(s.getAttribute("aria-checked") !== "true")))),
+  },
+  {
+    id: "b", name: "Timeline",
+    render: () => `<div class="vb">
+      <div class="crumbs">Settings / Invoice reminders</div>
+      <h2 class="title">Reminder schedule</h2>
+      <p class="lead">Each dot is one message. Click one to change it.</p>
+      <div class="box">
+        <div class="rail" id="rail">
+          ${DATA.reminders.map((r, i) => `<button class="pt${r.offset === 0 ? " due" : ""}${i === 2 ? " sel" : ""}" data-id="${r.id}" data-node="Reminder: ${when(r.offset)}">
+            <span class="dot">${i + 1}</span><span class="when">${short(r.offset)}</span><span class="how">${r.channels.join(" + ")}, ${r.tone.toLowerCase()}</span></button>`).join("")}
+          <button class="pt" data-node="Add a reminder"><span class="add">+</span><span class="when">Add</span><span class="how">another step</span></button>
+        </div>
+        <div class="editor" id="editor"></div>
+      </div></div>`,
+    mount: (el) => {
+      const show = (id) => {
+        const r = DATA.reminders.find((x) => x.id === id) || DATA.reminders[2];
+        el.querySelectorAll(".pt[data-id]").forEach((p) => p.classList.toggle("sel", p.dataset.id === r.id));
+        el.querySelector("#editor").innerHTML = `<div data-node="Reminder editor">
+            <div class="field"><span class="lbl">When</span><span><b>${when(r.offset)}</b> the due date (${r.date} for ${DATA.invoice.id})</span></div>
+            <div class="field"><span class="lbl">Send by</span><div class="row"><label class="row"><input type="checkbox" ${r.channels.includes("Email") ? "checked" : ""}> Email</label><label class="row"><input type="checkbox" ${r.channels.includes("SMS") ? "checked" : ""}> SMS</label></div></div>
+            <div class="field"><span class="lbl">Subject</span><input class="input" value="${r.subject}"></div>
+            <div class="row"><button class="sbtn">Remove step</button><button class="sbtn dark">Save</button></div></div>
+          <div class="mail" data-node="Message preview"><div class="lbl">What ${DATA.invoice.customer} reads</div><p><b>${r.subject}</b></p><p>${body(r)}</p></div>`;
+      };
+      el.querySelectorAll(".pt[data-id]").forEach((p) => (p.onclick = () => show(p.dataset.id)));
+      show("r3");
+    },
+  },
+  {
+    id: "c", name: "Inbox preview",
+    render: () => `<div class="vc">
+      <div class="crumbs">Settings / Invoice reminders</div>
+      <h2 class="title">What your customers receive</h2>
+      <div class="bar"><span class="lead" style="margin:0">Example: ${DATA.invoice.id}, ${DATA.invoice.customer}, ${DATA.invoice.amount}, due ${DATA.invoice.due}.</span>
+        <span class="row" data-node="On or off"><button class="sw" role="switch" aria-checked="true" aria-label="Send these automatically"></button><span>Send these automatically</span></span></div>
+      <div class="split">
+        <div class="list" role="listbox" aria-label="Messages in order">
+          ${DATA.reminders.map((r, i) => `<button class="item${i === 0 ? " sel" : ""}" data-id="${r.id}" data-node="Message: ${short(r.offset)}">
+            <span class="d">${r.date}, ${when(r.offset).toLowerCase()}</span><span class="s">${r.subject}</span><span class="c tagx">${r.channels.join(" + ")}</span></button>`).join("")}
+          <button class="item" data-node="Add a message"><span class="s">+ Add a message</span></button>
+        </div>
+        <div class="preview" id="preview"></div>
+      </div></div>`,
+    mount: (el) => {
+      const show = (id) => {
+        const r = DATA.reminders.find((x) => x.id === id) || DATA.reminders[0];
+        el.querySelectorAll(".item[data-id]").forEach((p) => p.classList.toggle("sel", p.dataset.id === r.id));
+        el.querySelector("#preview").innerHTML = `<div class="hdr" data-node="Message header"><b>${r.subject}</b><br>To: accounts@northwind.example (${r.channels.join(" + ")})<br>Sent: ${r.date}, ${when(r.offset).toLowerCase()} the due date</div>
+          <div class="body" data-node="Message body"><p>${body(r)}</p><span class="pay">Pay ${DATA.invoice.amount}</span><p class="hint">Edit wording &middot; Change timing &middot; Skip for this customer</p></div>`;
+      };
+      el.querySelectorAll(".item[data-id]").forEach((p) => (p.onclick = () => show(p.dataset.id)));
+      el.querySelectorAll(".sw").forEach((s) => (s.onclick = () => s.setAttribute("aria-checked", String(s.getAttribute("aria-checked") !== "true"))));
+      show("r1");
+    },
+  },
+];
+/* END EDIT */
+
+/* EDIT HERE (3 of 3): what each variant gains and gives up. */
+const TRADEOFFS = {
+  a: { title: "A. One form", gains: ["Every rule visible and editable in one place", "Familiar; cheap to build with existing form parts"], gives: ["Nobody can tell what the customer actually reads, or when", "Timing as arithmetic (every 7 days, up to 2 times) is easy to get wrong"] },
+  b: { title: "B. Timeline", gains: ["When things happen is obvious at a glance", "Each step can differ (channel, tone) without new rules"], gives: ["Global rules (stop when paid) have no natural home", "Many steps crowd the rail; needs a cap"] },
+  c: { title: "C. Inbox preview", gains: ["Shows exactly what the customer receives", "Builds trust: owners worry about sounding rude"], gives: ["Timing and channel settings are one click deeper", "Preview needs a real example invoice to make sense"] },
+};
+/* END EDIT */
+
+/* ===== Prototype chrome: tradeoff drawer, feedback bar, toast, clipboard.
+   Shared by every prototype template. No edits needed below this line.
+   Opened through the docs viewer (/prototype?path=...), feedback is posted to
+   /api/event and lands in .viewer/events.jsonl. Opened as a file, feedback is
+   copied to the clipboard as one plain-text line. ===== */
+const Chrome = (() => {
+  const $ = (s) => document.querySelector(s);
+  const viaViewer = /^https?:$/.test(location.protocol) && location.pathname.indexOf("/prototype") === 0;
+  const file = viaViewer ? (new URLSearchParams(location.search).get("path") || "") : localPath();
+  let cfg = { current: () => ({ id: "", title: "" }), tradeoffs: {} };
+  let about = "", aboutEl = null;
+
+  function localPath() {
+    const p = decodeURIComponent(location.pathname);
+    const i = p.lastIndexOf("/docs/");
+    return i >= 0 ? p.slice(i + 1) : p.split("/").pop();
+  }
+  function isTyping(e) {
+    return !!(e.target && e.target.closest && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])"));
+  }
+  function toast(msg, ms) {
+    const t = $("#pt-toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms || 2600);
+  }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* try the old way */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy"); ta.remove(); return ok;
+    } catch (e) { return false; }
+  }
+  async function send(kind, text) {
+    const cur = cfg.current();
+    const ev = { type: "prototype", file, choice: cur.id + ": " + cur.title, text: kind === "pick" ? "picked" : text };
+    if (about) ev.about = about;
+    if (viaViewer) {
+      try {
+        const r = await fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(ev) });
+        if (r.ok) { toast(kind === "pick" ? "Recorded: " + cur.title : "Note recorded"); return true; }
+      } catch (e) { /* fall back to the clipboard */ }
+    }
+    const line = ["prototype", file, "choice: " + ev.choice, ev.about && "about: " + ev.about, "text: " + ev.text]
+      .filter(Boolean).join(" | ");
+    const ok = await copyText(line);
+    toast(ok ? "Copied to the clipboard. Paste it into the chat." : "Copy was blocked. Tell the agent: " + line, ok ? 3200 : 9000);
+    return true;
+  }
+  function setAbout(el) {
+    if (aboutEl) aboutEl.classList.remove("pt-picked");
+    aboutEl = el; about = el ? el.getAttribute("data-node") : "";
+    if (el && $("#pt-note").classList.contains("open")) el.classList.add("pt-picked");
+    $("#pt-about").textContent = about || "the whole thing";
+  }
+  function renderDrawer() {
+    const box = $("#pt-drawer-list"), cur = cfg.current().id;
+    box.textContent = "";
+    for (const [id, t] of Object.entries(cfg.tradeoffs)) {
+      const sec = document.createElement("section");
+      sec.className = "pt-t" + (id === cur ? " current" : "");
+      const h = document.createElement("h3"); h.textContent = t.title; sec.appendChild(h);
+      if (id === cur) { const on = document.createElement("span"); on.className = "on"; on.textContent = "on screen"; h.appendChild(on); }
+      for (const [label, items] of [["Gains", t.gains || []], ["Gives up", t.gives || []]]) {
+        const l = document.createElement("div"); l.className = "pt-tl"; l.textContent = label; sec.appendChild(l);
+        const ul = document.createElement("ul");
+        for (const x of items) { const li = document.createElement("li"); li.textContent = x; ul.appendChild(li); }
+        sec.appendChild(ul);
+      }
+      box.appendChild(sec);
+    }
+  }
+  function openNote() {
+    $("#pt-note-on").textContent = cfg.current().title;
+    $("#pt-note").classList.add("open");
+    if (aboutEl) aboutEl.classList.add("pt-picked");
+    $("#pt-note-text").focus();
+  }
+  function closeNote() {
+    $("#pt-note").classList.remove("open");
+    if (aboutEl) aboutEl.classList.remove("pt-picked");
+  }
+  function toggleDrawer(force) {
+    const d = $("#pt-drawer"), b = $("#pt-trade-btn");
+    const open = typeof force === "boolean" ? force : !d.classList.contains("open");
+    d.classList.toggle("open", open); b.setAttribute("aria-expanded", String(open));
+  }
+
+  function init(options) {
+    cfg = Object.assign(cfg, options);
+    $("#pt-trade-btn").addEventListener("click", () => toggleDrawer());
+    $("#pt-pick").addEventListener("click", () => send("pick"));
+    $("#pt-note-btn").addEventListener("click", () => ($("#pt-note").classList.contains("open") ? closeNote() : openNote()));
+    $("#pt-note").addEventListener("click", async (e) => {
+      const act = e.target.dataset && e.target.dataset.act;
+      if (act === "cancel") closeNote();
+      if (act === "send") {
+        const text = $("#pt-note-text").value.trim();
+        if (!text) { toast("Write something first"); return; }
+        await send("note", text);
+        $("#pt-note-text").value = ""; closeNote(); setAbout(null);
+      }
+    });
+    $("#pt-note-text").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("#pt-note [data-act=send]").click();
+    });
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest && e.target.closest("[data-node]");
+      if (el && !el.closest(".pt-chrome, .pt-pill")) setAbout(el);
+    }, true);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeNote(); toggleDrawer(false); }
+    });
+    renderDrawer();
+  }
+  return { init, refresh: renderDrawer, toast, copyText, isTyping, viaViewer, file };
+})();
+
+/* ===== Variant switcher. Reads and writes ?variant=, keeps other query params
+   (the viewer's ?path= among them). No edits needed. ===== */
+(() => {
+  const $ = (s) => document.querySelector(s);
+  $("#title").textContent = PROTO.title;
+  $("#question").textContent = PROTO.question;
+  document.title = PROTO.title + " (prototype)";
+  const ids = VARIANTS.map((v) => v.id);
+  let cur = ids.includes(new URLSearchParams(location.search).get("variant")) ? new URLSearchParams(location.search).get("variant") : ids[0];
+
+  function show(id) {
+    cur = id;
+    const v = VARIANTS.find((x) => x.id === id);
+    const screen = $("#screen");
+    screen.innerHTML = v.render();
+    if (v.mount) v.mount(screen);
+    const lab = $("#v-label"); lab.textContent = "";
+    const b = document.createElement("b"); b.textContent = id.toUpperCase(); lab.append(b, document.createTextNode(v.name));
+    lab.title = id.toUpperCase() + ": " + v.name;
+    try {
+      const p = new URLSearchParams(location.search); p.set("variant", id);
+      history.replaceState(null, "", location.pathname + "?" + p.toString() + location.hash);
+    } catch (e) { /* some browsers refuse on file://; the pill still works */ }
+    Chrome.refresh();
+  }
+  const step = (d) => show(ids[(ids.indexOf(cur) + d + ids.length) % ids.length]);
+  $("#v-prev").onclick = () => step(-1);
+  $("#v-next").onclick = () => step(1);
+  document.addEventListener("keydown", (e) => {
+    if (Chrome.isTyping(e) || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+  });
+  Chrome.init({ current: () => ({ id: cur, title: VARIANTS.find((v) => v.id === cur).name }), tradeoffs: TRADEOFFS });
+  show(cur);
+})();
+</script>
+</body>
+</html>

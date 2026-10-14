@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.1.0 (2026-10-14)
+
+Finding things out, together. Design: [`docs/planning/research-skills/`](docs/planning/research-skills/design.md),
+[ADR 0004](docs/adr/0004-research-lives-in-files.md).
+
+### Added
+
+- `trailblazer` (mode): pair research around a living Mermaid trail map in
+  `docs/research/<topic>/`. Silent recon first, one question per turn with a
+  sketch, node states coloured on the map, background research and spikes,
+  forks shown as side-by-side diagrams, a playback after every decision, the
+  user picks the next node, and a `report.md` that hands off to the right loop.
+- `research` (kernel): a background agent answers a factual question from
+  primary sources with every claim marked cited, inferred, or conflict; a recon
+  variant reports what the repo already has.
+- `spike` (kernel): one technical question, framed with pass and fail criteria,
+  run in an isolated worktree inside a timebox, ending in a Confirmed, Rejected,
+  or Partial verdict and a brief. Spike code is never merged.
+- `prototype` (kernel): LOGIC, UI, and FLOW prototypes from tested single-file
+  templates, each with a tradeoff drawer and a feedback bar; the decision is
+  redrawn as Mermaid (state, sequence, or screen flow).
+- Docs viewer: a `/prototype` route that runs scripts for files under a
+  `prototypes/` folder, and a `prototype` event type for picks and notes.
+
+### Changed
+
+- `start` routes foggy ideas to `trailblazer` and resumes trails in progress.
+- `interview` hands facts to `research`, can-it-work questions to `spike`, and
+  show-me moments to `prototype`.
+- `light` escalates fog to `trailblazer` and runs a `spike` for a single
+  technical unknown.
+- `story`, `tdd`, and `pairing` run spikes with the `spike` skill.
+- `write-requirements` accepts a trail report as its raw material.
+- The profile gains `Research` and `Spikes` locations.
+
 ## 2.0.0 (2026-10-13)
 
 Self-contained, organised around four modes, with stories a person can see and

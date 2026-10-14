@@ -28,6 +28,9 @@ confirm the understanding is actually shared:
 
 - If an `interview` (align or decide) already happened in this conversation, use
   it. The decisions are the raw material.
+- If a `trailblazer` trail arrived here, its `report.md` and node files are the
+  raw material: the destination, the decisions, the evidence. Carry its context
+  picture and any prototype-derived diagrams forward, and link the report.
 - If it did not, stop and run `interview` with the subject **align** first.
   Writing requirements from an unexamined one-line brief is how thin requirements
   happen. Say so plainly and invoke the interview rather than papering over the gap.

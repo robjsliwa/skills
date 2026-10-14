@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Webhook delivery (prototype)</title>
+<!-- prototype: FLOW branch, made from the prototype skill's flow-template.html.
+     Throwaway. This file is the record of a decision, never the spec.
+     To fill it: replace the EDIT HERE blocks (the question, the FLOW object,
+     the tradeoffs). The FLOW object is plain data, so "Copy as Mermaid" can
+     turn any scenario into a sequenceDiagram. Leave the chrome alone. -->
+<style>
+/* ===== Base and prototype chrome. Shared by every prototype template. ===== */
+:root {
+  --bg: #f6f6f3; --surface: #ffffff; --surface-2: #f0efeb; --ink: #1c1c1a; --muted: #67665f;
+  --line: #e0ded7; --accent: #2f5bd3; --accent-ink: #ffffff; --accent-soft: #e9eefc;
+  --bad: #b3261e; --bad-soft: #fbeceb; --pill: #1c1c1a; --pill-ink: #f4f3ef;
+  --shadow: 0 8px 28px rgba(20, 20, 10, .14);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141517; --surface: #1c1d20; --surface-2: #25262a; --ink: #e8e7e3; --muted: #9c9b95;
+    --line: #34353a; --accent: #8ea8ff; --accent-ink: #0f1320; --accent-soft: #232a42;
+    --bad: #f2948b; --bad-soft: #3a2222; --pill: #ecebe7; --pill-ink: #18191b;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; padding-bottom: 104px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.top { max-width: 1160px; margin: 0 auto; padding: 16px 20px 6px; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 34px; padding-right: 120px; }
+.badge { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  padding: 6px 8px; border-radius: 4px; background: var(--ink); color: var(--bg); }
+.kind { font: 12px/1 var(--mono); color: var(--muted); }
+.top h1 { font-size: 24px; line-height: 1.25; margin: 10px 0 6px; letter-spacing: -.01em; }
+.question { margin: 0; max-width: 78ch; color: var(--muted); }
+.question strong { color: var(--ink); font-weight: 600; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 14px 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.card > h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+  margin: 0 0 12px; font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 7px 12px; line-height: 1.3; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { cursor: default; opacity: .45; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+pre.code { margin: 0; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; overflow: auto;
+  font: 12.5px/1.5 var(--mono); white-space: pre; }
+
+.pt-trade-btn { position: fixed; top: 14px; right: 14px; z-index: 40; border: 1px solid var(--line);
+  background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 13px; box-shadow: var(--shadow); }
+.pt-trade-btn[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pt-drawer { position: fixed; top: 56px; right: 14px; z-index: 40; width: min(360px, calc(100vw - 28px));
+  max-height: calc(100vh - 150px); overflow: auto; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 12px 16px 6px; display: none; }
+.pt-drawer.open { display: block; }
+.pt-drawer-head { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+.pt-t { border-top: 1px solid var(--line); padding: 10px 0 10px 10px; margin-left: -10px; border-left: 3px solid transparent; }
+.pt-t.current { border-left-color: var(--accent); }
+.pt-t h3 { margin: 0 0 4px; font-size: 14px; }
+.pt-t .on { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: 6px; text-transform: uppercase; letter-spacing: .05em; }
+.pt-tl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.pt-t ul { margin: 2px 0 0; padding-left: 18px; font-size: 13.5px; }
+
+.pt-pill { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40;
+  display: flex; align-items: center; gap: 2px; padding: 5px; border-radius: 999px;
+  background: var(--pill); color: var(--pill-ink); box-shadow: var(--shadow);
+  max-width: calc(100vw - 16px); font-size: 14px; }
+.pt-pill button { background: transparent; border: 0; color: inherit; padding: 7px 12px; border-radius: 999px; white-space: nowrap; }
+.pt-pill button:hover { background: rgba(128, 128, 128, .28); }
+.pt-pill .pt-arrow { padding: 7px 11px; font-size: 16px; line-height: 1; }
+.pt-pill .pt-label { padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+.pt-pill .pt-label b { font-family: var(--mono); margin-right: 6px; }
+.pt-sep { width: 1px; align-self: stretch; background: currentColor; opacity: .25; margin: 6px 4px; flex: none; }
+
+.pt-note { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 41;
+  width: min(440px, calc(100vw - 24px)); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 12px; display: none; }
+.pt-note.open { display: block; }
+.pt-note label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.pt-note label b { color: var(--ink); }
+.pt-note textarea { width: 100%; min-height: 84px; resize: vertical; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 7px; padding: 8px; }
+.pt-about { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.pt-about b { color: var(--ink); font-weight: 600; }
+.pt-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.pt-toast { position: fixed; left: 50%; bottom: 74px; transform: translate(-50%, 12px); z-index: 42; opacity: 0;
+  background: var(--pill); color: var(--pill-ink); padding: 8px 14px; border-radius: 8px; font-size: 13.5px;
+  max-width: calc(100vw - 24px); transition: opacity .15s, transform .15s; pointer-events: none; }
+.pt-toast.show { opacity: 1; transform: translate(-50%, 0); }
+[data-node] { cursor: pointer; }
+.pt-picked { outline: 2px dashed var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .top { padding: 14px 16px 4px; }
+  .top h1 { font-size: 20px; }
+  .wrap { padding: 12px 16px; }
+  .pt-pill { font-size: 13px; }
+  .pt-pill button { padding: 7px 9px; }
+}
+/* ===== FLOW layout ===== */
+.controls { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: flex-start; }
+.controls .grp { display: grid; gap: 6px; }
+.controls .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 6px 10px; font-size: 13.5px; }
+.seg button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); font-weight: 600; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.tg { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; padding: 4px 0; font-size: 13.5px; }
+.tg .sw { width: 32px; height: 18px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); position: relative; flex: none; }
+.tg .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--muted); transition: left .12s; }
+.tg[aria-checked="true"] .sw { background: var(--bad); border-color: var(--bad); }
+.tg[aria-checked="true"] .sw::after { left: 16px; background: var(--surface); }
+.main { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; margin-top: 16px; }
+.seq { position: relative; }
+.lanes, .msg { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+.lanes { position: sticky; top: 0; background: var(--surface); z-index: 2; padding-bottom: 8px; }
+.lane-h { text-align: center; font-size: 13px; font-weight: 600; padding: 6px 4px; margin: 0 4px; border: 1px solid var(--line);
+  border-radius: 7px; background: var(--surface-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lifelines { position: absolute; inset: 40px 0 0 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); pointer-events: none; }
+.lifelines span { border-left: 1px dashed var(--line); margin-left: 50%; }
+.msgs { position: relative; padding-bottom: 6px; }
+.msg { position: relative; height: 46px; }
+.msg .arrow { position: absolute; top: 26px; height: 2px; background: var(--ink); }
+.msg .arrow::after { content: ""; position: absolute; top: -5px; border: 6px solid transparent; }
+.msg .arrow.r::after { right: -2px; border-left: 8px solid var(--ink); border-right: 0; }
+.msg .arrow.l::after { left: -2px; border-right: 8px solid var(--ink); border-left: 0; }
+.msg.reply .arrow { background: none; border-top: 2px dashed var(--ink); height: 0; }
+.msg.reply .arrow::after { top: -7px; }
+.msg .loop { position: absolute; top: 18px; height: 18px; width: 22px; border: 2px solid var(--ink); border-left: 0; border-radius: 0 8px 8px 0; }
+.msg .txt { position: absolute; top: 4px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+.msg.bad .arrow { background-color: var(--bad); border-color: var(--bad); }
+.msg.bad .loop { border-color: var(--bad); }
+.msg.bad.reply .arrow { background: none; }
+.msg.bad .arrow.r::after { border-left-color: var(--bad); } .msg.bad .arrow.l::after { border-right-color: var(--bad); }
+.msg.bad .txt { color: var(--bad); }
+.msg.lost .arrow::after { content: "\2715"; border: 0; top: -10px; font-size: 13px; color: var(--bad); }
+.msg.past { opacity: .5; }
+.msg.cur { background: var(--accent-soft); border-radius: 6px; }
+.msg .n { position: absolute; left: 2px; top: 4px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.more { text-align: center; font-size: 13px; color: var(--muted); padding: 8px 0 2px; }
+.stepper { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.stepper .pos { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.detail h3 { margin: 0 0 4px; font-size: 17px; line-height: 1.35; }
+.detail .route { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.detail .route.bad { color: var(--bad); }
+.detail .why { margin: 0 0 10px; font-size: 14px; }
+.states { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 16px; }
+.states .card h2 { margin-bottom: 8px; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; padding: 0 6px; margin-left: -6px; border-radius: 4px; min-width: 0; overflow-wrap: anywhere; }
+.kv dd.changed { background: var(--accent-soft); font-weight: 600; }
+.loop-card { margin-top: 16px; }
+.loop-card p { margin: 0 0 10px; }
+.loop-card details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin: 10px 0 8px; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  .lane-h { font-size: 11.5px; padding: 5px 2px; margin: 0 2px; }
+  .msg .txt { font-size: 11px; }
+  .states { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .states .card { padding: 12px; }
+  .kv { grid-template-columns: 1fr; gap: 0; font-size: 13px; }
+  .kv dd { margin-bottom: 4px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="badge-row"><span class="badge">Prototype, throwaway</span><span class="kind">flow</span></div>
+  <h1 id="title"></h1>
+  <p class="question"><strong>Question:</strong> <span id="question"></span></p>
+</header>
+
+<main class="wrap">
+  <section class="card controls" aria-label="Scenario">
+    <div class="grp"><span class="lbl">Scenario</span><div class="seg" id="scenarios"></div></div>
+    <div class="grp"><span class="lbl">Inject a failure here</span><div class="toggles" id="toggles"></div></div>
+  </section>
+
+  <div class="main">
+    <section class="card" aria-labelledby="h-seq">
+      <h2 id="h-seq">Sequence</h2>
+      <div class="seq" id="seq"></div>
+    </section>
+    <section class="card detail" aria-labelledby="h-step">
+      <div class="stepper">
+        <button class="btn" id="back">&#8249; Back</button><button class="btn primary" id="next">Next &#8250;</button>
+        <button class="btn" id="restart">Restart</button><span class="pos" id="pos"></span>
+      </div>
+      <h3 id="h-step"></h3>
+      <div class="route" id="route"></div>
+      <p class="why" id="why"></p>
+      <pre class="code" id="payload" aria-label="Payload"></pre>
+    </section>
+  </div>
+
+  <div class="states" id="states"></div>
+
+  <section class="card loop-card" aria-labelledby="h-loop">
+    <h2 id="h-loop">Close the loop</h2>
+    <p>Copy the scenario on screen as a Mermaid sequence diagram and paste it into the node file or design doc. Do it once per scenario worth keeping. This page stays as the record; the diagram is the decision.</p>
+    <button class="btn" id="copy-mermaid">Copy as Mermaid</button>
+    <details><summary>Preview the Mermaid</summary><pre class="code" id="mermaid-out"></pre></details>
+  </section>
+</main>
+
+<nav class="pt-pill pt-chrome" aria-label="Prototype feedback">
+  <span class="pt-label" id="pill-label"></span><span class="pt-sep"></span>
+  <button id="pt-pick">Looks right</button><button id="pt-note-btn">Add a note</button>
+</nav>
+<!-- Prototype chrome: tradeoff drawer, note box, toast. No edits needed. -->
+<div class="pt-chrome">
+  <button class="pt-trade-btn" id="pt-trade-btn" aria-expanded="false" aria-controls="pt-drawer">Tradeoffs</button>
+  <aside class="pt-drawer" id="pt-drawer" aria-label="Tradeoffs">
+    <div class="pt-drawer-head">What each one gains and gives up</div>
+    <div id="pt-drawer-list"></div>
+  </aside>
+  <div class="pt-note" id="pt-note" role="dialog" aria-label="Add a note">
+    <label for="pt-note-text">Note on <b id="pt-note-on"></b></label>
+    <textarea id="pt-note-text" placeholder="What feels wrong, missing, or right?"></textarea>
+    <div class="pt-about">About: <b id="pt-about">the whole thing</b> <span class="muted">(click any labelled part of the page to point at it)</span></div>
+    <div class="pt-row"><button class="btn" data-act="cancel">Cancel</button><button class="btn primary" data-act="send">Send note</button></div>
+  </div>
+  <div class="pt-toast" id="pt-toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+/* EDIT HERE (1 of 3): the question this prototype answers. */
+const PROTO = {
+  title: "Payment webhook: what happens when delivery goes wrong?",
+  question: "If the provider times out, sends a bad signature, or delivers the same event twice, does order 1042 end up paid exactly once, and who notices when it does not?",
+};
+/* END EDIT */
+
+/* EDIT HERE (2 of 3): the flow, as plain data.
+   participants: id (Mermaid-safe), name, short (lane header on phones).
+   initialState: per participant, labelled fields shown in the state panels.
+   steps: from, to (same id for an internal step), label (the message),
+     kind: "call" | "reply" | "lost" (sent, never received), bad: true to mark a failure,
+     why (one sentence for the human), payload (any JSON), stateChanges: { participant: { field: value } }.
+   failures: id, title, toggle (switch label), from (index into steps where the
+     failure branch replaces the rest of the happy path), steps (same shape). */
+const FLOW = {
+  participants: [
+    { id: "provider", name: "Payments provider", short: "Provider" },
+    { id: "endpoint", name: "Webhook endpoint", short: "Endpoint" },
+    { id: "store", name: "Event store", short: "Store" },
+    { id: "worker", name: "Fulfilment worker", short: "Worker" },
+  ],
+  initialState: {
+    provider: { "Delivery": "not sent", "Attempt": "0", "Next retry": "none" },
+    endpoint: { "Signature": "not checked", "Last reply": "none" },
+    store: { "Events seen": "none", "Order 1042": "awaiting payment" },
+    worker: { "Jobs run": "0", "Receipts emailed": "0" },
+  },
+  steps: [
+    { from: "provider", to: "endpoint", kind: "call", label: "POST /webhooks/payments evt_481",
+      why: "The customer paid. The provider tells us, signing the body with our shared secret.",
+      payload: { headers: { "Webhook-Signature": "t=1760436000,v1=5f2b9c0e..." }, body: { id: "evt_481", type: "payment.succeeded", order: 1042, amount: 18400, currency: "GBP" } },
+      stateChanges: { provider: { "Delivery": "in flight", "Attempt": "1" } } },
+    { from: "endpoint", to: "endpoint", kind: "call", label: "Verify signature",
+      why: "HMAC-SHA256 of timestamp and body, compared in constant time; older than 5 minutes is rejected.",
+      payload: { expected: "v1=5f2b9c0e...", received: "v1=5f2b9c0e...", age_seconds: 2 },
+      stateChanges: { endpoint: { "Signature": "valid" } } },
+    { from: "endpoint", to: "store", kind: "call", label: "Insert evt_481 (unique id)",
+      why: "The event id is the idempotency key. A unique index makes a second insert fail.",
+      payload: { sql: "INSERT INTO webhook_events (id, type, order_id) VALUES ('evt_481', 'payment.succeeded', 1042)" } },
+    { from: "store", to: "endpoint", kind: "reply", label: "Inserted",
+      why: "First time we have seen this event.", payload: { rows: 1 },
+      stateChanges: { store: { "Events seen": "evt_481" } } },
+    { from: "endpoint", to: "provider", kind: "reply", label: "200 OK",
+      why: "Reply fast, before any real work. The provider stops retrying.",
+      payload: { status: 200, elapsed_ms: 41 },
+      stateChanges: { endpoint: { "Last reply": "200" }, provider: { "Delivery": "delivered" } } },
+    { from: "store", to: "worker", kind: "call", label: "Job: mark order 1042 paid",
+      why: "An outbox row picked up by the worker, so the slow part never blocks the reply.",
+      payload: { job: "order.mark_paid", order: 1042, event: "evt_481" } },
+    { from: "worker", to: "store", kind: "call", label: "Order 1042 paid, receipt emailed",
+      why: "The side effects run once, keyed by the event id.",
+      payload: { order: 1042, status: "paid", receipt: "sent to accounts@northwind.example" },
+      stateChanges: { store: { "Order 1042": "paid" }, worker: { "Jobs run": "1", "Receipts emailed": "1" } } },
+  ],
+  failures: [
+    { id: "timeout", title: "Timeout", toggle: "Store is slow (12 s)", from: 2, steps: [
+      { from: "endpoint", to: "store", kind: "call", label: "Insert evt_481 (store takes 12 s)",
+        why: "A lock or a slow disk. The insert will succeed, just late.", payload: { sql: "INSERT ... 'evt_481' ...", waiting_ms: 12000 } },
+      { from: "provider", to: "provider", kind: "call", bad: true, label: "No reply in 10 s, retry in 60 s",
+        why: "The provider gives up on attempt 1 and schedules a retry with backoff (1 m, 5 m, 30 m, then hourly for 3 days).",
+        payload: { attempt: 1, result: "timeout", next_retry_in_s: 60 },
+        stateChanges: { provider: { "Delivery": "retry scheduled", "Next retry": "in 60 s" } } },
+      { from: "store", to: "endpoint", kind: "reply", label: "Inserted (after 12 s)",
+        why: "The event is stored even though the provider already hung up.", payload: { rows: 1 },
+        stateChanges: { store: { "Events seen": "evt_481" } } },
+      { from: "endpoint", to: "provider", kind: "lost", bad: true, label: "200 OK, connection already closed",
+        why: "Nobody is listening. From the provider's side, attempt 1 failed.", payload: { status: 200, delivered: false },
+        stateChanges: { endpoint: { "Last reply": "200 (lost)" } } },
+      { from: "store", to: "worker", kind: "call", label: "Job: mark order 1042 paid",
+        why: "The work happens anyway.", payload: { job: "order.mark_paid", order: 1042, event: "evt_481" } },
+      { from: "worker", to: "store", kind: "call", label: "Order 1042 paid, receipt emailed",
+        why: "First and only receipt.", payload: { order: 1042, status: "paid" },
+        stateChanges: { store: { "Order 1042": "paid" }, worker: { "Jobs run": "1", "Receipts emailed": "1" } } },
+      { from: "provider", to: "endpoint", kind: "call", label: "POST evt_481 again (attempt 2)",
+        why: "Same event id, same body, fresh signature.", payload: { body: { id: "evt_481", type: "payment.succeeded", order: 1042 } },
+        stateChanges: { provider: { "Delivery": "in flight", "Attempt": "2", "Next retry": "none" } } },
+      { from: "endpoint", to: "store", kind: "call", label: "Insert evt_481 (unique id)",
+        why: "Signature checks out (step skipped here); the insert is the dedupe.", payload: { sql: "INSERT ... 'evt_481' ..." } },
+      { from: "store", to: "endpoint", kind: "reply", label: "Conflict, already seen",
+        why: "Unique index violation. Nothing new to do.", payload: { error: "duplicate key webhook_events_pkey" } },
+      { from: "endpoint", to: "provider", kind: "reply", label: "200 OK (duplicate ignored)",
+        why: "Answer 200, not 409, or the provider keeps retrying a thing we already handled.", payload: { status: 200, note: "duplicate" },
+        stateChanges: { endpoint: { "Last reply": "200 (duplicate)" }, provider: { "Delivery": "delivered" } } },
+    ] },
+    { id: "badsig", title: "Bad signature", toggle: "Signature does not match", from: 1, steps: [
+      { from: "endpoint", to: "endpoint", kind: "call", bad: true, label: "Verify signature: mismatch",
+        why: "Someone rotated the secret on one side only, or the request is forged. We cannot tell which.",
+        payload: { expected: "v1=91ad07c4...", received: "v1=5f2b9c0e...", age_seconds: 2 },
+        stateChanges: { endpoint: { "Signature": "invalid" } } },
+      { from: "endpoint", to: "provider", kind: "reply", bad: true, label: "401 Unauthorized",
+        why: "Nothing is stored. The provider treats any non-2xx as a failed attempt.", payload: { status: 401 },
+        stateChanges: { endpoint: { "Last reply": "401" }, provider: { "Delivery": "failed", "Next retry": "in 60 s" } } },
+      { from: "provider", to: "endpoint", kind: "call", label: "POST evt_481 again (attempt 2)",
+        why: "Retried with the same secret, so it will fail the same way.", payload: { attempt: 2 },
+        stateChanges: { provider: { "Attempt": "2", "Delivery": "in flight", "Next retry": "none" } } },
+      { from: "endpoint", to: "provider", kind: "reply", bad: true, label: "401 Unauthorized",
+        why: "Same result. Each failure is logged, but does anyone get paged?", payload: { status: 401 },
+        stateChanges: { provider: { "Delivery": "failed", "Next retry": "in 5 m, then 30 m, then hourly" } } },
+      { from: "provider", to: "provider", kind: "call", bad: true, label: "Disable endpoint after 3 days",
+        why: "Meanwhile order 1042 sits unpaid and the customer has been charged.",
+        payload: { attempts: 76, endpoint_status: "disabled", email_to: "dev@yourco.example" },
+        stateChanges: { provider: { "Delivery": "gave up, endpoint disabled", "Next retry": "none" }, store: { "Order 1042": "awaiting payment (stuck)" } } },
+    ] },
+    { id: "duplicate", title: "Duplicate delivery", toggle: "Provider sends it twice", from: 7, steps: [
+      { from: "provider", to: "endpoint", kind: "call", label: "POST evt_481 again (redelivery)",
+        why: "At-least-once delivery: the provider may send an event twice even after a 200.",
+        payload: { body: { id: "evt_481", type: "payment.succeeded", order: 1042 } },
+        stateChanges: { provider: { "Delivery": "in flight (again)" } } },
+      { from: "endpoint", to: "endpoint", kind: "call", label: "Verify signature",
+        why: "Valid: it really is the provider.", payload: { age_seconds: 4 } },
+      { from: "endpoint", to: "store", kind: "call", label: "Insert evt_481 (unique id)",
+        why: "The dedupe happens here, not in the worker.", payload: { sql: "INSERT ... 'evt_481' ..." } },
+      { from: "store", to: "endpoint", kind: "reply", label: "Conflict, already seen",
+        why: "No new job is queued, so no second receipt.", payload: { error: "duplicate key webhook_events_pkey" } },
+      { from: "endpoint", to: "provider", kind: "reply", label: "200 OK (duplicate ignored)",
+        why: "Order 1042 is still paid exactly once. Check the worker panel.", payload: { status: 200, note: "duplicate" },
+        stateChanges: { endpoint: { "Last reply": "200 (duplicate)" }, provider: { "Delivery": "delivered" } } },
+    ] },
+  ],
+};
+/* END EDIT */
+
+/* EDIT HERE (3 of 3): per scenario, what the design gains and gives up. */
+const TRADEOFFS = {
+  happy: { title: "Happy path: reply first, work later", gains: ["The provider gets a 200 in milliseconds", "Slow fulfilment never causes a retry"], gives: ["Needs an outbox and a worker, two moving parts more than doing it inline"] },
+  timeout: { title: "Timeout: dedupe on the event id", gains: ["A retry after a slow insert is harmless", "No distributed lock needed"], gives: ["Every handler must be idempotent by event id", "The webhook_events table grows; needs a retention job"] },
+  badsig: { title: "Bad signature: reject, rely on provider retries", gains: ["Forged requests never touch the store"], gives: ["A secret rotation mistake silently strands paid orders for days", "Needs an alert on repeated 401s"] },
+  duplicate: { title: "Duplicate delivery: 200 on conflict", gains: ["The provider stops retrying", "Receipts are sent once"], gives: ["A real bug that reuses event ids would be hidden as a duplicate"] },
+};
+/* END EDIT */
+
+/* ===== Prototype chrome: tradeoff drawer, feedback bar, toast, clipboard.
+   Shared by every prototype template. No edits needed below this line.
+   Opened through the docs viewer (/prototype?path=...), feedback is posted to
+   /api/event and lands in .viewer/events.jsonl. Opened as a file, feedback is
+   copied to the clipboard as one plain-text line. ===== */
+const Chrome = (() => {
+  const $ = (s) => document.querySelector(s);
+  const viaViewer = /^https?:$/.test(location.protocol) && location.pathname.indexOf("/prototype") === 0;
+  const file = viaViewer ? (new URLSearchParams(location.search).get("path") || "") : localPath();
+  let cfg = { current: () => ({ id: "", title: "" }), tradeoffs: {} };
+  let about = "", aboutEl = null;
+
+  function localPath() {
+    const p = decodeURIComponent(location.pathname);
+    const i = p.lastIndexOf("/docs/");
+    return i >= 0 ? p.slice(i + 1) : p.split("/").pop();
+  }
+  function isTyping(e) {
+    return !!(e.target && e.target.closest && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])"));
+  }
+  function toast(msg, ms) {
+    const t = $("#pt-toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms || 2600);
+  }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* try the old way */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy"); ta.remove(); return ok;
+    } catch (e) { return false; }
+  }
+  async function send(kind, text) {
+    const cur = cfg.current();
+    const ev = { type: "prototype", file, choice: cur.id + ": " + cur.title, text: kind === "pick" ? "picked" : text };
+    if (about) ev.about = about;
+    if (viaViewer) {
+      try {
+        const r = await fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(ev) });
+        if (r.ok) { toast(kind === "pick" ? "Recorded: " + cur.title : "Note recorded"); return true; }
+      } catch (e) { /* fall back to the clipboard */ }
+    }
+    const line = ["prototype", file, "choice: " + ev.choice, ev.about && "about: " + ev.about, "text: " + ev.text]
+      .filter(Boolean).join(" | ");
+    const ok = await copyText(line);
+    toast(ok ? "Copied to the clipboard. Paste it into the chat." : "Copy was blocked. Tell the agent: " + line, ok ? 3200 : 9000);
+    return true;
+  }
+  function setAbout(el) {
+    if (aboutEl) aboutEl.classList.remove("pt-picked");
+    aboutEl = el; about = el ? el.getAttribute("data-node") : "";
+    if (el && $("#pt-note").classList.contains("open")) el.classList.add("pt-picked");
+    $("#pt-about").textContent = about || "the whole thing";
+  }
+  function renderDrawer() {
+    const box = $("#pt-drawer-list"), cur = cfg.current().id;
+    box.textContent = "";
+    for (const [id, t] of Object.entries(cfg.tradeoffs)) {
+      const sec = document.createElement("section");
+      sec.className = "pt-t" + (id === cur ? " current" : "");
+      const h = document.createElement("h3"); h.textContent = t.title; sec.appendChild(h);
+      if (id === cur) { const on = document.createElement("span"); on.className = "on"; on.textContent = "on screen"; h.appendChild(on); }
+      for (const [label, items] of [["Gains", t.gains || []], ["Gives up", t.gives || []]]) {
+        const l = document.createElement("div"); l.className = "pt-tl"; l.textContent = label; sec.appendChild(l);
+        const ul = document.createElement("ul");
+        for (const x of items) { const li = document.createElement("li"); li.textContent = x; ul.appendChild(li); }
+        sec.appendChild(ul);
+      }
+      box.appendChild(sec);
+    }
+  }
+  function openNote() {
+    $("#pt-note-on").textContent = cfg.current().title;
+    $("#pt-note").classList.add("open");
+    if (aboutEl) aboutEl.classList.add("pt-picked");
+    $("#pt-note-text").focus();
+  }
+  function closeNote() {
+    $("#pt-note").classList.remove("open");
+    if (aboutEl) aboutEl.classList.remove("pt-picked");
+  }
+  function toggleDrawer(force) {
+    const d = $("#pt-drawer"), b = $("#pt-trade-btn");
+    const open = typeof force === "boolean" ? force : !d.classList.contains("open");
+    d.classList.toggle("open", open); b.setAttribute("aria-expanded", String(open));
+  }
+
+  function init(options) {
+    cfg = Object.assign(cfg, options);
+    $("#pt-trade-btn").addEventListener("click", () => toggleDrawer());
+    $("#pt-pick").addEventListener("click", () => send("pick"));
+    $("#pt-note-btn").addEventListener("click", () => ($("#pt-note").classList.contains("open") ? closeNote() : openNote()));
+    $("#pt-note").addEventListener("click", async (e) => {
+      const act = e.target.dataset && e.target.dataset.act;
+      if (act === "cancel") closeNote();
+      if (act === "send") {
+        const text = $("#pt-note-text").value.trim();
+        if (!text) { toast("Write something first"); return; }
+        await send("note", text);
+        $("#pt-note-text").value = ""; closeNote(); setAbout(null);
+      }
+    });
+    $("#pt-note-text").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("#pt-note [data-act=send]").click();
+    });
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest && e.target.closest("[data-node]");
+      if (el && !el.closest(".pt-chrome, .pt-pill")) setAbout(el);
+    }, true);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeNote(); toggleDrawer(false); }
+    });
+    renderDrawer();
+  }
+  return { init, refresh: renderDrawer, toast, copyText, isTyping, viaViewer, file };
+})();
+
+/* ===== FLOW simulator. No edits needed below. ===== */
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const P = FLOW.participants, idx = Object.fromEntries(P.map((p, i) => [p.id, i]));
+  const HAPPY = { id: "happy", title: "Happy path", from: FLOW.steps.length, steps: [] };
+  const SCEN = [HAPPY].concat(FLOW.failures);
+  let scen = HAPPY, pos = 0;
+  const narrow = () => window.matchMedia("(max-width: 640px)").matches;
+
+  $("#title").textContent = PROTO.title;
+  $("#question").textContent = PROTO.question;
+  document.title = PROTO.title + " (prototype)";
+
+  const stepsOf = (s) => FLOW.steps.slice(0, s.from).concat(s.steps);
+  function stateAt(steps, n) {
+    const st = JSON.parse(JSON.stringify(FLOW.initialState));
+    for (let i = 0; i <= n && i < steps.length; i++) {
+      for (const [p, ch] of Object.entries(steps[i].stateChanges || {})) Object.assign(st[p] = st[p] || {}, ch);
+    }
+    return st;
+  }
+
+  function renderControls() {
+    const seg = $("#scenarios"); seg.textContent = "";
+    for (const s of SCEN) {
+      const b = el("button", null, s.title); b.setAttribute("aria-pressed", String(s === scen));
+      b.dataset.node = "Scenario: " + s.title;
+      b.onclick = () => { scen = s; pos = 0; render(); };
+      seg.appendChild(b);
+    }
+    const tg = $("#toggles"); tg.textContent = "";
+    for (const f of FLOW.failures) {
+      const b = el("button", "tg"); b.setAttribute("role", "switch"); b.setAttribute("aria-checked", String(scen === f));
+      b.append(el("span", "sw"), el("span", null, f.toggle));
+      b.title = "Switch to the '" + f.title + "' branch, keeping your place if you have not passed step " + (f.from + 1);
+      b.onclick = () => { const next = scen === f ? HAPPY : f; pos = Math.min(pos, next.from, stepsOf(next).length - 1); scen = next; render(); };
+      tg.appendChild(b);
+    }
+  }
+
+  function renderSeq(steps) {
+    const box = $("#seq"); box.textContent = ""; box.style.setProperty("--n", P.length);
+    const lanes = el("div", "lanes");
+    for (const p of P) { const h = el("div", "lane-h", narrow() ? p.short : p.name); h.title = p.name; h.dataset.node = p.name; lanes.appendChild(h); }
+    const life = el("div", "lifelines"); P.forEach(() => life.appendChild(el("span")));
+    const msgs = el("div", "msgs");
+    const w = 100 / P.length;
+    steps.slice(0, pos + 1).forEach((s, i) => {
+      const a = idx[s.from], b = idx[s.to];
+      const row = el("div", "msg" + (s.kind === "reply" ? " reply" : "") + (s.kind === "lost" ? " lost" : "") + (s.bad ? " bad" : "") + (i === pos ? " cur" : " past"));
+      row.dataset.node = "Step " + (i + 1) + ": " + s.label;
+      row.title = s.label; row.onclick = () => { pos = i; render(); };
+      row.appendChild(el("span", "n", String(i + 1)));
+      const txt = el("span", "txt", s.label);
+      if (a === b) {
+        const loop = el("span", "loop"); loop.style.left = (a + 0.5) * w + "%"; row.appendChild(loop);
+        txt.style.left = "calc(" + (a + 0.5) * w + "% + 26px)"; txt.style.top = "18px"; txt.style.maxWidth = "calc(" + (P.length - a - 0.5) * w + "% - 28px)";
+      } else {
+        const lo = Math.min(a, b), hi = Math.max(a, b);
+        const ar = el("span", "arrow " + (b > a ? "r" : "l"));
+        ar.style.left = (lo + 0.5) * w + "%"; ar.style.width = (hi - lo) * w + "%"; row.appendChild(ar);
+        const tw = Math.max(hi - lo, 1.8) * w, centre = (lo + hi + 1) / 2 * w;
+        txt.style.width = tw + "%"; txt.style.left = Math.max(0, Math.min(100 - tw, centre - tw / 2)) + "%"; txt.style.textAlign = "center";
+      }
+      row.appendChild(txt);
+      msgs.appendChild(row);
+    });
+    life.style.top = "40px";
+    box.append(lanes, life, msgs);
+    const left = steps.length - pos - 1;
+    box.appendChild(el("div", "more", left > 0 ? left + " more step" + (left > 1 ? "s" : "") + ". Press Next." : "End of this scenario."));
+  }
+
+  function renderDetail(steps) {
+    const s = steps[pos];
+    $("#pos").textContent = "Step " + (pos + 1) + " of " + steps.length;
+    $("#h-step").textContent = s.label;
+    const r = $("#route");
+    const from = P[idx[s.from]].name, to = P[idx[s.to]].name;
+    r.textContent = s.from === s.to ? from + ", internal step" : from + " → " + to + (s.kind === "reply" ? " (reply)" : s.kind === "lost" ? " (never arrives)" : "");
+    r.className = "route" + (s.bad ? " bad" : "");
+    $("#why").textContent = s.why || "";
+    $("#payload").textContent = JSON.stringify(s.payload || {}, null, 2);
+    $("#back").disabled = pos === 0;
+    $("#next").disabled = pos >= steps.length - 1;
+  }
+
+  function renderStates(steps) {
+    const now = stateAt(steps, pos), before = stateAt(steps, pos - 1);
+    const box = $("#states"); box.textContent = "";
+    for (const p of P) {
+      const c = el("section", "card"); c.dataset.node = p.name;
+      c.appendChild(el("h2", null, p.name));
+      const dl = el("dl", "kv");
+      for (const [k, v] of Object.entries(now[p.id] || {})) {
+        dl.append(el("dt", null, k), el("dd", before[p.id] && before[p.id][k] !== v ? "changed" : "", v));
+      }
+      c.appendChild(dl); box.appendChild(c);
+    }
+  }
+
+  /* Close-the-loop bridge: the current scenario as a Mermaid sequenceDiagram. */
+  function toMermaid(s) {
+    const clean = (t) => String(t).replace(/[;#<>{}"]/g, " ").replace(/\s+/g, " ").trim();
+    const out = ["sequenceDiagram"];
+    for (const p of P) out.push("  participant " + p.id + " as " + clean(p.name));
+    stepsOf(s).forEach((st, i) => {
+      if (s !== HAPPY && i === s.from) out.push("  Note over " + P[0].id + "," + P[P.length - 1].id + ": Failure injected, " + clean(s.title));
+      const arrow = st.kind === "reply" ? "-->>" : st.kind === "lost" ? "--x" : "->>";
+      out.push("  " + st.from + arrow + st.to + ": " + clean(st.label));
+    });
+    return out.join("\n");
+  }
+
+  function render() {
+    const steps = stepsOf(scen);
+    renderControls(); renderSeq(steps); renderDetail(steps); renderStates(steps);
+    $("#mermaid-out").textContent = toMermaid(scen);
+    $("#pill-label").textContent = "Scenario: " + scen.title;
+    Chrome.refresh();
+  }
+  const go = (d) => { const n = stepsOf(scen).length; const p = Math.max(0, Math.min(n - 1, pos + d)); if (p !== pos) { pos = p; render(); } };
+  $("#next").onclick = () => go(1);
+  $("#back").onclick = () => go(-1);
+  $("#restart").onclick = () => { pos = 0; render(); };
+  document.addEventListener("keydown", (e) => {
+    if (Chrome.isTyping(e) || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+  });
+  $("#copy-mermaid").onclick = async () => {
+    const ok = await Chrome.copyText(toMermaid(scen));
+    Chrome.toast(ok ? "Sequence for '" + scen.title + "' copied. Paste it inside a mermaid block." : "Copy was blocked. Open the preview and copy it by hand.");
+  };
+  window.matchMedia("(max-width: 640px)").addEventListener("change", render);
+  Chrome.init({ current: () => ({ id: scen.id, title: scen.title }), tradeoffs: TRADEOFFS });
+  render();
+})();
+</script>
+</body>
+</html>

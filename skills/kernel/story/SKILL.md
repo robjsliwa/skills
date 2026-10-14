@@ -72,7 +72,8 @@ When the unknown is the work ("which payment provider," "can the parser keep
 up"), write a spike story. Its Demo is the answer: "I read the note in
 `docs/adr/` and know which provider we use and why," or "I run the benchmark and
 see the throughput number." It is time-boxed, its single task produces evidence,
-and its output is a decision, not production code.
+and its output is a decision, not production code. Its single task is run with
+the `spike` skill, and the spike brief is the Demo.
 
 ## Check a breakdown
 

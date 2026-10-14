@@ -19,6 +19,8 @@ Planning: docs/planning
 ADRs: docs/adr
 Pairing: docs/pairing
 Code-along: docs/code-along
+Research: docs/research
+Spikes: docs/spikes
 
 ## Commands
 Fast tests: <cmd>
@@ -45,6 +47,8 @@ directly under the `Notes:` line.
 | Docs / ADRs | Folder of numbered ADRs. | `docs/adr` |
 | Docs / Pairing | Pairing memory bank. | `docs/pairing` |
 | Docs / Code-along | Learner state for code-along. | `docs/code-along` |
+| Docs / Research | Trails (`<topic>/map.md`, nodes, findings, spikes, prototypes) and standalone research notes. | `docs/research` |
+| Docs / Spikes | Spike briefs not tied to a trail, numbered. | `docs/spikes` |
 | Commands / Fast tests | Runs in seconds; `tdd` runs it after every red and green. | none; ask once |
 | Commands / Full check | What CI runs: lint, typecheck, all tests. Run before review. | none; ask once |
 | Commands / Run the app | What a person uses to see a story's Demo. | none; Demo is described, not run |
