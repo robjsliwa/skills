@@ -54,7 +54,11 @@ Four rules govern every turn.
    tenant is comes before how tenants are billed. Say where each question sits.
 4. **Explore instead of asking.** If the code, the docs spine, an attached file,
    or a quick search answers it, go read it and state what you found. Ask only
-   what needs the user's judgment.
+   what needs the user's judgment. For a fact that needs real reading, start a
+   `research` agent in the background and ask about something else meanwhile.
+   When the question is "does it actually work," it is a `spike`; when it is
+   "how should it look or behave" and words are not settling it, offer a
+   `prototype`. When the questions keep multiplying, suggest `trailblazer`.
 
 ## Step 0: Ground yourself
 
@@ -182,6 +186,15 @@ name the subject, what to absorb in step 0, the tree to map, names for the three
 lists, and the document to write. Those override the defaults; the contract, the
 turn anatomy, and the glossary discipline do not. Hand the result back and let
 the caller write its own document.
+
+**Inside a `trailblazer` trail** the trail owns the tree, the files, and the
+pace, so only the turn anatomy (Step 2) and the response handling apply. The
+trail map replaces Step 1's tree and Step 3's recap. Sketches and options go in
+the active node file (`docs/research/<topic>/nodes/`), never in
+`docs/planning/`. A fuzzy term goes on the map's Terms in play list and is
+settled only when a decision depends on it, instead of stopping the turn. Keep
+a turn to about 150 words of prose plus its diagrams; the soft spot is one
+sentence inside the recommendation, not a second question.
 
 ## Conventions
 

@@ -148,6 +148,10 @@ something unrelated breaks and the cause is not obvious, stop guessing. Hand
 over to `diagnose` with the failing test as the reproduction, then come back to
 the loop once it is understood.
 
+If the problem is not a bug but an unknown (you cannot write the next test
+because nobody knows whether the approach works at all), stop and run a `spike`.
+Never let spike code into the story's branch; rewrite what it taught, test first.
+
 ## Conventions
 
 - Run the fast tests after every red and every green. Paste the relevant lines

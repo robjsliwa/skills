@@ -48,9 +48,17 @@ loop when any of these is true:
 - The change touches a trust boundary, persistence shape, or public contract that
   other work depends on.
 
+Two other signals send it elsewhere:
+
+- **Fog.** Nobody can yet say what the questions are; every answer opens three
+  more. Hand off to `/trailblazer` to find the way first.
+- **One technical unknown.** The change is clear but you do not know if the
+  approach works (the library, the limit, the payload). Run a `spike` before
+  writing the story, then continue here with its verdict.
+
 To escalate, say which signal fired in one line, and hand off to
-`/write-requirements`; the interview so far is its raw material. Otherwise
-continue.
+`/write-requirements` (or `/trailblazer` for fog); the interview so far is its
+raw material. Otherwise continue.
 
 ## 3. Write the story
 

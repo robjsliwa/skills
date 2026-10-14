@@ -64,6 +64,9 @@ block and label convention in [C4-STYLE.md](C4-STYLE.md); paste the
 - **Stable node ids.** Short, lowercase, meaningful (`checkout`, `ordersDb`),
   never `A`, `B`, `C`. Keep ids when you edit so the diff shows the one edge
   that changed, not a renumbered picture.
+- **One exception: the trail map.** `trailblazer`'s map uses `N<k>` ids (they
+  name node files) and may grow to about fifteen nodes before it collapses
+  decided subtrees. Its own MAP-FORMAT.md governs it.
 - **Quote labels** with `["..."]` whenever they hold spaces, punctuation, or
   `<br/>`. Edge labels go in `|"..."|`.
 
@@ -155,7 +158,7 @@ the record; the HTML only shows layout. The contract and the CSS kit are in
 
 A local page that renders `docs/` with the diagrams drawn, reloads on save,
 turns options blocks into choosable cards, previews mockups, and lets the user
-click a diagram node to comment on it. Offer it when the user is reviewing
+click a diagram node to comment on it (right-click a node that is also a link). Offer it when the user is reviewing
 several diagrams or choosing between options.
 
 ```bash
@@ -178,6 +181,12 @@ choice resolves its options block as in step 5; a comment is an answer to
 "what is wrong with this picture"), then truncate it to empty so the next turn
 sees only new events. Say in your reply which events you acted on. Stop the
 viewer when the session is done with it.
+
+Prototypes (the `prototype` skill) open at
+`http://127.0.0.1:<port>/prototype?path=<repo-relative path>`, in a new tab
+with scripts allowed. The route serves only `.html` under a `prototypes/`
+folder; `/mockup` keeps scripts blocked. A prototype's feedback bar appends
+events of type `prototype` (`file`, `choice`, optional `node`, `text`).
 
 ## Style
 

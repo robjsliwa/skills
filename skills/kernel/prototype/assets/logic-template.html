@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refund rules (prototype)</title>
+<!-- prototype: LOGIC branch, made from the prototype skill's logic-template.html.
+     Throwaway. This file is the record of a decision, never the spec.
+     To fill it: replace the three EDIT HERE blocks in the script at the bottom
+     (the question, the pure module, the page data). Leave the chrome alone. -->
+<style>
+/* ===== Base and prototype chrome. Shared by every prototype template. ===== */
+:root {
+  --bg: #f6f6f3; --surface: #ffffff; --surface-2: #f0efeb; --ink: #1c1c1a; --muted: #67665f;
+  --line: #e0ded7; --accent: #2f5bd3; --accent-ink: #ffffff; --accent-soft: #e9eefc;
+  --bad: #b3261e; --bad-soft: #fbeceb; --pill: #1c1c1a; --pill-ink: #f4f3ef;
+  --shadow: 0 8px 28px rgba(20, 20, 10, .14);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141517; --surface: #1c1d20; --surface-2: #25262a; --ink: #e8e7e3; --muted: #9c9b95;
+    --line: #34353a; --accent: #8ea8ff; --accent-ink: #0f1320; --accent-soft: #232a42;
+    --bad: #f2948b; --bad-soft: #3a2222; --pill: #ecebe7; --pill-ink: #18191b;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; padding-bottom: 104px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.top { max-width: 1160px; margin: 0 auto; padding: 16px 20px 6px; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 34px; padding-right: 120px; }
+.badge { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  padding: 6px 8px; border-radius: 4px; background: var(--ink); color: var(--bg); }
+.kind { font: 12px/1 var(--mono); color: var(--muted); }
+.top h1 { font-size: 24px; line-height: 1.25; margin: 10px 0 6px; letter-spacing: -.01em; }
+.question { margin: 0; max-width: 78ch; color: var(--muted); }
+.question strong { color: var(--ink); font-weight: 600; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 14px 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.card > h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+  margin: 0 0 12px; font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 7px 12px; line-height: 1.3; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { cursor: default; opacity: .45; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+pre.code { margin: 0; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; overflow: auto;
+  font: 12.5px/1.5 var(--mono); white-space: pre; }
+
+.pt-trade-btn { position: fixed; top: 14px; right: 14px; z-index: 40; border: 1px solid var(--line);
+  background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 13px; box-shadow: var(--shadow); }
+.pt-trade-btn[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.pt-drawer { position: fixed; top: 56px; right: 14px; z-index: 40; width: min(360px, calc(100vw - 28px));
+  max-height: calc(100vh - 150px); overflow: auto; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 12px 16px 6px; display: none; }
+.pt-drawer.open { display: block; }
+.pt-drawer-head { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+.pt-t { border-top: 1px solid var(--line); padding: 10px 0 10px 10px; margin-left: -10px; border-left: 3px solid transparent; }
+.pt-t.current { border-left-color: var(--accent); }
+.pt-t h3 { margin: 0 0 4px; font-size: 14px; }
+.pt-t .on { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: 6px; text-transform: uppercase; letter-spacing: .05em; }
+.pt-tl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.pt-t ul { margin: 2px 0 0; padding-left: 18px; font-size: 13.5px; }
+
+.pt-pill { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40;
+  display: flex; align-items: center; gap: 2px; padding: 5px; border-radius: 999px;
+  background: var(--pill); color: var(--pill-ink); box-shadow: var(--shadow);
+  max-width: calc(100vw - 16px); font-size: 14px; }
+.pt-pill button { background: transparent; border: 0; color: inherit; padding: 7px 12px; border-radius: 999px; white-space: nowrap; }
+.pt-pill button:hover { background: rgba(128, 128, 128, .28); }
+.pt-pill .pt-arrow { padding: 7px 11px; font-size: 16px; line-height: 1; }
+.pt-pill .pt-label { padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+.pt-pill .pt-label b { font-family: var(--mono); margin-right: 6px; }
+.pt-sep { width: 1px; align-self: stretch; background: currentColor; opacity: .25; margin: 6px 4px; flex: none; }
+
+.pt-note { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 41;
+  width: min(440px, calc(100vw - 24px)); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 12px; display: none; }
+.pt-note.open { display: block; }
+.pt-note label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.pt-note label b { color: var(--ink); }
+.pt-note textarea { width: 100%; min-height: 84px; resize: vertical; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 7px; padding: 8px; }
+.pt-about { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.pt-about b { color: var(--ink); font-weight: 600; }
+.pt-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.pt-toast { position: fixed; left: 50%; bottom: 74px; transform: translate(-50%, 12px); z-index: 42; opacity: 0;
+  background: var(--pill); color: var(--pill-ink); padding: 8px 14px; border-radius: 8px; font-size: 13.5px;
+  max-width: calc(100vw - 24px); transition: opacity .15s, transform .15s; pointer-events: none; }
+.pt-toast.show { opacity: 1; transform: translate(-50%, 0); }
+[data-node] { cursor: pointer; }
+.pt-picked { outline: 2px dashed var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .top { padding: 14px 16px 4px; }
+  .top h1 { font-size: 20px; }
+  .wrap { padding: 12px 16px; }
+  .pt-pill { font-size: 13px; }
+  .pt-pill button { padding: 7px 9px; }
+}
+/* ===== LOGIC layout ===== */
+.grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-areas: "state scen" "play scen" "log loop"; align-items: start; }
+.a-state { grid-area: state; } .a-scen { grid-area: scen; } .a-play { grid-area: play; }
+.a-log { grid-area: log; } .a-loop { grid-area: loop; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip.final::after { content: " \25CF"; font-size: 9px; vertical-align: 2px; }
+.fields { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+.fields dt { color: var(--muted); }
+.fields dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 500; padding: 0 6px; margin-left: -6px; border-radius: 4px; }
+.fields dd.changed { background: var(--accent-soft); }
+.fields dd.changed::after { content: "  changed"; font-size: 11px; color: var(--accent); font-weight: 600; }
+.allowed { margin-top: 14px; font-size: 14px; }
+.allowed .tag { display: inline-block; margin: 2px 4px 2px 0; padding: 1px 8px; border-radius: 4px; background: var(--surface-2); font-size: 13px; }
+.result { margin-top: 12px; padding: 8px 12px; border-radius: 7px; font-size: 14px; background: var(--surface-2); min-height: 38px; }
+.result.bad { background: var(--bad-soft); color: var(--bad); }
+.result.ok b { color: var(--accent); }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.tabs button { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 6px 10px; font-size: 13.5px; }
+.tabs button[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); font-weight: 600; }
+.scen-text { margin: 0 0 12px; }
+.steps { list-style: none; margin: 0 0 12px; padding: 0; counter-reset: s; }
+.steps li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px dashed var(--line); counter-increment: s; }
+.steps li::before { content: counter(s); flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12px; background: var(--surface-2); color: var(--muted); }
+.steps li.done::before { content: "\2713"; background: var(--accent-soft); color: var(--accent); }
+.steps li.done.refused::before { content: "\2715"; background: var(--bad-soft); color: var(--bad); }
+.steps li .btn { flex: none; }
+.steps li .out { font-size: 13px; color: var(--muted); min-width: 0; }
+.steps li.refused .out { color: var(--bad); }
+.expect { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--bad); border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; flex: none; }
+.drift { font-size: 13px; color: var(--bad); margin: 0 0 10px; display: none; }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.buttons .btn.legal { border-color: var(--accent); }
+.log { list-style: none; margin: 0; padding: 0; font-size: 13.5px; max-height: 260px; overflow: auto; }
+.log li { padding: 5px 0; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+.log li:first-child { border-top: 0; }
+.log .n { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; width: 22px; }
+.log li.bad { color: var(--bad); }
+.loop p { margin: 0 0 10px; }
+.loop details { margin-top: 10px; }
+.loop summary { cursor: pointer; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+@media (max-width: 860px) {
+  .grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "state" "scen" "play" "log" "loop"; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="badge-row"><span class="badge">Prototype, throwaway</span><span class="kind">logic</span></div>
+  <h1 id="title"></h1>
+  <p class="question"><strong>Question:</strong> <span id="question"></span></p>
+</header>
+
+<main class="wrap grid">
+  <section class="card a-state" aria-labelledby="h-state">
+    <h2 id="h-state">Current state</h2>
+    <div class="chips" id="chips"></div>
+    <p class="muted small" style="margin:-6px 0 12px">&#9679; marks a final state.</p>
+    <dl class="fields" id="fields"></dl>
+    <div class="allowed"><span class="muted">Allowed now:</span> <span id="allowed"></span></div>
+    <div class="result" id="result" role="status">Pick a scenario, or press any button below.</div>
+  </section>
+
+  <section class="card a-scen" aria-labelledby="h-scen">
+    <h2 id="h-scen">Guided scenarios</h2>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <p class="scen-text" id="scen-text"></p>
+    <p class="drift" id="drift">Free play changed the state, so this run is no longer clean. Restart to run it as written.</p>
+    <ol class="steps" id="steps"></ol>
+    <button class="btn" id="restart">Restart scenario</button>
+  </section>
+
+  <section class="card a-play" aria-labelledby="h-play">
+    <h2 id="h-play">Free play</h2>
+    <p class="muted small" style="margin:-4px 0 10px">Any button, any order. Outlined buttons are legal right now; the rest should be refused.</p>
+    <div class="buttons" id="freeplay"></div>
+    <p style="margin:12px 0 0"><button class="btn" id="reset">Start over</button></p>
+  </section>
+
+  <section class="card a-log" aria-labelledby="h-log">
+    <h2 id="h-log">What happened</h2>
+    <ol class="log" id="log"></ol>
+  </section>
+
+  <section class="card a-loop loop" aria-labelledby="h-loop">
+    <h2 id="h-loop">Close the loop</h2>
+    <p>Once the rules feel right, paste the state diagram into the node file or design doc and validate it. This page stays as the record; the diagram is the decision.</p>
+    <button class="btn" id="copy-mermaid">Copy as Mermaid</button>
+    <details><summary>Preview the Mermaid</summary><pre class="code" id="mermaid-out"></pre></details>
+  </section>
+</main>
+
+<nav class="pt-pill pt-chrome" aria-label="Prototype feedback">
+  <span class="pt-label" id="pill-label"></span><span class="pt-sep"></span>
+  <button id="pt-pick">Looks right</button><button id="pt-note-btn">Add a note</button>
+</nav>
+<!-- Prototype chrome: tradeoff drawer, note box, toast. No edits needed. -->
+<div class="pt-chrome">
+  <button class="pt-trade-btn" id="pt-trade-btn" aria-expanded="false" aria-controls="pt-drawer">Tradeoffs</button>
+  <aside class="pt-drawer" id="pt-drawer" aria-label="Tradeoffs">
+    <div class="pt-drawer-head">What each one gains and gives up</div>
+    <div id="pt-drawer-list"></div>
+  </aside>
+  <div class="pt-note" id="pt-note" role="dialog" aria-label="Add a note">
+    <label for="pt-note-text">Note on <b id="pt-note-on"></b></label>
+    <textarea id="pt-note-text" placeholder="What feels wrong, missing, or right?"></textarea>
+    <div class="pt-about">About: <b id="pt-about">the whole thing</b> <span class="muted">(click any labelled part of the page to point at it)</span></div>
+    <div class="pt-row"><button class="btn" data-act="cancel">Cancel</button><button class="btn primary" data-act="send">Send note</button></div>
+  </div>
+  <div class="pt-toast" id="pt-toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+/* EDIT HERE (1 of 3): the question this prototype answers, in the domain's words. */
+const PROTO = {
+  title: "Order refunds: when can money go back?",
+  question: "Should a refund be allowed while the parcel is in transit, and can partial refunds ever add up to more than the customer paid?",
+};
+/* END EDIT */
+
+/* EDIT HERE (2 of 3): the pure module. Plain data in, plain data out: no DOM,
+   no document, no page variables. This is the part that may later be lifted
+   into real code (through tdd). Keep the exported surface:
+   STATES, ACTIONS, TRANSITIONS, INITIAL, FINAL, initial(), allowed(state),
+   step(state, action, arg) -> { ok, state, reason }, describe(state) -> [[label, value]]. */
+const Model = (() => {
+  const STATES = {
+    paid: "Paid", shipped: "Shipped", delivered: "Delivered",
+    refund_requested: "Refund requested", refund_approved: "Refund approved",
+    refunded: "Refunded", cancelled: "Cancelled",
+  };
+  const ACTIONS = {
+    ship: "Ship parcel", deliver: "Mark delivered", cancel: "Cancel order",
+    requestRefund: "Request refund", approve: "Approve refund", reject: "Reject refund", payOut: "Pay out refund",
+  };
+  // guard: shown on the diagram edge when one action can lead to different states.
+  const TRANSITIONS = [
+    { from: "paid", action: "ship", to: "shipped" },
+    { from: "paid", action: "cancel", to: "cancelled" },
+    { from: "shipped", action: "deliver", to: "delivered" },
+    { from: "delivered", action: "requestRefund", to: "refund_requested" },
+    { from: "refund_requested", action: "approve", to: "refund_approved" },
+    { from: "refund_requested", action: "reject", to: "delivered" },
+    { from: "refund_approved", action: "payOut", to: "delivered", guard: "part of the total" },
+    { from: "refund_approved", action: "payOut", to: "refunded", guard: "rest of the total" },
+  ];
+  const INITIAL = "paid";
+  const FINAL = ["refunded", "cancelled"];
+  const money = (n) => "£" + Number(n).toFixed(2);
+
+  function initial() { return { status: INITIAL, total: 120, refunded: 0, pending: 0 }; }
+  function allowed(s) {
+    return [...new Set(TRANSITIONS.filter((t) => t.from === s.status).map((t) => t.action))];
+  }
+  function step(s, action, arg) {
+    if (!allowed(s).includes(action)) {
+      return { ok: false, state: s, reason: ACTIONS[action] + " is not allowed while the order is " + STATES[s.status].toLowerCase() + "." };
+    }
+    const n = Object.assign({}, s);
+    switch (action) {
+      case "ship": n.status = "shipped"; break;
+      case "deliver": n.status = "delivered"; break;
+      case "cancel": n.status = "cancelled"; n.refunded = s.total; break;
+      case "requestRefund": {
+        const left = s.total - s.refunded;
+        const amount = arg === "rest" ? left : Number(arg);
+        if (!(amount > 0) || amount > left) {
+          return { ok: false, state: s, reason: "A refund of " + money(amount) + " is more than the " + money(left) + " still refundable." };
+        }
+        n.status = "refund_requested"; n.pending = amount; break;
+      }
+      case "approve": n.status = "refund_approved"; break;
+      case "reject": n.status = "delivered"; n.pending = 0; break;
+      case "payOut":
+        n.refunded = s.refunded + s.pending; n.pending = 0;
+        n.status = n.refunded >= s.total ? "refunded" : "delivered"; break;
+    }
+    return { ok: true, state: n };
+  }
+  function describe(s) {
+    return [
+      ["Order", "1042"],
+      ["Status", STATES[s.status]],
+      ["Order total", money(s.total)],
+      ["Refunded so far", money(s.refunded)],
+      ["Refund pending", s.pending ? money(s.pending) : "none"],
+      ["Still refundable", money(s.total - s.refunded - s.pending)],
+    ];
+  }
+  return { STATES, ACTIONS, TRANSITIONS, INITIAL, FINAL, initial, allowed, step, describe };
+})();
+/* END EDIT */
+
+/* EDIT HERE (3 of 3): the page data. Free-play buttons, guided scenarios
+   (each starts from initial(); mark steps that should be refused), and the
+   tradeoff for the rule each scenario probes. Labels in domain language. */
+const FREE_PLAY = [
+  { action: "ship", label: "Ship parcel" },
+  { action: "deliver", label: "Mark delivered" },
+  { action: "cancel", label: "Cancel order" },
+  { action: "requestRefund", arg: 40, label: "Request £40 refund" },
+  { action: "requestRefund", arg: "rest", label: "Request the rest" },
+  { action: "approve", label: "Approve refund" },
+  { action: "reject", label: "Reject refund" },
+  { action: "payOut", label: "Pay out refund" },
+];
+const SCENARIOS = [
+  { id: "full", title: "Full refund after delivery",
+    text: "The parcel arrives, the customer asks for all their money back, support approves. Watch the order end as Refunded with nothing pending.",
+    steps: [{ action: "ship" }, { action: "deliver" }, { action: "requestRefund", arg: "rest", label: "Request full refund" }, { action: "approve" }, { action: "payOut" }] },
+  { id: "partial", title: "Two partial refunds",
+    text: "£40 back for a damaged mug, then a claim for £100 more. Only £80 is left, so the second claim must be refused; the customer then claims the £80.",
+    steps: [{ action: "ship" }, { action: "deliver" }, { action: "requestRefund", arg: 40, label: "Request £40" }, { action: "approve" }, { action: "payOut" },
+      { action: "requestRefund", arg: 100, label: "Request £100", expect: "refused" }, { action: "requestRefund", arg: "rest", label: "Request the £80 left" }, { action: "approve" }, { action: "payOut" }] },
+  { id: "transit", title: "Refund while in transit",
+    text: "The customer asks for a refund before the parcel arrives. This model refuses it until delivery. Is that what support would accept for a lost parcel?",
+    steps: [{ action: "ship" }, { action: "requestRefund", arg: "rest", label: "Request full refund", expect: "refused" }, { action: "deliver" }, { action: "requestRefund", arg: "rest", label: "Request full refund" }] },
+  { id: "cancel", title: "Cancel, then a late ship scan",
+    text: "An unshipped order is cancelled and refunded in full, no approval needed. A warehouse scan that tries to ship it afterwards must be refused.",
+    steps: [{ action: "cancel" }, { action: "ship", label: "Warehouse scans: Ship parcel", expect: "refused" }] },
+];
+const TRADEOFFS = {
+  full: { title: "One open refund at a time", gains: ["Support sees a single request per order", "Simple audit trail: request, decision, payout"], gives: ["A customer cannot stack two claims while one is pending"] },
+  partial: { title: "Partial refunds capped at what is left", gains: ["Can never refund more than was paid", "Many small claims are allowed"], gives: ["Refunding shipping on top of goods needs another path", "Rounding on currency conversion could block the last penny"] },
+  transit: { title: "No refunds until delivered", gains: ["Never pays out for a parcel that turns up fine"], gives: ["Lost parcels wait until the carrier gives up", "Support will want a manual override"] },
+  cancel: { title: "Cancel refunds in full, automatically", gains: ["No approval step for unshipped orders", "Fast, which is what customers expect"], gives: ["A late warehouse scan must be refused and someone must stop the parcel"] },
+};
+/* END EDIT */
+
+/* ===== Prototype chrome: tradeoff drawer, feedback bar, toast, clipboard.
+   Shared by every prototype template. No edits needed below this line.
+   Opened through the docs viewer (/prototype?path=...), feedback is posted to
+   /api/event and lands in .viewer/events.jsonl. Opened as a file, feedback is
+   copied to the clipboard as one plain-text line. ===== */
+const Chrome = (() => {
+  const $ = (s) => document.querySelector(s);
+  const viaViewer = /^https?:$/.test(location.protocol) && location.pathname.indexOf("/prototype") === 0;
+  const file = viaViewer ? (new URLSearchParams(location.search).get("path") || "") : localPath();
+  let cfg = { current: () => ({ id: "", title: "" }), tradeoffs: {} };
+  let about = "", aboutEl = null;
+
+  function localPath() {
+    const p = decodeURIComponent(location.pathname);
+    const i = p.lastIndexOf("/docs/");
+    return i >= 0 ? p.slice(i + 1) : p.split("/").pop();
+  }
+  function isTyping(e) {
+    return !!(e.target && e.target.closest && e.target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])"));
+  }
+  function toast(msg, ms) {
+    const t = $("#pt-toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms || 2600);
+  }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* try the old way */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy"); ta.remove(); return ok;
+    } catch (e) { return false; }
+  }
+  async function send(kind, text) {
+    const cur = cfg.current();
+    const ev = { type: "prototype", file, choice: cur.id + ": " + cur.title, text: kind === "pick" ? "picked" : text };
+    if (about) ev.about = about;
+    if (viaViewer) {
+      try {
+        const r = await fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(ev) });
+        if (r.ok) { toast(kind === "pick" ? "Recorded: " + cur.title : "Note recorded"); return true; }
+      } catch (e) { /* fall back to the clipboard */ }
+    }
+    const line = ["prototype", file, "choice: " + ev.choice, ev.about && "about: " + ev.about, "text: " + ev.text]
+      .filter(Boolean).join(" | ");
+    const ok = await copyText(line);
+    toast(ok ? "Copied to the clipboard. Paste it into the chat." : "Copy was blocked. Tell the agent: " + line, ok ? 3200 : 9000);
+    return true;
+  }
+  function setAbout(el) {
+    if (aboutEl) aboutEl.classList.remove("pt-picked");
+    aboutEl = el; about = el ? el.getAttribute("data-node") : "";
+    if (el && $("#pt-note").classList.contains("open")) el.classList.add("pt-picked");
+    $("#pt-about").textContent = about || "the whole thing";
+  }
+  function renderDrawer() {
+    const box = $("#pt-drawer-list"), cur = cfg.current().id;
+    box.textContent = "";
+    for (const [id, t] of Object.entries(cfg.tradeoffs)) {
+      const sec = document.createElement("section");
+      sec.className = "pt-t" + (id === cur ? " current" : "");
+      const h = document.createElement("h3"); h.textContent = t.title; sec.appendChild(h);
+      if (id === cur) { const on = document.createElement("span"); on.className = "on"; on.textContent = "on screen"; h.appendChild(on); }
+      for (const [label, items] of [["Gains", t.gains || []], ["Gives up", t.gives || []]]) {
+        const l = document.createElement("div"); l.className = "pt-tl"; l.textContent = label; sec.appendChild(l);
+        const ul = document.createElement("ul");
+        for (const x of items) { const li = document.createElement("li"); li.textContent = x; ul.appendChild(li); }
+        sec.appendChild(ul);
+      }
+      box.appendChild(sec);
+    }
+  }
+  function openNote() {
+    $("#pt-note-on").textContent = cfg.current().title;
+    $("#pt-note").classList.add("open");
+    if (aboutEl) aboutEl.classList.add("pt-picked");
+    $("#pt-note-text").focus();
+  }
+  function closeNote() {
+    $("#pt-note").classList.remove("open");
+    if (aboutEl) aboutEl.classList.remove("pt-picked");
+  }
+  function toggleDrawer(force) {
+    const d = $("#pt-drawer"), b = $("#pt-trade-btn");
+    const open = typeof force === "boolean" ? force : !d.classList.contains("open");
+    d.classList.toggle("open", open); b.setAttribute("aria-expanded", String(open));
+  }
+
+  function init(options) {
+    cfg = Object.assign(cfg, options);
+    $("#pt-trade-btn").addEventListener("click", () => toggleDrawer());
+    $("#pt-pick").addEventListener("click", () => send("pick"));
+    $("#pt-note-btn").addEventListener("click", () => ($("#pt-note").classList.contains("open") ? closeNote() : openNote()));
+    $("#pt-note").addEventListener("click", async (e) => {
+      const act = e.target.dataset && e.target.dataset.act;
+      if (act === "cancel") closeNote();
+      if (act === "send") {
+        const text = $("#pt-note-text").value.trim();
+        if (!text) { toast("Write something first"); return; }
+        await send("note", text);
+        $("#pt-note-text").value = ""; closeNote(); setAbout(null);
+      }
+    });
+    $("#pt-note-text").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("#pt-note [data-act=send]").click();
+    });
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest && e.target.closest("[data-node]");
+      if (el && !el.closest(".pt-chrome, .pt-pill")) setAbout(el);
+    }, true);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeNote(); toggleDrawer(false); }
+    });
+    renderDrawer();
+  }
+  return { init, refresh: renderDrawer, toast, copyText, isTyping, viaViewer, file };
+})();
+
+/* ===== LOGIC page shell. Thin: it calls the module and renders. ===== */
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const labelFor = (a) => a.label || Model.ACTIONS[a.action];
+  let state = Model.initial(), prev = null, scen = SCENARIOS[0], pos = 0, outcomes = [], drift = false, logN = 0;
+
+  $("#title").textContent = PROTO.title;
+  $("#question").textContent = PROTO.question;
+  document.title = PROTO.title + " (prototype)";
+
+  function apply(a, fromScenario) {
+    const r = Model.step(state, a.action, a.arg);
+    prev = state; state = r.state;
+    const res = $("#result");
+    if (r.ok) {
+      res.className = "result ok";
+      res.textContent = "";
+      res.append(el("b", null, labelFor(a)), document.createTextNode(": " + Model.STATES[prev.status] + " → " + Model.STATES[state.status]));
+    } else {
+      res.className = "result bad";
+      res.textContent = "Refused. " + r.reason;
+    }
+    const li = el("li", r.ok ? "" : "bad");
+    li.append(el("span", "n", String(++logN)), el("span", null, r.ok ? labelFor(a) + ": " + Model.STATES[prev.status] + " → " + Model.STATES[state.status] : "Refused: " + r.reason));
+    if (logN === 1) $("#log").querySelectorAll("li.muted").forEach((x) => x.remove());
+    $("#log").prepend(li);
+    if (!fromScenario) drift = true;
+    return Object.assign({ change: Model.STATES[prev.status] + " \u2192 " + Model.STATES[state.status] }, r);
+  }
+  function reset() {
+    state = Model.initial(); prev = null; pos = 0; outcomes = []; drift = false;
+    $("#log").innerHTML = '<li class="muted">Nothing yet.</li>'; logN = 0;
+    $("#result").className = "result"; $("#result").textContent = "Starting state. Nothing has happened yet.";
+  }
+
+  function renderState() {
+    const chips = $("#chips"); chips.textContent = "";
+    for (const [id, name] of Object.entries(Model.STATES)) {
+      const c = el("span", "chip" + (id === state.status ? " on" : "") + (Model.FINAL.includes(id) ? " final" : ""), name);
+      c.dataset.node = name; chips.appendChild(c);
+    }
+    const before = prev ? Object.fromEntries(Model.describe(prev)) : null;
+    const dl = $("#fields"); dl.textContent = "";
+    for (const [k, v] of Model.describe(state)) {
+      const dt = el("dt", null, k); dt.dataset.node = k;
+      const dd = el("dd", before && before[k] !== v ? "changed" : "", v);
+      dl.append(dt, dd);
+    }
+    const legal = Model.allowed(state);
+    const al = $("#allowed"); al.textContent = "";
+    if (!legal.length) al.append(el("span", "tag", "nothing, this is a final state"));
+    for (const a of legal) al.append(el("span", "tag", Model.ACTIONS[a]));
+    document.querySelectorAll("#freeplay .btn").forEach((b) => b.classList.toggle("legal", legal.includes(b.dataset.action)));
+  }
+
+  function renderScenario() {
+    const tabs = $("#tabs"); tabs.textContent = "";
+    for (const s of SCENARIOS) {
+      const b = el("button", null, s.title);
+      b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(s === scen)); b.dataset.node = "Scenario: " + s.title;
+      b.onclick = () => { scen = s; reset(); renderAll(); };
+      tabs.appendChild(b);
+    }
+    $("#scen-text").textContent = scen.text;
+    $("#drift").style.display = drift ? "block" : "none";
+    const ol = $("#steps"); ol.textContent = "";
+    scen.steps.forEach((a, i) => {
+      const o = outcomes[i];
+      const li = el("li", (i < pos ? "done" : "") + (o && !o.ok ? " refused" : ""));
+      const b = el("button", "btn" + (i === pos ? " primary" : ""), labelFor(a));
+      b.disabled = i !== pos; b.dataset.node = "Step " + (i + 1) + ": " + labelFor(a);
+      b.onclick = () => { outcomes[i] = apply(a, true); pos++; renderAll(); };
+      li.appendChild(b);
+      if (a.expect === "refused" && !o) li.appendChild(el("span", "expect", "should be refused"));
+      if (o) li.appendChild(el("span", "out", o.ok ? o.change : o.reason));
+      ol.appendChild(li);
+    });
+    if (pos >= scen.steps.length) {
+      const li = el("li", "done"); li.appendChild(el("span", "out", "Scenario complete. Does the end state match what the business expects?"));
+      ol.appendChild(li);
+    }
+    $("#pill-label").textContent = "Scenario: " + scen.title;
+    $("#pill-label").title = scen.title;
+  }
+
+  function renderAll() { renderState(); renderScenario(); $("#mermaid-out").textContent = toMermaid(); Chrome.refresh(); }
+
+  /* Close-the-loop bridge: the transition table as a Mermaid stateDiagram-v2. */
+  function toMermaid() {
+    const clean = (s) => String(s).replace(/[;#:<>{}"]/g, " ").replace(/\s+/g, " ").trim();
+    const out = ["stateDiagram-v2"];
+    for (const [id, name] of Object.entries(Model.STATES)) out.push("  state \"" + clean(name) + "\" as " + id);
+    out.push("  [*] --> " + Model.INITIAL);
+    for (const t of Model.TRANSITIONS) {
+      out.push("  " + t.from + " --> " + t.to + " : " + clean(Model.ACTIONS[t.action] + (t.guard ? " (" + t.guard + ")" : "")));
+    }
+    for (const f of Model.FINAL) out.push("  " + f + " --> [*]");
+    return out.join("\n");
+  }
+
+  const fp = $("#freeplay");
+  for (const a of FREE_PLAY) {
+    const b = el("button", "btn", a.label); b.dataset.action = a.action;
+    b.onclick = () => { apply(a, false); renderAll(); };
+    fp.appendChild(b);
+  }
+  $("#restart").onclick = () => { reset(); renderAll(); };
+  $("#reset").onclick = () => { reset(); renderAll(); };
+  $("#copy-mermaid").onclick = async () => {
+    const ok = await Chrome.copyText(toMermaid());
+    Chrome.toast(ok ? "State diagram copied. Paste it inside a mermaid block." : "Copy was blocked. Open the preview and copy it by hand.");
+  };
+
+  Chrome.init({ current: () => ({ id: scen.id, title: scen.title }), tradeoffs: TRADEOFFS });
+  reset(); renderAll();
+})();
+</script>
+</body>
+</html>

@@ -11,6 +11,13 @@ blocks as cards with a Choose button, previews mockups in a frame, and lets the
 user click a diagram node to comment. Choices and comments append JSON lines
 to <root>/.viewer/events.jsonl for the agent to read.
 
+Routes for HTML:
+  /mockup?path=...     static mockups, scripts blocked by CSP, shown in a frame.
+  /prototype?path=...  prototypes (the prototype skill), scripts allowed, opened
+                       in a new tab. Only .html files under a `prototypes/`
+                       directory are served here. Their feedback bar posts
+                       events of type "prototype" to /api/event.
+
 Python 3 standard library only.
 """
 
@@ -30,6 +37,10 @@ SKIP_DIRS = {".git", "node_modules", ".viewer"}
 DEFAULT_PORT = 4178
 MAX_EVENT_BYTES = 64 * 1024
 EVENT_LOCK = threading.Lock()
+EVENT_TYPES = ("choice", "comment", "prototype")
+PROTOTYPE_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                 "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                 "connect-src 'self'; frame-ancestors 'self'")
 
 
 def profile_port(root):
@@ -83,6 +94,15 @@ def safe_path(root, rel, exts):
     return full
 
 
+def prototype_path(root, rel):
+    """Like safe_path for .html, but only inside a `prototypes/` directory."""
+    full = safe_path(root, rel, (".html",))
+    if not full:
+        return None
+    dirs = os.path.relpath(full, root).split(os.sep)[:-1]
+    return full if "prototypes" in dirs else None
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "docs-viewer/1"
 
@@ -133,6 +153,13 @@ class Handler(BaseHTTPRequestHandler):
                 data = fh.read()
             self.send(200, data, "text/html; charset=utf-8",
                       {"Content-Security-Policy": "script-src 'none'; frame-ancestors 'self'"})
+        elif url.path == "/prototype":
+            full = prototype_path(root, q.get("path", [""])[0])
+            if not full:
+                return self.send(404, "not found or not allowed (prototypes must live under a prototypes/ folder)")
+            with open(full, "rb") as fh:
+                data = fh.read()
+            self.send(200, data, "text/html; charset=utf-8", {"Content-Security-Policy": PROTOTYPE_CSP})
         else:
             self.send(404, "not found")
 
@@ -155,9 +182,9 @@ class Handler(BaseHTTPRequestHandler):
             event = json.loads(self.rfile.read(length).decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
             return self.send_json(400, {"error": "bad json"})
-        if not isinstance(event, dict) or event.get("type") not in ("choice", "comment"):
-            return self.send_json(400, {"error": "type must be choice or comment"})
-        allowed = ("type", "file", "block", "choice", "node", "text")
+        if not isinstance(event, dict) or event.get("type") not in EVENT_TYPES:
+            return self.send_json(400, {"error": "type must be one of " + ", ".join(EVENT_TYPES)})
+        allowed = ("type", "file", "block", "choice", "node", "about", "text")
         record = {"ts": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
         for k in allowed:
             if k in event and event[k] is not None:
@@ -401,13 +428,16 @@ async function openFile(path, keepScroll) {
     const div = document.createElement("div"); div.className = "mermaid-src mermaid"; div.dataset.src = code.textContent;
     code.parentElement.replaceWith(div);
   });
-  // Links: .md navigates in-app, mockups open in the frame.
+  // Links: .md navigates in-app, prototypes open in a new tab, mockups in the frame.
   frag.querySelectorAll("a[href]").forEach(a => {
     const href = a.getAttribute("href");
     if (/^[a-z]+:|^\/\/|^#/i.test(href)) return;
     const [target] = href.split("#");
     const full = resolve(path, decodeURIComponent(target));
     if (/\.md$/i.test(target)) { a.href = "#" + encodeURIComponent(full); }
+    else if (/\.html?$/i.test(target) && isPrototype(full)) {
+      a.href = prototypeUrl(full); a.target = "_blank"; a.rel = "noopener";
+    }
     else if (/\.html?$/i.test(target)) {
       a.href = "#"; a.onclick = e => { e.preventDefault(); openFrame(full); };
     }
@@ -440,14 +470,22 @@ function nodeText(g) {
 }
 
 function wireDiagram(div, path) {
-  // Mockup links from `click node "mockups/x.html"` open in the frame.
+  // `click node "x.md"` navigates in-app; `click node "mockups/x.html"` opens the
+  // frame (or a new tab for prototypes).
   div.querySelectorAll("a").forEach(a => {
     const href = a.getAttribute("href") || a.getAttribute("xlink:href") || "";
-    if (/\.html?$/i.test(href) && !/^[a-z]+:/i.test(href)) {
-      a.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); openFrame(resolve(path, href)); });
+    if (/^[a-z]+:|^\/\//i.test(href)) return;
+    const target = href.split("#")[0];
+    if (/\.md$/i.test(target)) {
+      a.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); location.hash = encodeURIComponent(resolve(path, decodeURIComponent(target))); });
+    } else if (/\.html?$/i.test(target)) {
+      a.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); openHtml(resolve(path, decodeURIComponent(target))); });
     }
   });
+  // Click an unlinked node to comment on it; right-click any node (linked or
+  // not) to comment.
   div.querySelectorAll("g.node").forEach(g => {
+    g.addEventListener("contextmenu", e => { e.preventDefault(); e.stopPropagation(); openComment(e, path, nodeText(g)); });
     if (g.closest("a")) return;
     g.addEventListener("click", e => { e.stopPropagation(); openComment(e, path, nodeText(g)); });
   });
@@ -471,6 +509,14 @@ function openComment(e, file, node) {
 }
 document.addEventListener("click", e => { if (!e.target.closest("#comment")) $("#comment").style.display = "none"; });
 document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#comment").style.display = "none"; } });
+
+// HTML under a prototypes/ folder runs scripts, so it gets its own tab.
+function isPrototype(path) { return /(^|\/)prototypes\//.test(path); }
+function prototypeUrl(path) { return "/prototype?path=" + encodeURIComponent(path); }
+function openHtml(path) {
+  if (isPrototype(path)) window.open(prototypeUrl(path), "_blank", "noopener");
+  else openFrame(path);
+}
 
 function openFrame(path) {
   $("#app").classList.add("with-frame");

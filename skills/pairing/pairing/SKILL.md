@@ -77,6 +77,11 @@ follow the switch without comment and record the mode in the journal entry.
    and grep it out before committing. Journal the dead ends; the wrong
    hypotheses are the most valuable part for the PR reader.
 
+   When a step cannot even be proposed because nobody knows whether the
+   approach works (the library, the limit, the payload), that is not a bug: run
+   a `spike` on its own branch, link the brief from a `Spike:` journal entry,
+   and propose the step from its verdict.
+
 5. **Journal.** Append an entry to the slice's `Journal` per MEMORY-BANK.md:
    what, why, how, evidence, what was considered. Write it now; the why is
    gone an hour later. Done when the entry is on disk.

@@ -2,12 +2,13 @@
 
 <p align="center">
   <b>Agent skills for building software the way people actually build it.</b><br/>
-  Plan a feature, build it yourself, ship a small change, or pair with the agent,<br/>
+  Explore a foggy idea, plan a feature, build it yourself, ship a small change,<br/>
+  or pair with the agent,
   with stories a person can see and pictures that live in the docs.
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-2.0.0-1168bd">
+  <img alt="version" src="https://img.shields.io/badge/version-2.1.0-1168bd">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-438dd5">
   <img alt="works with" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20any%20SKILL.md%20agent-85bbf0">
 </p>
@@ -15,7 +16,8 @@
 <p align="center">
   <a href="#-install">Install</a> ·
   <a href="#-quick-start">Quick start</a> ·
-  <a href="#-the-four-modes">The four modes</a> ·
+  <a href="#-the-five-modes">The five modes</a> ·
+  <a href="#-finding-things-out">Finding things out</a> ·
   <a href="#-stories-people-can-see">Stories</a> ·
   <a href="#-pictures-in-the-docs">Pictures</a> ·
   <a href="#-skill-reference">Reference</a>
@@ -26,11 +28,16 @@
 ## ✨ What this is
 
 A set of skills (folders with a `SKILL.md` that your coding agent loads on
-demand) organised as **one small kernel and four ways of working**:
+demand) organised as **one small kernel and five ways of working**:
 
 ```mermaid
 flowchart TB
-  s(["/start"]) --> full & light & along & pair
+  s(["/start"]) --> trail & full & light & along & pair
+  subgraph trail["🥾 Trailblazer"]
+    direction TB
+    t1["recon + first sketch"] --> t2["trail map"] --> t3["one node at a time<br/>research · spike · prototype · talk"] --> t2
+    t2 --> t4["report, hand off"]
+  end
   subgraph full["🗺️ Full loop"]
     direction TB
     f1["interview: align"] --> f2["write-requirements"] --> f3["solution-design"] --> f4["vertical-slice-phasing"] --> f5["elaborate-current-phase<br/>to-story"] --> f6["tdd or code-along<br/>per story"] --> f5
@@ -52,10 +59,11 @@ flowchart TB
 Every mode reads and writes the same files in your repo, so you can switch
 modes per story without losing anything.
 
-**What's new in 2.0:** no dependency on any other skill repo, stories written
-for people (with agent tasks inside them), and Mermaid diagrams everywhere,
-validated before you see them, with a local viewer. See the
-[changelog](CHANGELOG.md).
+**What's new in 2.1:** `trailblazer`, research you do together around a living
+map, plus `spike`, `prototype`, and `research` skills any mode can call.
+**In 2.0:** no dependency on any other skill repo, stories written for people
+(with agent tasks inside them), and Mermaid diagrams everywhere, validated before
+you see them, with a local viewer. See the [changelog](CHANGELOG.md).
 
 ---
 
@@ -98,23 +106,76 @@ In the repo you are working on:
 /start           # tells you which mode fits what you want to do, and the first command
 ```
 
-That's it. `/start` reads what is already in the repo (a plan in progress, an
-open lesson, an active pairing slice) and points you at the next step. You can
+That's it. `/start` reads what is already in the repo (a trail in progress, a
+plan, an open lesson, an active pairing slice) and points you at the next step. You can
 also skip it and call any mode directly.
 
 ---
 
-## 🧭 The four modes
+## 🧭 The five modes
 
 | | Mode | Pick it when | Start with |
 |---|---|---|---|
+| 🥾 | **Trailblazer** | Fog. The idea is big or vague and nobody can yet list the questions. | `/trailblazer <the idea>` |
 | 🗺️ | **Full loop** | The architecture is the hard part. A wrong call now means a rewrite later. | `/interview` then `/write-requirements` |
 | ⚡ | **Light loop** | One coherent change, no real design choice. You could open the editor now. | `/light <the change>` |
 | 🧑‍💻 | **Code-along** | A story exists and you want to write the code yourself and understand every line. | `/code-along <story>` |
 | 🤝 | **Pairing** | The spec is clear enough to start; you want to build one small piece at a time, together. | `/pair-setup`, then `/pair-slice` |
 
 Judge by weight, not size: a two-line change that decides the tenancy model is
-full loop; a big mechanical change is light.
+full loop; a big mechanical change is light. If you can't list the open questions
+yet, it's trailblazer, whatever the size.
+
+### 🥾 Trailblazer
+
+Research you do together, for when the first job is finding the way. The agent
+reads the code and docs before asking anything, opens with **one** question and a
+first sketch, then draws a **trail map**: a Mermaid tree of the unknowns, coloured
+by state, that it redraws after every decision.
+
+```mermaid
+flowchart TB
+  N1["N1 Who it is for<br/>shop owners"]:::decided
+  N2["N2 Where reminders send from<br/>talk"]:::active
+  N3["N3 Provider retry behaviour<br/>research"]:::researching
+  N4["N4 Can we send 10k a minute<br/>spike"]:::probing
+  N5["N5 How often to remind<br/>talk"]:::open
+  F1["F1 Wording rules"]:::fog
+  N1 --> N2
+  N1 --> N3
+  N1 --> N5
+  N3 --> N4
+  N5 -.-> F1
+  classDef open fill:#ffffff,stroke:#5b6b80,color:#1f2a37
+  classDef decided fill:#d3f0dc,stroke:#2e7d4f,color:#123b22
+  classDef active fill:#fff1c2,stroke:#b8860b,color:#3d2c00,stroke-width:2px
+  classDef researching fill:#dbe8ff,stroke:#2f5fb3,color:#0d2350
+  classDef probing fill:#ecdfff,stroke:#6b3fb3,color:#2a0f55
+  classDef fog fill:#f2f2f2,stroke:#9a9a9a,color:#555,stroke-dasharray: 4 3
+```
+
+White is open, yellow is the question now, blue is an agent reading, purple is
+a spike or prototype running, green is decided, grey is fog. With the docs viewer
+running (it starts with the first map), you watch it change as you talk. Then it works **one node at a time**:
+
+- It recommends two or three nodes to tackle next. **You pick.**
+- Facts are fetched, never asked: research and spikes run in the background while
+  you talk about something else, and their results arrive in the next playback.
+- Every fork is shown as small diagrams side by side, with what each option gains
+  and gives up.
+- After each decision it plays back where things stand in about 150 words, with
+  the redrawn map.
+- It ends with a `report.md` and hands off to the right loop.
+
+```text
+/trailblazer invoice reminders for small shops
+# one question and a sketch; then the first map; then "which node next?"
+/trailblazer                     # tomorrow: a playback of where we are, then carry on
+```
+
+Steer it in plain words: "zoom out," "go deeper," "park it," "that's out," "look
+it up," "spike it," "show me," "ask Dana," "you decide." Everything lives in
+`docs/research/<topic>/` as files, never tickets, so `/clear` costs nothing.
 
 ### 🗺️ Full loop
 
@@ -210,6 +271,31 @@ State lives in `docs/pairing/`, so `/clear` costs nothing.
 
 ---
 
+## 🔬 Finding things out
+
+Four ways to settle a question, and the test is who or what holds the answer.
+Every mode can use them; trailblazer uses all four.
+
+| Question | Skill | What you get |
+|---|---|---|
+| Is it written down somewhere? | `research` | A background agent reads primary sources and writes a cited note ending in "what this means for us." |
+| Does it actually work, here? | `spike` | Throwaway code in its own worktree, a timebox, and a verdict (Confirmed, Rejected, Partial) with evidence and sharp edges. Never merged. |
+| How should it look or behave? | `prototype` | Something to click: a state model with guided scenarios (LOGIC), radically different screens (UI), or a flow simulator with failure buttons (FLOW). |
+| Which way do we go? | `interview` | One question, a recommendation, and the options as pictures. |
+
+```text
+/spike can SQLite FTS5 rank 200k notes in under 100 ms?
+/prototype which layout for the invoice reminders screen?
+/research how does Stripe retry failed webhooks?
+```
+
+Every prototype has a **tradeoff drawer** (what each variant gains and gives up)
+and a **feedback bar**: opened through the docs viewer, your picks and notes go
+straight back to the agent. When it's settled, the decision is redrawn as a
+Mermaid diagram in the docs, and the prototype stays as the record.
+
+---
+
 ## 👀 Stories people can see
 
 AI-written stories tend to read like work orders: "Create the database,"
@@ -282,7 +368,8 @@ to the requirements, design, story, or ADR it belongs to.
 
 A small local web page that renders your `docs/` with every diagram drawn, live
 reloads as the agent writes, shows design options as cards you can pick, opens
-mockups beside the text, and lets you click a box in a diagram to comment on it.
+mockups beside the text, runs prototypes in their own tab, and lets you click a
+box in a diagram to comment on it.
 Your clicks go back to the agent through `.viewer/events.jsonl`.
 
 ```bash
@@ -303,6 +390,8 @@ CLAUDE.md                  the agent contract (stack, layering, definition of do
 docs/
   agents/profile.md        tracker, docs locations, test and run commands, diagram settings
   adr/NNNN-*.md            decisions that are hard to reverse
+  research/<topic>/        a trail: map.md, nodes/, findings/, spikes/, prototypes/, report.md
+  spikes/NNNN-*.md         spike briefs outside a trail (the code stays on spike/<slug> branches)
   planning/<feature>/
     requirements.md        write-requirements
     design.md              solution-design
@@ -329,6 +418,7 @@ are always files.
 | Skill | What it does |
 |---|---|
 | `start` | Reads the repo and your goal, recommends a mode and its first command. |
+| `trailblazer` | Pair research around a living trail map: one question per turn, facts fetched in the background, forks shown as pictures, you pick the next node. |
 | `light` | Align briefly, write one story with its own small design, build it. Escalates when the change is heavy. |
 | `planning-loop` | The full loop's router: reads `docs/planning/` and names the next step. |
 | `code-along` | Turns a story into a verified lesson you code yourself, then debriefs you. |
@@ -349,6 +439,9 @@ are always files.
 | `tdd` | Builds a story task by task, red-green-refactor, then performs the demo. |
 | `diagnose` | A gated loop for hard bugs: red signal first, then hypotheses, then the fix. |
 | `review-change` | Three parallel reviews of a change: standards, spec (the story or slice), and decisions (ADRs, glossary). |
+| `research` | A background agent answers a factual question from primary sources, cited; or a recon of what the repo already has. |
+| `spike` | One technical question, run for real in an isolated worktree, timeboxed, ending in a verdict and a brief. |
+| `prototype` | Throwaway LOGIC, UI, or FLOW prototypes with a tradeoff drawer and a feedback bar, closed by redrawing the decision as Mermaid. |
 
 </details>
 
@@ -441,14 +534,15 @@ bash scripts/list-skills.sh                                   # list skill folde
 ```
 
 Skills refer to each other by name ("the `story` skill's `FORMAT.md`"), never by
-path, so they work however your agent installs them. The plan for 2.0, written
-with these skills, is in [`docs/planning/skills-v2/`](docs/planning/skills-v2/),
-with its decisions in [`docs/adr/`](docs/adr/).
+path, so they work however your agent installs them. The plans, written with
+these skills, are in [`docs/planning/`](docs/planning/), with their decisions in
+[`docs/adr/`](docs/adr/).
 
 ```text
 skills/
-  kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change
-  modes/         start, light
+  kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change,
+                 research, spike, prototype
+  modes/         start, light, trailblazer
   engineering/   planning-loop, write-requirements, solution-design, vertical-slice-phasing,
                  elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
@@ -460,8 +554,9 @@ skills/
 ## 🙏 Credits
 
 Version 1 was built on top of [Matt Pocock's skills](https://github.com/mattpocock/skills),
-and the grilling interview, the glossary-as-shared-language idea, and tracer-bullet
-slicing all started there. The visual brainstorming idea was inspired by
+and the grilling interview, the glossary-as-shared-language idea, tracer-bullet
+slicing, and the map, fog-of-war, and prototype ideas behind trailblazer all
+started there. The visual brainstorming idea was inspired by
 [Superpowers](https://github.com/obra/superpowers). Story splitting follows the
 Humanizing Work guide to splitting user stories, and the diagrams borrow Simon
 Brown's [C4 model](https://c4model.com).
