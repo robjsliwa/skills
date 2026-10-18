@@ -2,14 +2,14 @@
 name: teach-me
 description: Teach the user a topic over many sessions in a teaching workspace, writing every lesson as a verified, illustrated chapter.
 disable-model-invocation: true
-argument-hint: "What would you like to learn about? Or name a lesson to rewrite."
+argument-hint: "What would you like to learn about? Or name a lesson to rewrite. A detour brief's path may ride along."
 ---
 
 # Teach Me
 
 The user has asked you to teach them something. This is a stateful request: they intend to learn the topic over many sessions, and the current directory is the **teaching workspace** that carries the state between them. You are their teacher. What you produce each session is one **lesson**, written as a **chapter**: the reader is smart and busy and learns from a motive, then a picture, then a small slice of code, one idea at a time. Everything in a chapter is derived, drawn and verified by a build script before the page reaches the user. Nothing is asserted.
 
-The argument is a topic to learn next, or an existing lesson to rewrite in the chapter style.
+The argument is a topic to learn next, or an existing lesson to rewrite in the chapter style. It may also name a **detour brief** (from the `detour` skill): the user stepped out of real work to learn this. Read it in full. Its "Where it hit" is the lesson's motive, "What I already know" places the zone of proximal development, and "Unstuck means" is the target. If `MISSION.md` is missing, draft it from the brief and confirm it with the user in one question instead of a full interview.
 
 Reference lives beside this file:
 
@@ -75,4 +75,4 @@ Lessons are built from the components in `assets/`. Reuse is the default: read `
 
 9. **Render the page** in section slices and look at each one. Done when every slice has been viewed and each fix has been rebuilt and re-viewed.
 
-10. **Close.** Write a learning record for anything the session established, per LEARNING-RECORD-FORMAT.md's four triggers. Update `NOTES.md`: preferences the user voiced, the list of model chapters, and a session-log entry naming what was kept, added, verified and fixed. Open the lesson in the browser, leave the files uncommitted for the user, and recap in three parts: what the chapter contains, what was tightened or added, how it was verified.
+10. **Close.** Write a learning record for anything the session established, per LEARNING-RECORD-FORMAT.md's four triggers. Update `NOTES.md`: preferences the user voiced, the list of model chapters, and a session-log entry naming what was kept, added, verified and fixed. Open the lesson in the browser, leave the files uncommitted for the user, and recap in three parts: what the chapter contains, what was tightened or added, how it was verified. If the session started from a detour brief and the lesson meets its "Unstuck means," end with the return line: `/detour back <brief path>`. If it does not yet, say what the next lesson covers before the return makes sense.

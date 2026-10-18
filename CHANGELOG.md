@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.3.0 (2026-10-18)
+
+Step out to learn, then come back.
+
+### Added
+
+- `detour` (productivity): a round trip out of the work in progress. Leaving
+  pauses the active flow through its own checkpoint, writes a committed brief in
+  `docs/detours/` (the gap, where it hit, what you know, what unstuck means),
+  and prints the first line for `teach-me`, `trailblazer`, or `spike` in a
+  clean context. `/detour back` asks you to say the answer in your own words and
+  writes it into the brief's Return section for the paused flow to fold in.
+
+### Changed
+
+- `interview` can pause to `docs/planning/<slug>/interview.md` (tree, the three
+  lists, the question on the table) and resume with `/interview resume <slug>`.
+- `pair`, `code-along`, and `trailblazer` fold answered detours in on resume;
+  a detour still out shows up in pairing's Open threads in `STATE.md`.
+- `teach-me` and `trailblazer` accept a detour brief as their starting point
+  and end with the return line.
+- `start` routes an answered detour back to the flow it paused.
+- The profile gains a `Detours` location.
+- README: how to update installed skills, and pin or unpin a release tag,
+  with the skills CLI or a clone.
+
 ## 2.2.0 (2026-10-18)
 
 Every PR reads like a pairing PR.

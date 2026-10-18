@@ -10,8 +10,9 @@ description: >-
   Mermaid diagram and asks what is wrong with it. Use when the user says
   "interview me," "grill me," "align on this," "think it through," "walk the
   design tree," "resolve the open questions," or when a mode or skill needs
-  intent or a design settled before it writes.
-argument-hint: "Optional: 'align' or 'decide', then the subject (an idea, a file path, or a question)."
+  intent or a design settled before it writes. Pauses to a file for a
+  detour and resumes from it.
+argument-hint: "Optional: 'align' or 'decide', then the subject (an idea, a file path, or a question). Or 'resume <slug>' to pick up a paused interview."
 ---
 
 # Interview
@@ -65,6 +66,8 @@ Four rules govern every turn.
 Before the first question, read what exists so you never ask what you could have
 read:
 
+- A paused `docs/planning/<slug>/interview.md` for this subject: resume it per
+  "Pause and resume" below instead of starting over.
 - Every attached or named file, in full.
 - `docs/agents/profile.md` for docs locations and diagram settings (defaults if
   missing; say once that `/repo-setup` would make it explicit).
@@ -196,6 +199,54 @@ settled only when a decision depends on it, instead of stopping the turn. Keep
 a turn to about 150 words of prose plus its diagrams; the soft spot is one
 sentence inside the recommendation, not a second question.
 
+## Pause and resume
+
+An interview lives in the conversation, so a `/clear` loses the tree and the
+three lists. When the user takes a `detour`, or asks to stop and pick up later,
+write them to a pause file first: `docs/planning/<slug>/interview.md`
+(planning root from the profile), next to the findings document it will become.
+
+```markdown
+# Interview: <subject> (paused)
+
+**Subject:** align | decide   **Paused:** <date>, for detour NNNN (or "by the user")
+**Caller:** none | <skill>, writing <document>
+**Read in step 0:** <the files, so resume re-reads the same ones>
+
+## Tree
+1. <branch> (settled)
+2. <branch> (on the table)
+3. <branch>
+
+## Settled
+- <one line per decision or agreed fact>
+
+## Deferred / out of scope
+- <item, and why>
+
+## Designed seams
+- <item>
+
+## On the table
+<The question as asked, the recommendation and its soft spot, and what the user
+had said about it so far, including what they did not understand.>
+```
+
+Commit it with the detour brief. To resume (`/interview resume <slug>`, or
+when step 0 finds a paused file for the subject):
+
+1. Re-read the files it lists and the file itself, then every brief in
+   `docs/detours/` whose `Paused` line points at it, per the `detour` skill.
+2. Play back in at most 150 words: the subject, what is settled, and what the
+   detour returned.
+3. Re-ask the question on the table, rewritten with what the user now knows.
+   The recommendation may change; say so if it does.
+4. Carry on from Step 2. When the write-up lands, delete the pause file; if a
+   caller is named, tell the user to re-run it, now that the interview is done.
+
+Inside a trail, the trail's own files are the pause: the active node holds the
+question, so no pause file is written.
+
 ## Conventions
 
 - **Always recommend, even when unsure.** Lean, and say what would change your
@@ -208,3 +259,6 @@ sentence inside the recommendation, not a second question.
   dashes.
 - **Stay in scope.** When the user draws a boundary, hold it and note where the
   other side lives.
+- **A gap is not a failure.** When the user cannot answer because they do not
+  know the subject yet, and a few sentences will not fix it, offer a `detour`
+  instead of answering for them.

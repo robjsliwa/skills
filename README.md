@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-2.2.0-1168bd">
+  <img alt="version" src="https://img.shields.io/badge/version-2.3.0-1168bd">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-438dd5">
   <img alt="works with" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20any%20SKILL.md%20agent-85bbf0">
 </p>
@@ -59,7 +59,11 @@ flowchart TB
 Every mode reads and writes the same files in your repo, so you can switch
 modes per story without losing anything.
 
-**What's new in 2.1:** `trailblazer`, research you do together around a living
+**What's new in 2.3:** `detour`, for when you hit something you don't
+understand mid-flow: it pauses the work, sends the gap to `teach-me` or
+`trailblazer` in a clean context, and brings the answer back to where you
+stopped.
+**In 2.1:** `trailblazer`, research you do together around a living
 map, plus `spike`, `prototype`, and `research` skills any mode can call.
 **In 2.0:** no dependency on any other skill repo, stories written for people
 (with agent tasks inside them), and Mermaid diagrams everywhere, validated before
@@ -76,14 +80,42 @@ want diagrams validated; everything else works without it.
 **Option A: the skills CLI** (copies the skills into your agent's skills folder)
 
 ```bash
-npx skills@latest add robjsliwa/skills
+npx skills@latest add robjsliwa/skills            # this project only
+npx skills@latest add robjsliwa/skills -g         # or for every project (user folder)
 ```
+
+Update to the latest release, or to a specific one. Releases are git tags
+named by version (`2.2.0`, no `v`); see the [changelog](CHANGELOG.md) or
+[releases](https://github.com/robjsliwa/skills/releases).
+
+```bash
+npx skills@latest update                          # every installed skill, to the latest on main
+npx skills@latest update tdd detour               # just these skills
+npx skills@latest update -g                       # only the global installs
+
+npx skills@latest add robjsliwa/skills#2.2.0      # pin every skill to the 2.2.0 release
+npx skills@latest add robjsliwa/skills#2.2.0 --skill tdd   # pin one skill
+npx skills@latest add robjsliwa/skills            # unpin: back to the latest
+```
+
+A pinned skill stays pinned: `update` checks it against its own tag, so it only
+changes when you re-run `add` with a newer tag, or without one. `npx skills
+list` shows what is installed.
 
 **Option B: clone and link** (edit the skills in place, pull to update)
 
 ```bash
 git clone https://github.com/robjsliwa/skills.git
 bash skills/scripts/link-skills.sh      # symlinks every skill into ~/.claude/skills/
+```
+
+Update to the latest, or check out a specific release, then re-link so new
+skills are picked up (existing links follow the checkout on their own):
+
+```bash
+git -C skills pull                                # latest
+git -C skills fetch --tags && git -C skills checkout 2.2.0   # a specific release
+bash skills/scripts/link-skills.sh
 ```
 
 Restart your agent (or start a new session) so it picks the skills up.
@@ -289,6 +321,34 @@ Every mode can use them; trailblazer uses all four.
 /research how does Stripe retry failed webhooks?
 ```
 
+### ↩️ Detours
+
+Sometimes the question is yours: halfway through a slice, a lesson, or an
+interview, you hit something you don't understand yet. `/detour` makes it a
+round trip instead of a derail.
+
+```mermaid
+flowchart LR
+  work["Pairing, code-along,<br/>trailblazer, or interview"] -->|"/detour the gap"| brief["docs/detours/NNNN.md<br/>gap, where it hit,<br/>unstuck means"]
+  brief -->|"clean context"| learn["teach-me, trailblazer,<br/>or spike"]
+  learn -->|"/detour back"| ret["Return section<br/>the answer, what changes"]
+  ret -->|"/pair, /code-along, ..."| work
+```
+
+Leaving pauses the flow through its own checkpoint (pairing commits, the trail
+node waits, an interview writes its tree to a pause file), writes a committed
+brief with the concrete code or fork that stopped you, and prints the first
+line to type. Coming back, you say the answer in your own words, it goes in the
+brief, and the paused flow folds it in on resume. Small gaps don't need one: it
+answers those in place, and runs `research` in the background for plain facts.
+
+```text
+/detour how does context cancellation reach a blocked read?
+# paused slice 0003 at step 5; brief written; "/clear, then in ~/learning/go: /teach-me ..."
+/detour back                     # in the teach-me workspace, once unstuck
+/pair                            # folds the answer into step 5 and carries on
+```
+
 Every prototype has a **tradeoff drawer** (what each variant gains and gives up)
 and a **feedback bar**: opened through the docs viewer, your picks and notes go
 straight back to the agent. When it's settled, the decision is redrawn as a
@@ -392,6 +452,7 @@ docs/
   adr/NNNN-*.md            decisions that are hard to reverse
   research/<topic>/        a trail: map.md, nodes/, findings/, spikes/, prototypes/, report.md
   spikes/NNNN-*.md         spike briefs outside a trail (the code stays on spike/<slug> branches)
+  detours/NNNN-*.md        detour briefs: the gap on the way out, the answer on the way back
   planning/<feature>/
     requirements.md        write-requirements
     design.md              solution-design
@@ -479,6 +540,15 @@ yourself. Trigger with "teach me to build X" or "don't write the code for me."
 </details>
 
 <details>
+<summary><b>Productivity</b>: <code>detour</code></summary>
+
+| Skill | What it does |
+|---|---|
+| `detour` | Pauses the active flow through its own checkpoint, writes a committed brief of the gap you hit, sends it to `teach-me`, `trailblazer`, or `spike` in a clean context, and brings the answer back for the flow to fold in. |
+
+</details>
+
+<details>
 <summary><b>Gamedev</b>: branching stories for games</summary>
 
 Four skills that turn a game-story idea into an authored, branching story you
@@ -548,6 +618,7 @@ skills/
                  elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
   learning/      teach-me
+  productivity/  detour
   gamedev/       narrative-grill, story-decompose, beat-grill, subquest-fill
   deprecated/    design-interview, init-go-project, phased-implementation-plan (not linked)
 ```
@@ -556,8 +627,8 @@ skills/
 
 Version 1 was built on top of [Matt Pocock's skills](https://github.com/mattpocock/skills),
 and the grilling interview, the glossary-as-shared-language idea, tracer-bullet
-slicing, and the map, fog-of-war, and prototype ideas behind trailblazer all
-started there. The visual brainstorming idea was inspired by
+slicing, the map, fog-of-war, and prototype ideas behind trailblazer, and the
+handoff idea that grew into detour all started there. The visual brainstorming idea was inspired by
 [Superpowers](https://github.com/obra/superpowers). Story splitting follows the
 Humanizing Work guide to splitting user stories, and the diagrams borrow Simon
 Brown's [C4 model](https://c4model.com).

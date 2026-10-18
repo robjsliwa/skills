@@ -47,12 +47,21 @@ Look for `docs/research/*/map.md` (or the `Research:` location in the profile).
 - **No argument, and a trail is `exploring`:** resume the most recent one and
   say which. `parked` trails resume only when named.
 - **A new idea:** start a trail. Pick a short kebab-case topic slug.
+- **A detour brief** (from the `detour` skill): start a trail from it. Its gap
+  and "Where it hit" seed the recon and the first sketch, its "Unstuck means"
+  is the drafted destination, its "Out of scope" the anti-goals. Link the brief
+  from `map.md`. On arrival, after the hand-off table, tell the user to run
+  `/detour back <brief>`.
 
 **Resuming** starts with a playback, never a question. Read `map.md`, the
 active and recently decided node files, and every findings note or spike brief
 newer than the last Session log line. For each blue or purple node, check its
 output file: if it exists, fold it in; if it does not, the agent did not
 survive the last session, so set the node back to open and say so in one line.
+For each node waiting on a detour, read its brief in `docs/detours/`: if it is
+`answered`, fold its Return into the node's Evidence (the user's understanding
+is **cited** to the brief), move the node back to the Frontier, and set the
+brief `closed`.
 Then play back (step 6) and offer the next nodes.
 
 ## 1. Recon, quickly
@@ -168,7 +177,8 @@ The user can steer at any point, in their own words. Act without fuss: "zoom
 out" (the whole map and Fog), "go deeper" (split the active node), "park it"
 (the node back to Fog), "that's out" (Out of scope, with the reason), "look it
 up" (research node), "spike it" (spike node), "show me" (prototype node), "ask
-<person>" (ask node), "you decide" (decide, recorded as delegated), "stop for
+<person>" (ask node), "I need to learn this first" (`detour` to `teach-me`; the
+node waits on it), "you decide" (decide, recorded as delegated), "stop for
 today" (checkpoint), "park the trail" (step 7).
 
 ## Checkpoint

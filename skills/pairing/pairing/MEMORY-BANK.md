@@ -22,6 +22,8 @@ CONTEXT.md               glossary skill. System context: the C4 level 1
 docs/adr/NNNN-*.md       glossary skill's ADR format. Hard-to-reverse decisions.
 docs/agents/profile.md   repo-setup. Tracker, docs paths, commands, diagram
                          settings. The agreement builds on it.
+docs/detours/NNNN-*.md   detour skill. A gap taken to a clean context; the
+                         answer comes back in its Return section.
 CLAUDE.md                A short "## Pairing" block pointing here.
 ```
 
@@ -60,6 +62,8 @@ Tests at HEAD: green    # or: red, and why (wip checkpoint)
 
 ## Open threads
 - Is a zero-quantity line an error or a no-op? Waiting on the user.
+- Detour 0002 out (teach-me): how cancellation reaches a blocked read.
+  docs/detours/0002-context-cancellation.md
 - Uncommitted work: none
 
 ## Recently shipped

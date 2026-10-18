@@ -151,7 +151,10 @@ Read DEBRIEF.md and follow it. In outline:
 
 1. **Look.** Diff the user's work from the lesson's base SHA (committed and
    uncommitted, untracked files included), run the story's verification
-   commands, and compare against the `.ref.patch`.
+   commands, and compare against the `.ref.patch`. Read every detour the
+   lesson's `## Detours` lists: an `answered` one is evidence for the learning
+   records and goes in the debrief, then set it `closed`; an `out` one means
+   the user may be mid-lesson, so ask whether to debrief now or wait.
 2. **Ask.** First an open question: how did it go, anything to flag? Then one
    question at a time about each divergence that matters. Record the answers;
    do not grade them.
@@ -187,9 +190,10 @@ Read DEBRIEF.md and follow it. In outline:
   recorded and, if it affects later stories, carried forward.
 - **Stuck is a valid debrief.** If the user comes back mid-lesson, debrief what
   exists; the outcome is usually partial, with a smaller next step.
-- **Deep detours go to `teach-me`.** If a concept needs more than a few
-  paragraphs, give the minimum the step needs and suggest
-  `/teach-me <concept>` in a separate workspace.
+- **Deep detours go through `detour`.** If a concept needs more than a few
+  paragraphs, give the minimum the step needs and suggest `/detour <the gap>`:
+  it notes the step in the lesson, writes a brief, and sends the user to
+  `teach-me` in a clean context. The open lesson stays open meanwhile.
 
 ## Self-check
 
