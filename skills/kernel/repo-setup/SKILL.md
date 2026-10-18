@@ -72,7 +72,8 @@ show the value you will write so the user can catch a wrong guess.
    tracker already has labels that mean the same, use those names instead and
    say which maps to which.
 4. **Docs locations.** Recommend the defaults: `docs/planning`, `docs/adr`,
-   `docs/pairing`, `docs/code-along`, `docs/research`, `docs/spikes`. Only ask
+   `docs/pairing`, `docs/code-along`, `docs/research`, `docs/spikes`,
+   `docs/detours`. Only ask
    if the repo already keeps
    planning or ADRs somewhere else.
 5. **Commands.** Fast tests (seconds, run after every change), full check (what

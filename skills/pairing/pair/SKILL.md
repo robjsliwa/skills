@@ -30,6 +30,8 @@ here.
 - `docs/pairing/STATE.md`, then the active slice file in full: goal,
   acceptance, plan, parked, drift, and the whole journal (the last session's
   `Session end` entry first).
+- Every brief in `docs/detours/` whose `Paused` line names this slice (the
+  `detour` skill's BRIEF-FORMAT.md).
 - `ROADMAP.md`, `GLOSSARY.md`, `CONTEXT.md`, and the ADRs the slice lists. Skim the titles of
   the rest of `docs/adr/`.
 - Git: `git branch --show-current`, `git status --short`,
@@ -57,6 +59,8 @@ settle it before the brief.
 | PR has unaddressed review comments or failing checks | Route to `pair-ship` (address stage) |
 | PR merged, but the local default branch is behind or the slice branch remains | Route to `pair-ship` (wrap stage) |
 | Tests red at HEAD with no `wip` note in `STATE.md` | Say so in the brief; the first step is to get back to green |
+| A detour brief for this slice is `answered` | Fold it in per the `detour` skill: a `Decision` journal entry with its answer and link, revise the next step by its "What changes," set the brief `closed`, drop its Open threads line |
+| A detour brief for this slice is still `out` | Keep its Open threads line; say so in the brief. If the next step needs the answer, offer another step or the return command |
 
 Run the fast test command from the agreement once, so the brief reports the
 real state. Done when the memory bank matches git, or each remaining mismatch
@@ -72,6 +76,7 @@ Done: steps 1 to 4 of 6. Last: half-even rounding, green, committed.
 Since then: you renamed Line.Amount to Line.Subtotal (journaled).
 Tests: green.  PR: none yet.
 Open: is a zero-quantity line an error or a no-op?
+Detour 0002 back: a blocked Read needs a deadline, not the context.
 Next: step 5, reject negative quantities, test first, ping-pong.
 ```
 

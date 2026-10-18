@@ -31,7 +31,9 @@ loop. A big but mechanical change is light. Judge fog separately: if you cannot
 list the open questions yet, it is trailblazer, whatever the size.
 
 A single technical unknown ("will FTS5 keep up?") is not a mode. It is a `spike`,
-and any mode can run one.
+and any mode can run one. Neither is "I don't understand this yet" in the middle
+of a mode: that is a `detour`, which pauses the mode, sends the gap to
+`teach-me` or `trailblazer` in a clean context, and brings the answer back.
 
 ## Read the state
 
@@ -40,6 +42,7 @@ Check silently, in this order, and stop at the first row that matches:
 | What exists | Recommend |
 |---|---|
 | No `docs/agents/profile.md` and the user is about to plan or build | `/repo-setup` first, then come back |
+| A brief in `docs/detours/` with `Status: answered` | Resume the flow its `Paused` line names; it folds the answer in |
 | `docs/pairing/STATE.md` with an active slice | Resume pairing: `/pair` |
 | A trail at `docs/research/*/map.md` with `Status: exploring` | Resume it: `/trailblazer <topic>` |
 | A trail with `Status: arrived` whose report's Next step has not been run | The step its report names |
