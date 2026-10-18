@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "somos-engineering-skills",
-    "version": "2.1.0"
+    "version": "2.2.0"
   },
   "plugins": [
     {
@@ -18,6 +18,7 @@
         "./skills/kernel/tdd",
         "./skills/kernel/diagnose",
         "./skills/kernel/review-change",
+        "./skills/kernel/pr",
         "./skills/kernel/research",
         "./skills/kernel/spike",
         "./skills/kernel/prototype",
@@ -42,7 +43,7 @@
         "./skills/pairing/pair-checkpoint",
         "./skills/pairing/pair-ship"
       ],
-      "version": "2.1.0",
+      "version": "2.2.0",
       "description": "Five ways to build software with an agent (trailblazer research, full loop, light loop, code-along, pairing) on a shared kernel, with stories people can see, spikes and prototypes, and Mermaid pictures in the docs."
     }
   ]

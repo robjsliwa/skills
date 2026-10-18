@@ -14,7 +14,7 @@ and the diagram has a home artifact where it lives.
 | What states it can be in | `stateDiagram-v2` | design, task |
 | What the data is | `erDiagram`; `classDiagram` for ports and domain types, sparingly | design, task |
 | Which option and why | two or three small diagrams side by side in an options block | interview, ADR |
-| What this change did | one before/after diagram | PR body |
+| What this change did | one diagram of the type that fits (see the `pr` skill) | PR body |
 
 ## C4 in one paragraph
 

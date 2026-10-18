@@ -189,8 +189,8 @@ dependency policy in the working agreement).
 ```
 
 An entry never records its own commit hash (it is written before the commit
-exists). `pair-ship` maps entries to commits from `git log` when it writes the
-PR.
+exists). The `pr` skill maps entries to commits from `git log` when it writes
+the PR.
 
 Entry kinds, in the heading after the date:
 

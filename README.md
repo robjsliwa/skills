@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-2.1.0-1168bd">
+  <img alt="version" src="https://img.shields.io/badge/version-2.2.0-1168bd">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-438dd5">
   <img alt="works with" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20any%20SKILL.md%20agent-85bbf0">
 </p>
@@ -190,7 +190,7 @@ the next skill picks up from disk.
 | 3. Design | `/solution-design` | `design.md`: the how, with C4 container and behaviour diagrams; `CLAUDE.md`; ADRs |
 | 4. Phase | `/vertical-slice-phasing` | `phases.md`: build order, walking skeleton first, with a story map |
 | 5. Stories | `/elaborate-current-phase` | stories for this phase only, each one a change a person can see |
-| 6. Build | `/tdd` or `/code-along` | the code, one story per session; then `/review-change` |
+| 6. Build | `/tdd` or `/code-along` | the code, one story per session; then `/review-change` and `/pr` |
 | 7. Next phase | `/elaborate-current-phase` | the next phase's stories, re-derived from the real code |
 
 ```text
@@ -439,6 +439,7 @@ are always files.
 | `tdd` | Builds a story task by task, red-green-refactor, then performs the demo. |
 | `diagnose` | A gated loop for hard bugs: red signal first, then hypotheses, then the fix. |
 | `review-change` | Three parallel reviews of a change: standards, spec (the story or slice), and decisions (ADRs, glossary). |
+| `pr` | Writes and opens the PR in every mode, from the journal: why, a Mermaid picture of the type that fits the change, what/why/how per concern, the rationale journal with dead ends, decisions, evidence. |
 | `research` | A background agent answers a factual question from primary sources, cited; or a recon of what the repo already has. |
 | `spike` | One technical question, run for real in an isolated worktree, timeboxed, ending in a verdict and a brief. |
 | `prototype` | Throwaway LOGIC, UI, or FLOW prototypes with a tradeoff drawer and a feedback bar, closed by redrawing the decision as Mermaid. |
@@ -541,7 +542,7 @@ these skills, are in [`docs/planning/`](docs/planning/), with their decisions in
 ```text
 skills/
   kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change,
-                 research, spike, prototype
+                 pr, research, spike, prototype
   modes/         start, light, trailblazer
   engineering/   planning-loop, write-requirements, solution-design, vertical-slice-phasing,
                  elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate

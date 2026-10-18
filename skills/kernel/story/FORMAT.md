@@ -109,6 +109,9 @@ Verify pass.
 - **As built.** When the code diverges from a task's design, `tdd` or a
   `code-along` debrief appends an `## As built` section saying what changed and
   why.
+- **Journal.** `tdd` appends a `## Journal` at the end as it builds: one entry
+  per ticked task, plan change, decision, debug, or spike, each with What,
+  Why, How, Evidence, and Considered. The `pr` skill writes the PR from it.
 
 ## Worked example
 

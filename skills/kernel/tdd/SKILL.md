@@ -72,6 +72,33 @@ output with what Verify expects. Both pass: tick the task's checkbox in the
 If Verify fails while the tests pass, the tests missed something. Write the test
 that catches it, then fix.
 
+### The journal
+
+Keep a `## Journal` at the end of the story file, append-only, oldest first,
+written in the moment. It is the raw material of the PR's rationale section
+(the `pr` skill builds the body from it), so write for a reviewer who was not
+there: the why, the alternatives, the dead ends. Same entry shape as the
+pairing journal:
+
+```markdown
+### 2026-10-08 T2: Not-found page for unknown slugs
+**What:** unknown slugs render the 404 page instead of a bare 404.
+**Why:** acceptance line 2; a visitor with a typo should see a way home.
+**How:** `Resolve` returns `ErrUnknownSlug`; the handler maps it to the page.
+**Evidence:** `Resolve_UnknownSlug_ReturnsNotFound` red, then green; Verify
+curl shows the page.
+**Considered:** redirecting to the home page (hides typos from the owner).
+```
+
+Write an entry when a task is ticked, and also when:
+
+- the plan changes (a test skipped as redundant, a behaviour added): `Plan change`;
+- the code disagrees with the Design (with the `As built` note): `Decision`;
+- a hard bug is found via `diagnose`: `Debug: <symptom>`;
+- a `spike` returns: `Spike: <question>`, with the verdict.
+
+Never record an entry's own commit hash; `pr` maps entries to commits.
+
 ## Finishing the story
 
 After the last task:
@@ -89,7 +116,9 @@ After the last task:
 4. **Status.** Set `**Status:** done` in the story file. With a tracker, close
    the issue or move it to the done label using the profile's Notes recipe.
 5. **Suggest `review-change`** on the story's branch, with the story file as the
-   spec source. Do not commit or open a PR unless the user asks.
+   spec source, then the `pr` skill to open the PR. Do not commit or open a PR
+   unless the user asks; when they do, the PR is always written by the `pr`
+   skill from the story's journal, never ad hoc.
 
 ## When the code disagrees with the story
 
@@ -103,6 +132,8 @@ the story:
 - T2: `ShelfRepository.find` already returns `Option<Shelf>`; used it instead of
   the `findShelf` port in the design.
 ```
+
+Journal it too, as a `Decision` entry with what was considered.
 
 If the disagreement changes what the user will see (the Demo, an acceptance
 line), stop and ask before going on.
@@ -158,6 +189,7 @@ Never let spike code into the story's branch; rewrite what it taught, test first
   of real output; never claim a result you did not run.
 - Small steps. If green takes more than a few minutes of code, the test was too
   big; back out and write a smaller one.
-- Keep the story file current as you go: ticked tasks, `As built` notes. It is
-  how the next session (or the user) knows where things stand.
+- Keep the story file current as you go: ticked tasks, `As built` notes, the
+  journal. It is how the next session (or the user, or the PR) knows where
+  things stand and why.
 - No em dashes in anything you write into the story.
