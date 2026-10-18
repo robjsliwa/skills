@@ -80,14 +80,42 @@ want diagrams validated; everything else works without it.
 **Option A: the skills CLI** (copies the skills into your agent's skills folder)
 
 ```bash
-npx skills@latest add robjsliwa/skills
+npx skills@latest add robjsliwa/skills            # this project only
+npx skills@latest add robjsliwa/skills -g         # or for every project (user folder)
 ```
+
+Update to the latest release, or to a specific one. Releases are git tags
+named by version (`2.2.0`, no `v`); see the [changelog](CHANGELOG.md) or
+[releases](https://github.com/robjsliwa/skills/releases).
+
+```bash
+npx skills@latest update                          # every installed skill, to the latest on main
+npx skills@latest update tdd detour               # just these skills
+npx skills@latest update -g                       # only the global installs
+
+npx skills@latest add robjsliwa/skills#2.2.0      # pin every skill to the 2.2.0 release
+npx skills@latest add robjsliwa/skills#2.2.0 --skill tdd   # pin one skill
+npx skills@latest add robjsliwa/skills            # unpin: back to the latest
+```
+
+A pinned skill stays pinned: `update` checks it against its own tag, so it only
+changes when you re-run `add` with a newer tag, or without one. `npx skills
+list` shows what is installed.
 
 **Option B: clone and link** (edit the skills in place, pull to update)
 
 ```bash
 git clone https://github.com/robjsliwa/skills.git
 bash skills/scripts/link-skills.sh      # symlinks every skill into ~/.claude/skills/
+```
+
+Update to the latest, or check out a specific release, then re-link so new
+skills are picked up (existing links follow the checkout on their own):
+
+```bash
+git -C skills pull                                # latest
+git -C skills fetch --tags && git -C skills checkout 2.2.0   # a specific release
+bash skills/scripts/link-skills.sh
 ```
 
 Restart your agent (or start a new session) so it picks the skills up.

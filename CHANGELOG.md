@@ -23,6 +23,8 @@ Step out to learn, then come back.
   and end with the return line.
 - `start` routes an answered detour back to the flow it paused.
 - The profile gains a `Detours` location.
+- README: how to update installed skills, and pin or unpin a release tag,
+  with the skills CLI or a clone.
 
 ## 2.2.0 (2026-10-18)
 
