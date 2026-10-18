@@ -85,7 +85,8 @@ Ask which hands write it, recommending from history: if
 - **`code-along`**: the user builds it from a lesson, then debriefs.
 
 It is safe to clear context first; the story file has everything. After the
-build, suggest `review-change` with the story as the spec.
+build, suggest `review-change` with the story as the spec, then the `pr` skill
+to open the PR from the story's journal.
 
 ## Rules
 

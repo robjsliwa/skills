@@ -155,8 +155,9 @@ a plan you both believe is stale.
 ## 6. Next
 
 - **Done / done with changes:** ask the user to commit their work (the next
-  lesson's base must be a clean commit). Then offer the next lesson: the first
-  unblocked story in the phase. If none is left, hand off to
+  lesson's base must be a clean commit). If they want a PR for it, the `pr`
+  skill writes it from this debrief and the story. Then offer the next
+  lesson: the first unblocked story in the phase. If none is left, hand off to
   `elaborate-current-phase`.
 - **Partial:** offer the remainder as the next lesson (part b), smaller if they
   were stuck.

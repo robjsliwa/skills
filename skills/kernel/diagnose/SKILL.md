@@ -114,7 +114,9 @@ Write a short entry where the next reader will find it:
 
 - **Pairing:** a `Debug: <symptom>` journal entry in the active slice (format
   in `skills/pairing/pairing/MEMORY-BANK.md`).
-- **A story:** a `### Debug notes` subsection under the task that hit it.
+- **A story:** a `Debug: <symptom>` entry in the story's `## Journal` (format
+  in the `tdd` skill), naming the task that hit it; the `pr` skill carries it
+  into the PR.
 - **Otherwise:** a section in the PR description.
 
 The entry holds the loop command, the minimal repro, every hypothesis tried

@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.2.0 (2026-10-18)
+
+Every PR reads like a pairing PR.
+
+### Added
+
+- `pr` (kernel): writes and opens the PR for any flow from the journal, the
+  ADRs, and the diff: why, one Mermaid picture whose type fits the change
+  (sequence, before/after, state, data, rule, journey; skipped only with a
+  stated reason), a What, Why, and How row per concern, the rationale journal
+  with its dead ends, decisions, evidence, and merge danger. With no journal,
+  it reconstructs one from the commits and asks for any missing why.
+
+### Changed
+
+- `tdd` keeps a `## Journal` in the story file (one entry per ticked task,
+  plan change, decision, debug, and spike) and hands off to `pr`; a PR for a
+  story is never written ad hoc.
+- `pair-ship` calls `pr` for its PR stage; the template moved from
+  `pair-ship/assets/` to `pr/assets/`.
+- `light`, `code-along`, and `diagnose` route PRs and debug notes through the
+  story journal and `pr`.
+
 ## 2.1.0 (2026-10-14)
 
 Finding things out, together. Design: [`docs/planning/research-skills/`](docs/planning/research-skills/design.md),

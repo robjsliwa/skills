@@ -1,14 +1,16 @@
 # PR body template
 
-Built from the slice's journal, its ADRs, and the diff. Brief prose, no
-preamble, the glossary's domain language throughout. Remove a section that
-has nothing to say rather than writing "n/a". The `Summary` visual is one
-Mermaid before/after diagram of what the change did, drawn per the
-`visualize` skill's notation (glossary terms as labels, about 12 nodes, a
-caption sentence) and validated before it goes in the body.
+Built from the journal (a pairing slice's or a story's), the ADRs, and the
+diff, by the `pr` skill. Brief prose, no preamble, the glossary's domain
+language throughout. Remove a section that has nothing to say rather than
+writing "n/a". The `Summary` visual is one Mermaid diagram of what the change
+did, its type picked from the table in the `pr` skill (a sequence when the
+interaction changed, before/after when the structure did, a state diagram
+for a lifecycle, and so on), drawn per the `visualize` skill's notation and
+validated before it goes in the body.
 
-Title: `<type>(<scope>): <what this slice makes true>` per the agreement's
-commit convention, e.g. `feat(invoice): totals in cents with half-even rounding`.
+Title: `<type>(<scope>): <what this change makes true>` per the repo's
+commit convention (the working agreement or `CLAUDE.md`), e.g. `feat(invoice): totals in cents with half-even rounding`.
 
 ```markdown
 ## Why
@@ -17,11 +19,14 @@ commit convention, e.g. `feat(invoice): totals in cents with half-even rounding`
 solves, in the user's words where possible.>
 
 Slice: `docs/pairing/slices/0003-invoice-totals.md` · Source: S1 §3.2
+<or> Story: `docs/planning/invoicing/stories/01-02-owner-sees-totals.md`
 
 ## Summary
 
-<one Mermaid before/after diagram, e.g. two subgraphs "Before" and "After",
-then one caption sentence saying what changed>
+<one Mermaid diagram of the type that fits the change, e.g. a
+sequenceDiagram with the new hop in a `rect`, or before/after subgraphs,
+then one caption sentence saying what changed. Or one line saying why there
+is no diagram.>
 
 ## What changed
 
@@ -35,7 +40,8 @@ Grouped by concern, not by file. One row per concern.
 ## Rationale journal
 
 The path we took, condensed from the slice journal, oldest first. Keep the
-dead ends: they answer "why didn't you just...". Mode shows who wrote it.
+dead ends: they answer "why didn't you just...". In pairing, the mode shows
+who wrote it; in tdd, the entry names the task.
 
 1. **Line total as integer cents** (driver). Chose cents over float64 to make
    rounding explicit. 3f2a91c
@@ -46,7 +52,7 @@ dead ends: they answer "why didn't you just...". Mode shows who wrote it.
 4. **Review round 1.** D1 fixed (renamed `Amount` to `Subtotal` per the
    glossary); S2 deferred to the roadmap.
 
-Full journal: the slice file above.
+Full journal: the slice or story file above.
 
 ## Decisions
 
@@ -81,4 +87,4 @@ migrations, public API, data written.>
 - <Parked and deferred items, each now a ROADMAP row.>
 ```
 
-The agreement's PR footer, if it names one, goes after the last section.
+The working agreement's or profile's PR footer, if one is named, goes after the last section.

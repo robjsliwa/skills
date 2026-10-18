@@ -19,8 +19,8 @@ including the dead ends, the decisions, and the evidence. A reviewer who was
 not in the room should be able to agree or disagree with every choice.
 
 Call the Skill tool with `pairing` and read its MEMORY-BANK.md. The PR body
-template is [assets/pr-template.md](assets/pr-template.md); the review is the
-`review-change` skill, with the slice as its spec.
+is written and opened by the `pr` skill, from the slice's journal; the review
+is the `review-change` skill, with the slice as its spec.
 
 `WORKING-AGREEMENT.md` decides the PR mode (GitHub, GitLab, or local), draft
 or ready, the merge strategy, whether reviews are posted, and who merges. In
@@ -70,18 +70,16 @@ branch, and every acceptance box is ticked.
 
 ## 2. Write the PR body
 
-Build it from [assets/pr-template.md](assets/pr-template.md), using the
-journal, the ADRs, and `git diff <default>...HEAD`. The journal is the
-source, not the chat. Write it to a scratch file outside the repo (e.g. under
-`$TMPDIR`), or to `slices/NNNN-<slug>.pr.md` in local mode. Done when every
-template section is filled or removed, and every claim in it traces to a
-journal entry, a commit, or a run.
+Call the Skill tool with `pr`, passing the slice file. It builds the body
+from the journal, the ADRs, and `git diff <default>...HEAD`, with the picture
+type that fits the change. In local mode, tell it to write the body to
+`slices/NNNN-<slug>.pr.md`. Done when every template section is filled or
+removed, and every claim in it traces to a journal entry, a commit, or a run.
 
 ## 3. Open the PR
 
-Show the user the title and body. On their yes: push the branch, then
-`gh pr create --base <default> --head <branch> --title <title> --body-file <file>`
-(add `--draft` if the agreement says so, and `--reviewer` for listed humans).
+The `pr` skill shows the user the title and body and, on their yes, pushes
+and runs `gh pr create` (with `--draft` and `--reviewer` per the agreement).
 Record the PR number in the slice's `pr` and in `STATE.md` (`Phase:
 in-review`), commit that as `chore(pairing): record PR #N`, and push. Done
 when the PR exists and the memory bank points at it.
@@ -121,8 +119,8 @@ Take each finding one at a time. The user picks a disposition:
 - **Dismiss**: one line of reason.
 
 Journal one `Review round N` entry listing every finding and its disposition.
-Then regenerate the PR body so its journal and review sections include the
-round, and update it with `gh pr edit <n> --body-file <file>`. If waiting on a
+Then regenerate the PR body with the `pr` skill so its journal and review
+sections include the round, and update it with `gh pr edit <n> --body-file <file>`. If waiting on a
 human reviewer, run `pair-checkpoint` and stop; `/pair` resumes here later.
 Done when every finding has a disposition and every fix is pushed.
 
