@@ -1,0 +1,186 @@
+/* deck.css: the lecture deck. One slide at a time: a 16:9 canvas (the
+   picture) above a transcript (what the professor says). Steps reveal parts
+   of the canvas and the matching transcript paragraphs together.
+   Seeded into a workspace's assets/ by the slides skill. */
+
+:root {
+  --ink: #1d1b18;
+  --paper: #fbf8f1;
+  --canvas-bg: #fffdf8;
+  --muted: #6b665c;
+  --rule: #ddd5c4;
+  --accent: #a3410f;       /* the thing the slide is about */
+  --accent-tint: #f6e3d6;
+  --ok: #1f6b3d;
+  --ok-tint: #dcefe2;
+  --bad: #a52a1d;
+  --bad-tint: #f6dcd8;
+  --code-bg: #f3efe4;
+  --sans: "Inter", "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Charter", "Iowan Old Style", Palatino, Georgia, serif;
+  --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); }
+body { font-family: var(--sans); }
+
+/* ---------- presenting: one slide visible ---------- */
+/* The slide fills the viewport above the bar: the canvas keeps 16:9 and
+   leaves at least 230px for the transcript, which scrolls on its own, so the
+   picture never scrolls away while the professor is talking. */
+.deck { max-width: 1180px; margin: 0 auto; padding: 14px 16px 0; height: calc(100vh - 40px); height: calc(100dvh - 40px); display: flex; flex-direction: column; }
+.slide { display: none; }
+.slide.current { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+.canvas {
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: min(100%, calc((100vh - 284px) * 16 / 9));
+  flex: none;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--canvas-bg);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(60,40,10,.06);
+  padding: 4.2cqw 5cqw 3.6cqw;
+  font-size: 2.15cqw;
+  line-height: 1.35;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6cqw;
+}
+.canvas > * { margin: 0; }
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 1.05cqw;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.canvas h1 { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 5.2cqw; line-height: 1.08; }
+.canvas h2 { font-family: var(--serif); font-weight: 600; font-size: 3.3cqw; line-height: 1.12; }
+.canvas .promise { font-size: 2.4cqw; color: var(--muted); max-width: 70cqw; }
+.canvas .big { font-family: var(--serif); font-size: 3.6cqw; line-height: 1.2; }
+.canvas strong { color: var(--accent); font-weight: 650; }
+.canvas code { font-family: var(--mono); font-size: .9em; background: var(--code-bg); padding: .05em .3em; border-radius: 4px; }
+.canvas .fill { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.canvas .fill > svg { width: 100%; height: 100%; }
+.canvas svg { display: block; max-width: 100%; }
+.canvas .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; flex: 1; min-height: 0; align-items: center; }
+.canvas ul.points { padding-left: 1.2em; display: flex; flex-direction: column; gap: .7cqw; }
+.canvas .source { position: absolute; right: 5cqw; bottom: 1.6cqw; font-size: 1.05cqw; color: var(--muted); }
+
+.canvas pre {
+  font-family: var(--mono);
+  font-size: 1.45cqw;
+  line-height: 1.45;
+  background: var(--code-bg);
+  border-radius: 8px;
+  padding: 1.6cqw 2cqw;
+  overflow: hidden;
+  white-space: pre;
+}
+.canvas pre code { background: none; padding: 0; font-size: 1em; }
+.canvas pre .hl { display: block; margin: 0 -2cqw; padding: 0 2cqw; }
+.slide.code .canvas pre { font-size: 1.4cqw; }
+.canvas pre .hl.now { background: var(--accent-tint); box-shadow: inset .5cqw 0 0 var(--accent); }
+.canvas pre .dim { opacity: .4; }
+
+.canvas table { border-collapse: collapse; font-size: 1.9cqw; width: 100%; }
+.canvas tr.future td { border-color: transparent; }
+.canvas th, .canvas td { text-align: left; padding: .45cqw 1cqw; border-bottom: 1px solid var(--rule); }
+.canvas th { font-weight: 600; color: var(--muted); font-size: .9em; }
+.canvas td code { font-size: .95em; }
+.canvas tr.now td { background: var(--accent-tint); }
+.canvas .on { color: var(--ok); font-weight: 650; }
+.canvas .off { color: var(--muted); }
+
+/* prediction slides: question first, answer at the last step */
+.slide.prompt .canvas { justify-content: center; }
+.slide.prompt .question { font-family: var(--serif); font-size: 3.4cqw; line-height: 1.22; }
+.slide.prompt .question::before { content: "Predict"; display: block; font-family: var(--mono); font-size: 1.1cqw; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.4cqw; }
+.slide.prompt .answer { border-left: .5cqw solid var(--ok); padding-left: 2cqw; font-size: 2.2cqw; }
+
+.slide.title .canvas { justify-content: center; }
+.slide.addendum .canvas { border-style: dashed; }
+.slide.addendum .kicker::after { content: " · added in office hours"; color: var(--muted); }
+
+/* ---------- steps ---------- */
+[data-step] { transition: opacity .25s ease; }
+.canvas [data-step].future { opacity: 0; }
+.canvas svg [data-step].future { opacity: 0; }
+.canvas svg .now rect, .canvas svg rect.now { stroke: var(--accent); stroke-width: 2.4; }
+
+/* ---------- transcript ---------- */
+.transcript {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.6;
+  width: 100%;
+  max-width: 46rem;
+  margin: 18px auto 0;
+  padding: 0 4px 20px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.transcript p { margin: 0 0 .8em; }
+.transcript [data-step].future { display: none; }
+.transcript p.past { color: var(--muted); }
+.transcript a { color: var(--accent); }
+.transcript code { font-family: var(--mono); font-size: .85em; background: var(--code-bg); padding: .05em .3em; border-radius: 4px; }
+body.no-transcript .transcript { display: none; }
+
+/* ---------- chrome: progress and counter ---------- */
+.deck-bar { position: fixed; left: 0; right: 0; bottom: 0; height: 40px; display: flex; align-items: center; gap: 14px; padding: 0 16px; background: rgba(251,248,241,.94); border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.deck-bar .track { flex: 1; height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.deck-bar .fillbar { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.deck-bar button { font: inherit; color: inherit; background: none; border: 1px solid var(--rule); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+.deck-bar .keys { display: none; }
+@media (min-width: 900px) { .deck-bar .keys { display: inline; } }
+
+/* ---------- handout: every slide, every step, every word ---------- */
+body.handout .deck { height: auto; display: block; padding-bottom: 48px; }
+body.handout .slide { display: block; margin-bottom: 56px; page-break-inside: avoid; }
+body.handout .transcript { overflow: visible; }
+body.handout [data-step].future { opacity: 1 !important; display: revert; }
+body.handout .transcript [data-step].future { display: block; }
+body.handout .transcript p.past { color: inherit; }
+body.handout .deck-bar { display: none; }
+body.handout .slide::before { content: attr(data-n); display: block; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+
+@media print {
+  body { background: white; }
+  .deck { max-width: none; padding: 0; }
+  .canvas { box-shadow: none; }
+}
+
+/* ---------- figures (inline SVG, viewBox 0 0 960 H) ---------- */
+.canvas svg text { font-family: var(--sans); font-size: 20px; fill: var(--ink); }
+.canvas svg text.sm { font-size: 16px; }
+.canvas svg text.big { font-size: 26px; font-weight: 600; }
+.canvas svg text.mono { font-family: var(--mono); font-size: 17px; }
+.canvas svg text.hand { font-family: var(--serif); font-style: italic; font-size: 21px; fill: var(--muted); }
+.canvas svg text.mid { text-anchor: middle; }
+.canvas svg text.end { text-anchor: end; }
+.canvas svg text.t-acc { fill: var(--accent); }
+.canvas svg text.t-ok { fill: var(--ok); }
+.canvas svg text.t-bad { fill: var(--bad); }
+.canvas svg text.t-muted { fill: var(--muted); }
+.canvas svg .ink { stroke: var(--ink); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.canvas svg .ink rect, .canvas svg .ink circle { fill: var(--canvas-bg); }
+.canvas svg .ink .soft { fill: #f3eee3; stroke: var(--rule); }
+.canvas svg .ink .acc { stroke: var(--accent); }
+.canvas svg .ink .acc.tint, .canvas svg .ink .tint { fill: var(--accent-tint); }
+.canvas svg .ink .ok { stroke: var(--ok); }
+.canvas svg .ink .oktint { fill: var(--ok-tint); }
+.canvas svg .ink .bad { stroke: var(--bad); }
+.canvas svg .ink .badtint { fill: var(--bad-tint); }
+.canvas svg .ink .dash { stroke-dasharray: 6 5; }
+.canvas svg .ink .thick { stroke-width: 2.6; }
+.canvas svg .ink .thin { stroke-width: 1.1; }
+.canvas svg .sketch { filter: url(#deck-sketch); }

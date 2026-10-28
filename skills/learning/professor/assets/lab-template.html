@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2 · One Phone, Many Views</title>
+<!-- Copy to lessons/NNNN-slug/build/lab.tpl.html. Slots ({{value:…}}, {{snip:…}},
+     {{file:…}}, {{include:…}}) are filled by the fact-check skill's assemble.py
+     from build/values.json and the verified code in build/ref/. Links are
+     relative to the assembled lab.html, which sits beside lecture.html. -->
+<link rel="stylesheet" href="../../assets/lab.css">
+</head>
+<body>
+<main>
+
+<p class="lab-kicker">Lab 2 · SwiftUI dialer</p>
+<h1>One Phone, Many Views</h1>
+<p class="lab-meta"><span>About 60 minutes</span><span><a href="lecture.html">Lecture</a></span><span>Needs: Xcode 26, an iPhone, Lesson 1's <code>PhoneCore</code></span></p>
+<p class="milestone">By the end, <code>SecondLine</code> runs on your iPhone, and its Call button stays grey until the number is real.</p>
+
+<h2>Before you start</h2>
+<div class="lab-step" id="step-check">
+  <h3><span class="n">0</span> Lesson 1 still passes</h3>
+  <div class="run"><p>In <code>PhoneCore/</code>: <code>swift test</code></p></div>
+  <div class="expect"><pre>{{value:phonecore_test_summary}}</pre></div>
+  <div class="why"><p>The app will trust this package completely. If a test is red, fix it before going on.</p></div>
+</div>
+
+<h2>Set up the project</h2>
+
+<section class="lab-step" id="step-project">
+  <h3><span class="n">1</span> Create the app beside <code>PhoneCore</code></h3>
+  <div class="do">
+    <p>In Xcode choose File › New › Project, then iOS › App. Name it <code>SecondLine</code>, choose your team, SwiftUI, Swift, and <em>Swift Testing with XCTest UI Tests</em>. Save it in the folder that holds <code>PhoneCore/</code>, and leave "Create Git repository" off: that folder already is one.</p>
+  </div>
+  <div class="run"><p>Product › Build (<code>⌘B</code>)</p></div>
+  <div class="expect"><p>The template's "Hello, world!" app builds with no errors.</p></div>
+  <div class="why"><p>Get a working project before changing anything, so any error after this is yours to find in one step, not a mix of setup and code.</p></div>
+</section>
+
+<section class="lab-step" id="step-package">
+  <h3><span class="n">2</span> Use <code>PhoneCore</code> as a local package, in Swift 6 mode</h3>
+  <div class="do">
+    <p>File › Add Package Dependencies…, then <em>Add Local…</em>, select the <code>PhoneCore</code> folder, and tick the <code>SecondLine</code> target. Then in the target's Build Settings set <em>Swift Language Version</em> to Swift 6, and do the same for <code>SecondLineTests</code>.</p>
+  </div>
+  <div class="run"><p><code>⌘B</code> again</p></div>
+  <div class="expect"><p>It still builds, and <code>PhoneCore</code> is listed under General › Frameworks, Libraries, and Embedded Content.</p></div>
+  <div class="why"><p>This is Go's <code>replace … =&gt; ../PhoneCore</code>: the app points at the package by path. Swift 6 mode makes the compiler check thread safety now, while the only thread is the one you tap on, instead of in Lesson 4 when Twilio's callbacks arrive.</p></div>
+</section>
+
+<details class="under-hood">
+  <summary>what Xcode 26's new-project template sets for you</summary>
+  <p>New app targets default to MainActor isolation, so every type in the app is main-actor isolated unless it says otherwise. Packages do not get that default, which is why <code>PhoneCore</code>'s types had to be <code>Sendable</code> in Lesson 1. You will meet the consequence in step 6.</p>
+</details>
+
+<h2>Build the model</h2>
+
+<section class="lab-step" id="step-model">
+  <h3><span class="n">3</span> Write <code>Phone</code></h3>
+  <div class="do">
+    <p>Create <code>SecondLine/SecondLine/Phone.swift</code> (File › New › File…, Swift File, ticking the <code>SecondLine</code> target):</p>
+<pre><code>{{file:SecondLine/Phone.swift}}</code></pre>
+  </div>
+  <div class="run"><p><code>⌘B</code></p></div>
+  <div class="expect"><p>Builds with no warnings.</p></div>
+  <div class="why"><p>This is the <em>Store the cause, compute the effect</em> slide as code. <code>typed</code> and <code>call</code> are the only stored properties, and <code>private(set)</code> means views can read them but only <code>Phone</code> can write them. <code>hint</code> has no <code>default:</code> case, so if <code>PhoneCore</code> ever gains a new <code>ParseError</code>, this file stops compiling until it has a sentence for it.</p></div>
+</section>
+
+<details class="under-hood">
+  <summary>why <code>do</code>/<code>catch</code> instead of <code>Result { … }</code></summary>
+  <p>The shorter form does not compile: the closure's error type is inferred as <code>any Error</code>, not <code>ParseError</code>. A <code>do</code> block whose only throwing call throws <code>ParseError</code> does infer it.</p>
+</details>
+
+<h2>Trace it</h2>
+<p>You will check this with the real dial pad in step 5. For now, read the table against the code you just wrote: each row is one key press, and only <code>typed</code> changes.</p>
+<table>
+  <tr><th>Keys</th><th><code>hint</code></th><th>Call</th></tr>
+  <tr><td><code>415555267</code></td><td>{{value:hint_9}}</td><td>off</td></tr>
+  <tr><td><code>4155552671</code></td><td>{{value:hint_10}}</td><td>on</td></tr>
+  <tr><td><code>41555526711</code></td><td>{{value:hint_11}}</td><td>off</td></tr>
+</table>
+
+<h2>Build the views</h2>
+
+<section class="lab-step" id="step-views">
+  <h3><span class="n">4</span> The app, the screen switch, and the two screens</h3>
+  <div class="do">
+    <p>Replace <code>ContentView.swift</code> with:</p>
+<pre><code>{{snip:content_view}}</code></pre>
+    <p>Then add <code>DialerView.swift</code> and <code>CallView.swift</code> from the listings below, and in <code>SecondLineApp.swift</code> create the one <code>Phone</code> with <code>@State private var phone = Phone()</code> and pass it to <code>ContentView</code>.</p>
+  </div>
+  <div class="run"><p>Run on the iPhone 17 simulator (<code>⌘R</code>)</p></div>
+  <div class="expect"><p>A dial pad with a grey Call button.</p></div>
+  <div class="why"><p><code>ContentView</code> asks <code>PhoneCore</code> one question, <code>liveNumber</code>, and shows whichever screen the answer implies. No view stores anything; each reads <code>phone</code> and calls its methods.</p></div>
+</section>
+
+<div class="checkpoint"><p>Type nine digits: the hint says "{{value:hint_9}}" and Call is grey. Type the tenth: Call turns green.</p></div>
+
+<h2>Pin it with tests</h2>
+
+<section class="lab-step" id="step-tests">
+  <h3><span class="n">5</span> Four tests for <code>Phone</code></h3>
+  <div class="do">
+    <p>Delete the template's <code>SecondLineTests.swift</code> and add <code>SecondLineTests/PhoneTests.swift</code>:</p>
+<pre><code>{{snip:phone_tests}}</code></pre>
+  </div>
+  <div class="run"><p>Product › Test (<code>⌘U</code>)</p></div>
+  <div class="expect"><pre>{{value:phone_tests_summary}}</pre></div>
+  <div class="why"><p><code>typingDoesNotTouchTheCall</code> is the <em>How SwiftUI knows what to redraw</em> slide as a test: it watches <code>call</code> with the same tracking SwiftUI uses, types digits, and checks nothing fired.</p></div>
+</section>
+
+<details class="under-hood">
+  <summary>why the suite needs <code>@MainActor</code></summary>
+  <p><code>Phone</code> is main-actor isolated because of the app target's default (step 2). The test target has no such default, so without the annotation Swift 6 rejects <code>let phone = Phone()</code> with <code>{{value:mainactor_error}}</code>.</p>
+</details>
+
+<h2>On your iPhone</h2>
+<section class="lab-step" id="step-device">
+  <h3><span class="n">6</span> Run it on the phone in your pocket</h3>
+  <div class="do"><p>Connect the iPhone, tap Trust, turn on Settings › Privacy &amp; Security › Developer Mode, choose your team under Signing &amp; Capabilities, pick the phone as the run destination.</p></div>
+  <div class="run"><p><code>⌘R</code></p></div>
+  <div class="expect"><p>SecondLine opens on the phone. Type your own number: Call lights at the tenth digit. Tap it, then Ring and Answer in the Simulated network box, then hang up: the dial pad returns with your number still there.</p></div>
+  <div class="why"><p>Nothing cleared <code>typed</code> during the call, so redial comes for free: a consequence of storing causes, not something anyone wrote.</p></div>
+</section>
+
+<h2>When it doesn't work</h2>
+<dl class="trouble">
+  <dt>No such module 'PhoneCore'</dt>
+  <dd>The package is added but not linked to the target. Add it under General › Frameworks, Libraries, and Embedded Content.</dd>
+</dl>
+
+<h2>Challenges</h2>
+<div class="challenge" data-kind="break">
+  <h3>The key-ten trap</h3>
+  <p>Type <code>14155552671</code>, the way people often say it. Predict when Call first turns green and for which number, then try it. Why is that number impossible?</p>
+  <p class="success">You're done when you can say which rule in Lesson 1's parser allowed it.</p>
+  <details class="hint"><summary>Hint</summary><p>Look at what the parser does with ten digits that have no <code>+</code>.</p></details>
+</div>
+<div class="challenge" data-kind="extend">
+  <h3>Plus the phone way</h3>
+  <p>Remove the <code>+</code> key and make a long press on <code>0</code> produce <code>+</code>. Decide whether that rule belongs in <code>KeyButton</code>, <code>DialerView</code>, or <code>Phone</code>, and write the test that pins it.</p>
+  <p class="success">You're done when the test fails before your change and passes after.</p>
+</div>
+
+<h2>Full listings</h2>
+<details class="under-hood"><summary><code>DialerView.swift</code></summary><pre><code>{{file:SecondLine/DialerView.swift}}</code></pre></details>
+<details class="under-hood"><summary><code>CallView.swift</code></summary><pre><code>{{file:SecondLine/CallView.swift}}</code></pre></details>
+
+<div class="done">
+  <p>You have an Xcode project using a local package, Swift 6 checking on, one observable model, and three views that store nothing.</p>
+  <p class="carry">Store what happened, compute what it means, and let views read only the meaning.</p>
+  <p class="teachback">Why can't your Call button go stale now? Answer in your own words.</p>
+</div>
+
+<p class="sources">Sources: <a href="https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app">Managing model data in your app</a> · <a href="https://github.com/swiftlang/swift-evolution/blob/main/proposals/0395-observability.md">SE-0395 Observation</a> · <a href="https://github.com/swiftlang/swift-evolution/blob/main/proposals/0466-control-default-actor-isolation.md">SE-0466</a></p>
+
+</main>
+<script src="../../assets/lab.js"></script>
+</body>
+</html>

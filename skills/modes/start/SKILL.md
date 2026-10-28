@@ -33,7 +33,9 @@ list the open questions yet, it is trailblazer, whatever the size.
 A single technical unknown ("will FTS5 keep up?") is not a mode. It is a `spike`,
 and any mode can run one. Neither is "I don't understand this yet" in the middle
 of a mode: that is a `detour`, which pauses the mode, sends the gap to
-`teach-me` or `trailblazer` in a clean context, and brings the answer back.
+`professor` or `trailblazer` in a clean context, and brings the answer back.
+Learning a whole subject, rather than unblocking a task, is not a build mode
+either: that is `/professor <subject>` in its own workspace.
 
 ## Read the state
 
