@@ -4,6 +4,11 @@
 Usage:
   render_deck.py DECK.html [--out DIR] [--last] [--checks-only]
                  [--size 1280x1000] [--chrome PATH]
+  render_deck.py --page PAGE.html [--out DIR]
+
+--page screenshots an ordinary page (a lab, a reference sheet) instead of a
+deck, in overlapping 900x1400 chunks from top to bottom, as
+DIR/page-<name>-NN.png. No checks.
 
 1. Static checks (no browser): every slide is a <section class="slide"> with a
    unique id, a .canvas and a non-empty .transcript; every relative href/src
@@ -180,20 +185,59 @@ def screenshots(chrome, deck, slides, out_dir, size, last_only):
     out_dir.mkdir(parents=True, exist_ok=True)
     shots = []
     base = deck.resolve().as_uri()
+    failed = []
     for i, s in enumerate(slides, 1):
         top = max(s["steps"]) if s["steps"] else 0
         for k in ([top] if last_only else range(top + 1)):
             png = out_dir / f"s{i:02d}-k{k}.png"
-            subprocess.run(chrome_cmd(chrome, size) + ["--virtual-time-budget=1500", f"--screenshot={png}",
-                                                      f"{base}#/{i}/{k}"],
-                           capture_output=True, timeout=120, check=True)
-            shots.append(png)
-    return shots
+            if shoot(chrome, size, f"{base}#/{i}/{k}", png):
+                shots.append(png)
+            else:
+                failed.append(f"screenshot failed: slide {i} step {k}")
+    return shots, failed
+
+
+def shoot(chrome, size, url, png):
+    try:
+        subprocess.run(chrome_cmd(chrome, size) + ["--virtual-time-budget=1500", f"--screenshot={png}", url],
+                       capture_output=True, timeout=120, check=True)
+        return png.exists()
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return False
+
+
+def page_shots(chrome, page, out_dir):
+    """Screenshot a long page in overlapping 900x1400 chunks. Fragment scrolling
+    does not repaint in headless screenshots, so a temporary copy beside the
+    page (relative links still resolve) shifts the body up by chunk."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    step = 1300
+    shift = ("<script>(function(){var k=+(new URLSearchParams(location.search).get('shot')||0);"
+             "document.body.setAttribute('data-h',document.documentElement.scrollHeight);"
+             f"document.body.style.transform='translateY(-'+(k*{step})+'px)';}})();</script>")
+    text = page.read_text(encoding="utf-8")
+    tmp = page.with_name(f".{page.stem}.shot.html")
+    tmp.write_text(text.replace("</body>", shift + "</body>") if "</body>" in text else text + shift,
+                   encoding="utf-8")
+    shots, failed = [], []
+    try:
+        dom = subprocess.run(chrome_cmd(chrome, (900, 1400)) + ["--virtual-time-budget=1500", "--dump-dom",
+                                                               tmp.resolve().as_uri()],
+                             capture_output=True, text=True, timeout=120).stdout
+        m = re.search(r'data-h="(\d+)"', dom)
+        height = int(m.group(1)) if m else 1400
+        for k in range(max(1, -(-(height - 100) // step))):
+            png = out_dir / f"page-{page.stem}-{k + 1:02d}.png"
+            (shots if shoot(chrome, (900, 1400), tmp.resolve().as_uri() + f"?shot={k}", png) else failed).append(png)
+    finally:
+        tmp.unlink(missing_ok=True)
+    return shots, failed
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("deck", type=Path)
+    ap.add_argument("deck", type=Path, nargs="?")
+    ap.add_argument("--page", type=Path, help="screenshot an ordinary page in sections instead")
     ap.add_argument("--out", type=Path, default=None, help="screenshot folder (default: <deck dir>/build/shots)")
     ap.add_argument("--last", action="store_true", help="screenshot only the final step of each slide")
     ap.add_argument("--checks-only", action="store_true", help="no screenshots")
@@ -201,7 +245,20 @@ def main():
     ap.add_argument("--chrome")
     opts = ap.parse_args()
     size = tuple(int(x) for x in opts.size.lower().split("x"))
+    if opts.page:
+        chrome = find_chrome(opts.chrome)
+        if not chrome:
+            print("No Chrome or Chromium found. Pass --chrome or set $CHROME.")
+            return 2
+        out = opts.out or opts.page.parent / "build" / "shots"
+        shots, failed = page_shots(chrome, opts.page, out)
+        for f in failed:
+            print(f"  FAIL  screenshot failed: {f.name}")
+        print(f"{len(shots)} screenshots in {out}/ — open every one and look.")
+        return 1 if failed else 0
     deck = opts.deck
+    if deck is None:
+        ap.error("give a deck, or --page PAGE")
     if not deck.exists():
         print(f"no such file: {deck}")
         return 1
@@ -227,7 +284,10 @@ def main():
         print(f"  FAIL  {p}")
     if not opts.checks_only:
         out = opts.out or deck.parent / "build" / "shots"
-        shots = screenshots(chrome, deck, slides, out, size, opts.last)
+        shots, failed = screenshots(chrome, deck, slides, out, size, opts.last)
+        for f in failed:
+            print(f"  FAIL  {f}")
+        problems += failed
         print(f"{len(shots)} screenshots in {out}/ — open every one and look.")
     print("Clean." if not problems else f"{len(problems)} problem(s).")
     return 1 if problems else 0

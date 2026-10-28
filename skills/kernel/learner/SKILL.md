@@ -6,12 +6,13 @@ description: >-
   each lesson's status), RESOURCES.md (trusted sources and communities),
   learning-records/ (what they have demonstrably learned), PRACTICE.md (the
   spaced retrieval queue), GLOSSARY.md, and NOTES.md. Reads them to place the
-  zone of proximal development and writes them when evidence arrives. Use when
+  zone of proximal development and writes them when evidence arrives. Lessons are numbered `NNNN` in file
+names and `L<n>` in tables (`L2` is `lessons/0002-*`). Use when
   a teaching skill (professor, teach-me, code-along) starts or closes a
   session, when the user states prior knowledge, shows they understand or
   misunderstand something, changes their goal, or asks "what have I learned,"
   "what's next," or "where am I in the course."
-argument-hint: "Optional: 'orient', 'record <what happened>', 'practice', or 'status'."
+argument-hint: "Optional: 'orient', 'record <what happened>', or 'status'."
 ---
 
 # Learner
@@ -20,7 +21,7 @@ Every teaching skill needs the same answers before it says a word: why is this
 person learning, what do they already know, what did they get wrong last time,
 and what comes next. This skill owns the files that hold those answers, so
 `professor`, `teach-me`, and `code-along` read and write one record instead of
-three.
+three. (`teach-me` keeps identical copies of these formats until it is retired.)
 
 The record is evidence, not a diary. A file changes when the learner shows
 something (says it back, predicts correctly, builds it, gets it wrong in an
@@ -44,7 +45,9 @@ own directory (`~/learning/<subject>`).
 `NOTES.md` outranks every teaching skill. Its hard rules (where the learner's
 own code lives, who commits, which language to answer in, "no epigraphs") apply
 as written. Keep three sections: `## Hard rules`, `## Preferences`,
-`## Session log` (one line per session: date, lesson, what changed).
+`## Session log` (one line per session: date, lesson, what changed), plus
+`## Lens notes` when the subject has conventions every lesson must follow
+(notation, tools).
 
 ## Orient (start of a session)
 

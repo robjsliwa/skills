@@ -14,8 +14,10 @@ third would have needed them again.
 `teach-me`'s lessons ended in a multiple-choice quiz. In a chat, open answers
 with immediate feedback cost nothing, and the evidence favours them: with
 corrective feedback, short-answer retrieval beat multiple choice on a later
-test (Kang, McDermott & Roediger 2007), and choosing from given explanations
-was the weakest form of self-explanation (Bisra et al. 2018).
+test in a laboratory study (Kang, McDermott & Roediger 2007), and constructive
+activities that produce new output outrank active ones like selecting
+(Chi & Wylie 2014). An end-of-page quiz also comes minutes after the lesson,
+when spaced retrieval would do more (Cepeda et al. 2006).
 
 ## Decision
 

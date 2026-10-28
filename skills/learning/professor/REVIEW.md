@@ -42,7 +42,7 @@ finding on its own.
 - [ ] Every lab step has Do, Run, Expect; every Expect came from `build/run/`.
 - [ ] No challenge solution appears on the page.
 - [ ] The parking lot's every item landed where the plan said.
-- [ ] VOICE.md: no headline fragments, no "simply" or "just", no ornament the
+- [ ] VOICE.md: no headline fragments, no "simply", no "just" meaning "easily", no ornament the
       learner's `NOTES.md` did not ask for.
 
 ## 3. Fix and re-read

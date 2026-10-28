@@ -8,15 +8,17 @@ Usage:
 Slots in TEMPLATE (HTML or Markdown):
   {{value:NAME}}    a value computed by the values script (values.json), escaped
   {{snip:NAME}}     the lines between `snip:NAME` and `end:NAME` marker lines in
-                    any file under the --src folders (the verified code), escaped;
-                    marker lines themselves are dropped, so use any comment syntax
+                    any file under the --src folders (the verified code), escaped.
+                    A marker line holds only a comment (`// snip:NAME`,
+                    `# end:NAME`, `<!-- snip:NAME -->`); other lines are kept verbatim
   {{file:PATH}}     a whole verified file (relative to the first --src), escaped
   {{include:PATH}}  raw HTML inserted as is (a generated figure), relative to TEMPLATE
 
 Slots inside <!-- HTML comments --> are left alone.
 
 Checks, in order; any failure stops the build and writes nothing:
-  1. Every slot resolves; no `{{` slot is left behind.
+  1. Every slot resolves, and no slot has an unknown kind. (Code that contains
+     `{{ }}` itself, like Go or Jinja templates, passes through untouched.)
   2. The claims ledger (if given) has no claim whose status is `pending` or
      `failed`. `unverifiable` claims must carry a `note` and are listed.
   3. Every relative href/src in the output resolves from OUT's folder.
@@ -35,6 +37,9 @@ import re
 import sys
 from pathlib import Path
 
+# A marker is a line holding only a comment: `// snip:name`, `# end:name`,
+# `<!-- snip:name -->`, `/* end:name */`, `-- snip:name`, `% end:name`.
+MARKER_RE = re.compile(r"^\s*(?:#|//|--|%|;|<!--|/\*)\s*(snip|end):([A-Za-z0-9_.-]+)\s*(?:-->|\*/)?\s*$")
 SLOT_RE = re.compile(r"\{\{(value|snip|file|include):([^}\s]+)\}\}")
 TAGS = ["p", "div", "section", "figure", "figcaption", "svg", "g", "table", "tr", "td", "th", "pre", "code",
         "details", "summary", "ol", "ul", "li", "aside", "blockquote", "h1", "h2", "h3", "main", "script",
@@ -53,18 +58,19 @@ def find_snippets(src_dirs):
                 continue
             open_ = {}
             for n, line in enumerate(lines):
-                for m in re.finditer(r"\bsnip:([A-Za-z0-9_.-]+)", line):
-                    open_[m.group(1)] = n
-                for m in re.finditer(r"\bend:([A-Za-z0-9_.-]+)", line):
-                    name = m.group(1)
-                    if name in open_:
-                        start = open_.pop(name)
-                        body = [l for l in lines[start + 1:n]
-                                if not re.search(r"\b(snip|end):[A-Za-z0-9_.-]+", l)]
-                        if name in snips:
-                            raise SystemExit(f"snippet '{name}' defined twice: {where[name]} and {f}")
-                        snips[name] = "\n".join(body).rstrip("\n")
-                        where[name] = str(f)
+                m = MARKER_RE.match(line)
+                if not m:
+                    continue
+                kind, name = m.group(1), m.group(2)
+                if kind == "snip":
+                    open_[name] = n
+                elif name in open_:
+                    start = open_.pop(name)
+                    body = [l for l in lines[start + 1:n] if not MARKER_RE.match(l)]
+                    if name in snips:
+                        raise SystemExit(f"snippet '{name}' defined twice: {where[name]} and {f}")
+                    snips[name] = "\n".join(body).rstrip("\n")
+                    where[name] = str(f)
             for name in open_:
                 raise SystemExit(f"snippet '{name}' in {f} has no end:{name}")
     return snips
@@ -114,16 +120,22 @@ def main():
             return m.group(0)
         return p.read_text(encoding="utf-8")
 
-    # Slots inside HTML comments are documentation, not slots.
+    # Slots inside HTML comments are documentation, not slots. Anything shaped
+    # like a slot with an unknown kind is a typo; check the template, not the
+    # output, so code that itself contains {{ }} (Go, Jinja, Vue) is fine.
+    bad = sorted(set(re.findall(r"\{\{(?!(?:value|snip|file|include):)[a-z]+:[^}\s]*\}\}",
+                                re.sub(r"<!--.*?-->", "", tpl, flags=re.S))))
+    if bad:
+        errors.append(f"unknown slot kinds: {bad}")
     parts = re.split(r"(<!--.*?-->)", tpl, flags=re.S)
     out = "".join(p if p.startswith("<!--") else SLOT_RE.sub(fill, p) for p in parts)
-    left = sorted(set(re.findall(r"\{\{[^}]*\}\}", re.sub(r"<!--.*?-->", "", out, flags=re.S))))
-    if left and not errors:
-        errors.append(f"unfilled slots: {left}")
 
     unverifiable = []
     if o.claims:
         claims = json.loads(o.claims.read_text(encoding="utf-8"))
+        if not isinstance(claims, list) or not all(isinstance(c, dict) for c in claims):
+            errors.append(f"{o.claims} must be a JSON list of claim objects (LEDGER-FORMAT.md)")
+            claims = []
         for c in claims:
             st = c.get("status")
             if st in ("pending", "failed", None):
@@ -142,7 +154,8 @@ def main():
             errors.append(f"link does not resolve from {o.out.parent}: {link}")
 
     if is_html:
-        body = re.sub(r"<script\b.*?</script>", "<script></script>", out, flags=re.S)
+        body = re.sub(r"<!--.*?-->", "", out, flags=re.S)
+        body = re.sub(r"<script\b.*?</script>", "<script></script>", body, flags=re.S)
         for tag in TAGS:
             opens = len(re.findall(rf"<{tag}[\s>]", body))
             closes = len(re.findall(rf"</{tag}>", body))
@@ -152,9 +165,12 @@ def main():
     prose = re.sub(r"<(pre|code|script|style)\b.*?</\1>", " ", out, flags=re.S)
     prose = re.sub(r"```.*?```|`[^`]*`", " ", prose, flags=re.S)
     prose = re.sub(r"<[^>]+>", " ", prose)
-    known = " ".join(v if isinstance(v, str) else json.dumps(v) for v in values.values())
-    stray = sorted({n for n in re.findall(r"(?<![\w.#-])\d[\d,.]*\d(?![\w-])", prose)
-                    if len(re.sub(r"\D", "", n)) >= 3 and n not in known})
+    num_re = r"(?<![\w.#-])\d[\d,.]*\d(?![\w-])"
+    norm = lambda n: n.replace(",", "").rstrip(".")
+    known = {norm(t) for v in values.values()
+             for t in re.findall(num_re, v if isinstance(v, str) else json.dumps(v))}
+    stray = sorted({n for n in re.findall(num_re, prose)
+                    if len(re.sub(r"\D", "", n)) >= 3 and norm(n) not in known})
     if stray:
         (errors if o.strict_numbers else warnings).append(
             "numbers in prose not produced by the values script: " + ", ".join(stray[:30]))

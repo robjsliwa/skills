@@ -50,7 +50,7 @@ Reference beside this file. Read each when a step names it.
 - [OFFICE-HOURS.md](OFFICE-HOURS.md): questions, predictions, teach-backs,
   pace.
 - [REVIEW.md](REVIEW.md): the cold read by a fresh agent playing the learner.
-- `assets/lab.css`, `assets/lab-template.html`: the lab page.
+- `assets/lab.css`, `assets/lab.js`, `assets/lab-template.html`: the lab page.
 
 ## Kernel skills it uses
 
@@ -70,14 +70,14 @@ tools so this skill holds only the teaching.
 ```
 MISSION.md  SYLLABUS.md  RESOURCES.md  PRACTICE.md  GLOSSARY.md  NOTES.md   (learner)
 learning-records/NNNN-*.md                                                  (learner)
-research/NNNN-*.md                     research notes for each lesson       (research)
+research/NNNN-*.md                     research notes, numbered by lesson    (research)
 lessons/NNNN-<slug>/
   plan.md                              the lesson plan (LESSON-PLAN.md)
   lecture.html                         the deck (slides)
   lab.html                             the lab (LAB.md, assembled by fact-check)
   build/                               ledger, values, reference code, runs, shots (fact-check)
 reference/                             cheat sheets the learner keeps
-assets/                                deck.css, deck.js, lab.css (seeded once)
+assets/                                deck.css, deck.js, lab.css, lab.js (seeded once)
 ```
 
 The project itself lives where `SYLLABUS.md` says (often a separate repo).
@@ -98,7 +98,7 @@ Run the `learner` skill's Orient, then pick the first row that matches.
 | Current lesson `lab` and the learner says they finished, or `debrief` | **Debrief** (step 9) |
 | Current lesson `lab` | Ask where they are in the lab; help from there |
 | Current lesson `lectured` | Ask whether they have questions on the lecture; then point them at the lab |
-| Current lesson `planned` or `researched`, or the user named a new topic | **Prepare and deliver** (steps 1–8) |
+| Current lesson `planned` or `researched`, or the user named a new topic | **Prepare and deliver** (steps 1–8), resuming at the first step whose output is missing: `plan.md`, then `build/claims.json` with nothing `pending`, then `lecture.html`, then `lab.html` |
 | Last lesson `done` | Plan the next row of `SYLLABUS.md` with the learner's evidence, then prepare it |
 
 A detour brief (from the `detour` skill) as argument: read it in full. Its
@@ -145,8 +145,9 @@ the first lesson.
    section of the research note: the core idea in one sentence, the common
    misconceptions, a concrete example that shows it, and what can wait. While
    they run, read the learner's records and the previous lesson. Add good
-   sources to `RESOURCES.md`. Done when every question has a note and the
-   lesson's idea is stated from sources, not memory.
+   sources to `RESOURCES.md`, and set the lesson to `researched` in
+   `SYLLABUS.md`. Done when every question has a note and the lesson's idea is
+   stated from sources, not memory.
 
 3. **Plan.** Write `lessons/NNNN-<slug>/plan.md` per LESSON-PLAN.md, then run
    PEDAGOGY.md's plan checklist against it and fix what fails. The plan
@@ -168,8 +169,10 @@ the first lesson.
 
 6. **Lab.** Write `build/lab.tpl.html` from `assets/lab-template.html` per
    LAB.md, and assemble `lab.html` with `fact-check`'s `assemble.py
-   --strict-numbers`. Render it and look at it in slices. Done when it is
-   written and viewed.
+   --strict-numbers`. Seed `lab.css` and `lab.js` first if `assets/` lacks
+   them. Screenshot it with the `slides` skill's `render_deck.py --page
+   lab.html` and look at every chunk. Done when it is written and every chunk
+   has been viewed.
 
 7. **Cold read.** Run REVIEW.md: a fresh agent that has never seen the plan
    reads the lecture transcript and the lab as the learner would, with only
@@ -204,12 +207,16 @@ Wherever a session stops, the status in `SYLLABUS.md` says where to resume.
 
 ## Rewrite (an existing lesson, e.g. a teach-me chapter)
 
-Treat the old lesson as the richest research note there is. Inventory every
+The rewrite keeps the old lesson's number and slug: its new home is
+`lessons/NNNN-<slug>/`, and the old file stays where it is. Treat the old
+lesson as the richest research note there is. Inventory every
 fact, code slice, value, citation, and figure idea into `build/claims.json`
 (they arrive `verified` only if the old build proves them; otherwise check
 them again). Write a plan that reorders the material per PEDAGOGY.md: concrete
 before abstract, setup before code, code before trace, happy path before edge
-cases, gotchas moved to the step where the learner meets them. Then steps 5–7.
+cases, gotchas moved to the step where the learner meets them. Then steps 4–8
+(verify what the old build did not prove, build the reference solution, then
+lecture, lab, cold read, deliver), and set the lesson's status to `lectured`.
 Nothing true is dropped silently: material that no longer fits the lecture or
 the lab goes into an Under the hood box, a challenge, or `reference/`, and the
 plan's parking lot says which.

@@ -46,8 +46,11 @@ In order. Each line is one slide unless it says otherwise.
 - **Activation first.** Slide 2 always recalls the previous lesson (or, for
   lesson 1, what the learner told you they already know).
 - **No edge cases.** They are in the plan's parking lot.
-- **Every number and line of code comes from `build/`.** Write the deck as a
-  template and assemble it with `fact-check` when it quotes computed values.
+- **Every number and line of code comes from `build/`.** When the deck quotes
+  computed values or code, write it as `build/lecture.tpl.html` and assemble
+  it to `lecture.html` with `fact-check`'s `assemble.py` before running the
+  `slides` checker. (`deck-template.html` shows an assembled deck, so its
+  values appear as text.)
 - **Transcript paragraphs match steps.** One paragraph per step, about what
   that step shows (the `slides` skill's DECK-FORMAT.md).
 - **Sources are linked in the transcript**, on the words they support.

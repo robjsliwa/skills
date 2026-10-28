@@ -92,6 +92,7 @@ body { font-family: var(--sans); }
 
 .canvas table { border-collapse: collapse; font-size: 1.9cqw; width: 100%; }
 .canvas tr.future td { border-color: transparent; }
+body.handout .canvas tr.future td { border-color: var(--rule); }
 .canvas th, .canvas td { text-align: left; padding: .45cqw 1cqw; border-bottom: 1px solid var(--rule); }
 .canvas th { font-weight: 600; color: var(--muted); font-size: .9em; }
 .canvas td code { font-size: .95em; }
@@ -184,3 +185,4 @@ body.handout .slide::before { content: attr(data-n); display: block; font-family
 .canvas svg .ink .thick { stroke-width: 2.6; }
 .canvas svg .ink .thin { stroke-width: 1.1; }
 .canvas svg .sketch { filter: url(#deck-sketch); }
+.canvas .cols .kicker { font-size: 1.6cqw; margin-bottom: 1cqw; }

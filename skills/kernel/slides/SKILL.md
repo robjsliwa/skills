@@ -29,8 +29,9 @@ together.
   figures, and the canvas word budget.
 - `assets/deck.css`, `assets/deck.js`: the runtime. Seed them into the
   workspace's `assets/` once; every deck links them.
-- `assets/deck-template.html`: a worked ten-slide lecture showing every slide
-  kind. Copy it and replace the slides.
+- `assets/deck-template.html`: a worked eleven-slide lecture showing every
+  slide kind but the addendum. It is shown assembled, so its values appear as
+  text. Copy it and replace the slides.
 - `scripts/render_deck.py`: the checker and screenshotter.
 
 ## Steps
@@ -49,9 +50,10 @@ together.
 3. **Write the deck** from `deck-template.html`, per DECK-FORMAT.md. Draw each
    diagram once, in its final form, then give its parts `data-step` numbers in
    the order the transcript introduces them. Every quoted number, code line,
-   and source on a slide comes from the caller's verified material (the
-   `fact-check` skill's values and snippets); a slide never introduces a fact
-   of its own. Done when every slide has an id, a canvas, and a transcript
+   and source on a slide comes from the caller's verified material; a slide
+   never introduces a fact of its own. When it quotes computed values or code,
+   write the deck as `build/lecture.tpl.html` with the `fact-check` skill's
+   slots and assemble it to `lecture.html` before step 4. Done when every slide has an id, a canvas, and a transcript
    paragraph per step.
 
 4. **Check and look.**
@@ -62,7 +64,7 @@ together.
 
    Fix every FAIL and re-run until it prints `Clean.` Then open the
    screenshots: every step of every slide that builds, the last step of the
-   rest. Read each as the learner will. The checker finds collisions; you find
+   rest. (`--page` screenshots an ordinary page, such as a lab, in chunks.) Read each as the learner will. The checker finds collisions; you find
    a diagram that is correct but confusing, a reveal order that gives the
    answer away, a transcript paragraph that talks about something not yet on
    the canvas. Done when you have looked at every screenshot after the last
@@ -75,7 +77,7 @@ together.
 
 - **One idea per slide.** If the title needs "and," it is two slides.
 - **The canvas shows; the transcript tells.** At most about 30 words on a
-  canvas (45 on a predict slide), not counting code, tables, and figure
+  canvas (the checker allows 32; 45 on a predict slide), not counting code, tables, and figure
   labels. Full sentences, citations, and caveats go in the transcript.
 - **Build, don't dump.** A diagram with more than four parts arrives in steps,
   in the order the transcript explains them. The finished picture is the last

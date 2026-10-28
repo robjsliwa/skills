@@ -43,7 +43,8 @@ section 6); decoding a clever sentence is load the learner did not need
 
 9. **Warm, not chatty.** "Good question" and "let's dive in" add nothing. A
    little dry humour, at most once a lesson, is welcome. Never condescend:
-   no "simply," "just," "obviously," "of course."
+   no "simply," "obviously," "of course," and no "just" meaning "easily"
+   ("just add a package"). Temporal "just" ("the slide you just saw") is fine.
 
 10. **No ornament by default.** No epigraph, no "Algorithm 1" label for a
     four-line function, no numbered §2.3.1 headings. A workspace whose

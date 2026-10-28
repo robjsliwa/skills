@@ -111,7 +111,8 @@ predicting, comparing) beats receiving or merely manipulating it
 *Educational Psychologist* 49(4), 219–243). Prompting learners to explain to
 themselves has an average effect of g = 0.55 across 64 studies, and
 self-explanation beat explanations given by an instructor; formats where
-learners pick an explanation from a list showed the weakest effects
+learners pick an explanation from a list showed the weakest effects, though
+the authors note that evidence on format is limited
 ([Bisra et al. 2018](https://doi.org/10.1007/s10648-018-9434-x)).
 
 **Rule.** The learner produces something at every stage: a prediction at each
@@ -123,8 +124,9 @@ professor responds to what the learner actually said.
 
 **Finding.** A meta-analysis of 53 studies found that problem solving followed
 by instruction outperformed instruction followed by problem solving for
-conceptual knowledge and transfer, with larger benefits for older students
-with more prior knowledge ([Sinha & Kapur 2021](https://doi.org/10.3102/00346543211019105),
+conceptual knowledge and transfer, more so for secondary and university
+students than for primary students, which the authors attribute partly to
+prior knowledge ([Sinha & Kapur 2021](https://doi.org/10.3102/00346543211019105),
 *Review of Educational Research* 91(5)). Unsuccessful retrieval attempts,
 followed by the answer, enhance learning ([Kornell, Hays & Bjork 2009](https://pubmed.ncbi.nlm.nih.gov/19586265/)).
 The evidence is not uniform: prequestions before a lesson did not help in one
@@ -157,14 +159,16 @@ not (the `learner` skill's PRACTICE-FORMAT.md). Sessions open with them.
 the best final-test performance, ahead of multiple-choice and of re-reading;
 without feedback, multiple choice did better than short answer
 ([Kang, McDermott & Roediger 2007](https://doi.org/10.1080/09541440601056620),
-*European Journal of Cognitive Psychology* 19(4/5), 528–558). Multiple choice
-is not useless; it is the weaker format when feedback is available.
+*European Journal of Cognitive Psychology* 19(4/5), 528–558). That is one
+laboratory study, not a law: well-built multiple-choice questions can also
+produce retrieval benefits. The point is narrower: when feedback is cheap,
+producing the answer is at least as good, and usually better.
 
 **Rule.** Feedback is always available here, in chat, so every check is open
 response: the learner writes the prediction, the answer, the explanation, and
-gets a reply to what they wrote. A quiz at the end of a page, answered once by
-clicking, tests recognition at the moment of least forgetting; the
-practice queue tests recall when it has started to fade.
+gets a reply to what they wrote. A quiz at the end of a page is taken
+minutes after the lesson; the practice queue asks again lessons later, which
+is where spacing (section 9) does its work.
 
 ## 11. Check understanding, aim for high success
 

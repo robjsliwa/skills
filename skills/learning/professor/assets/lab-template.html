@@ -21,6 +21,7 @@
 <h2>Before you start</h2>
 <div class="lab-step" id="step-check">
   <h3><span class="n">0</span> Lesson 1 still passes</h3>
+  <div class="do"><p>Open a terminal in your <code>PhoneCore/</code> folder.</p></div>
   <div class="run"><p>In <code>PhoneCore/</code>: <code>swift test</code></p></div>
   <div class="expect"><pre>{{value:phonecore_test_summary}}</pre></div>
   <div class="why"><p>The app will trust this package completely. If a test is red, fix it before going on.</p></div>
@@ -50,7 +51,7 @@
 
 <details class="under-hood">
   <summary>what Xcode 26's new-project template sets for you</summary>
-  <p>New app targets default to MainActor isolation, so every type in the app is main-actor isolated unless it says otherwise. Packages do not get that default, which is why <code>PhoneCore</code>'s types had to be <code>Sendable</code> in Lesson 1. You will meet the consequence in step 6.</p>
+  <p>New app targets default to MainActor isolation, so every type in the app is main-actor isolated unless it says otherwise. Packages do not get that default, which is why <code>PhoneCore</code>'s types had to be <code>Sendable</code> in Lesson 1. You will meet the consequence in step 5, the tests.</p>
 </details>
 
 <h2>Build the model</h2>
@@ -72,7 +73,7 @@
 </details>
 
 <h2>Trace it</h2>
-<p>You will check this with the real dial pad in step 5. For now, read the table against the code you just wrote: each row is one key press, and only <code>typed</code> changes.</p>
+<p>You will check this on the real dial pad in step 4. For now, read the table against the code you just wrote: each row is one key press, and only <code>typed</code> changes.</p>
 <table>
   <tr><th>Keys</th><th><code>hint</code></th><th>Call</th></tr>
   <tr><td><code>415555267</code></td><td>{{value:hint_9}}</td><td>off</td></tr>
@@ -111,7 +112,7 @@
 
 <details class="under-hood">
   <summary>why the suite needs <code>@MainActor</code></summary>
-  <p><code>Phone</code> is main-actor isolated because of the app target's default (step 2). The test target has no such default, so without the annotation Swift 6 rejects <code>let phone = Phone()</code> with <code>{{value:mainactor_error}}</code>.</p>
+  <p><code>Phone</code> is main-actor isolated because of the app target's default (step 1's template). The test target has no such default, so without the annotation Swift 6 rejects <code>let phone = Phone()</code> with <code>{{value:mainactor_error}}</code>.</p>
 </details>
 
 <h2>On your iPhone</h2>
@@ -127,6 +128,8 @@
 <dl class="trouble">
   <dt>No such module 'PhoneCore'</dt>
   <dd>The package is added but not linked to the target. Add it under General › Frameworks, Libraries, and Embedded Content.</dd>
+  <dt>main actor-isolated default value in a nonisolated context</dt>
+  <dd>The test suite is missing <code>@MainActor</code> (step 5's Under the hood box says why).</dd>
 </dl>
 
 <h2>Challenges</h2>

@@ -40,7 +40,7 @@ After the learner answers a due prompt, give feedback, then:
 
 | Answer | Next `Due` | `Last answer` |
 |---|---|---|
-| solid, unprompted | two lessons later than the last gap (L+1 → L+3 → L+6) | `solid (Ln)` |
+| solid, unprompted | double the last gap: one lesson, then two, then four (L3 → L4 → L6 → L10) | `solid (Ln)` |
 | partly right, or right only after a hint | the next lesson | `shaky (Ln)` |
 | wrong | the next lesson, and write a "corrected" learning record | `wrong (Ln)` |
 

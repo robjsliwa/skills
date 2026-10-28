@@ -6,11 +6,11 @@ draft, and work down. Its order is fixed: workspace first, the happy path in
 small verified steps, then what happens underneath and what breaks it.
 
 Template: `assets/lab-template.html` (copy to `build/lab.tpl.html`, fill,
-assemble with `fact-check`). Styles: `assets/lab.css` (seed into the
-workspace's `assets/`). The format grew from a rewrite of teach-me's dial-pad
-lesson (in this repo's `docs/planning/professor/design.md`), which ran:
-problem → set up the Xcode project → build the model → trace it → build the
-views → tests and the quirks they reveal → run on the phone → challenges.
+assemble with `fact-check`). Seed `assets/lab.css` and `assets/lab.js` into
+the workspace's `assets/` once. The template is a worked example: the
+lab for a SwiftUI dial-pad lesson, ordered problem → set up the project →
+build the model → trace it → build the views → tests and the quirks they
+reveal → run on the phone → challenges.
 
 ## The shape
 

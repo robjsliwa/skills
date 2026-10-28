@@ -48,13 +48,14 @@ one `aside.transcript`.
 - `data-hl="k"` highlights at step `k` without ever hiding: use it for code
   lines and table rows the learner should be able to read all along.
 - Steps run 1..n with no gaps. A slide with no steps is one step, 0.
-- Navigation: → / space / click next, ← back, `t` hides the transcript, `h`
+- Navigation: → / space / `j` / click next, ← / `k` back, Home and End jump
+  to the first and last slide, `t` hides the transcript, `h`
   toggles the handout (every slide fully built, for reading or printing), `f`
   fullscreen. `#/3/2` opens slide 3 at step 2.
 
 ## Slide kinds
 
-The template has one of each.
+The template has one of each except the addendum.
 
 | Kind | Class | Canvas | Use for |
 |---|---|---|---|

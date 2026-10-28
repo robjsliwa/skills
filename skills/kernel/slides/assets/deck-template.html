@@ -9,11 +9,14 @@
 </head>
 <body>
 <!--
-  A worked example of every slide kind in DECK-FORMAT.md: title, activation,
-  hook (a concrete failure, built in steps), predict, model (a diagram built
-  one layer per step), worked example (a trace revealed row by row),
+  A worked example of every slide kind in DECK-FORMAT.md except the addendum:
+  title, activation, hook (a concrete failure, built in steps), predict, model
+  (a diagram built one layer per step), anchor (two columns: the familiar idea
+  and where it breaks), worked example (a trace revealed row by row),
   mechanism, predict, code (highlighted, not hidden), and the bridge to the lab.
-  Replace the slides; keep the structure.
+  It is shown assembled: in a real lesson, quoted values and code come from
+  fact-check slots in build/lecture.tpl.html. Replace the slides; keep the
+  structure.
 -->
 <div class="deck" data-title="Lesson 2 · One Phone, Many Views">
 
@@ -176,6 +179,29 @@
   </aside>
 </section>
 
+<!-- ============================================================ anchor (two columns) -->
+<section class="slide" id="go-anchor">
+  <div class="canvas">
+    <h2>Seen this in Go?</h2>
+    <div class="cols">
+      <div>
+        <p class="kicker">Go</p>
+        <ul class="points"><li>one struct, shared by pointer</li><li>you tell readers it changed</li></ul>
+      </div>
+      <div data-step="1">
+        <p class="kicker">Swift</p>
+        <ul class="points"><li>one <code>@Observable</code> class</li><li>readers found by reading</li></ul>
+      </div>
+    </div>
+    <p class="big" data-step="2">The break: nobody subscribes by hand.</p>
+  </div>
+  <aside class="transcript">
+    <p>In Go, when several goroutines need the same state, you share one struct by pointer and guard it, and when it changes you tell whoever cares, usually over a channel you wired up yourself.</p>
+    <p data-step="1">Here the sharing half is the same: one <code>Phone</code> object, handed to every view. That is why it is a class and not a struct like <code>CallMachine</code>.</p>
+    <p data-step="2">The telling half is where the analogy breaks. There is no channel and no subscribe call. A view becomes a reader by reading, and the next slides show how SwiftUI notices.</p>
+  </aside>
+</section>
+
 <!-- ============================================================ worked example -->
 <section class="slide" id="trace">
   <div class="canvas">
@@ -193,7 +219,7 @@
     <p data-step="1">One digit: the parser says it needs more, so <code>number</code> is nothing and Call is off.</p>
     <p data-step="2">Nine digits: same story, one short.</p>
     <p data-step="3">Ten digits: the parser accepts it and adds the country code, so <code>number</code> exists and the button turns green.</p>
-    <p data-step="4">Now one key too many. Nobody wrote "turn the button off." Eleven digits that don't start with 1 simply aren't a number by Lesson 1's rules, so <code>number</code> is nothing again, and the button follows.</p>
+    <p data-step="4">Now one key too many. Nobody wrote "turn the button off." Eleven digits that don't start with 1 aren't a number by Lesson 1's rules, so <code>number</code> is nothing again, and the button follows.</p>
   </aside>
 </section>
 
@@ -261,7 +287,7 @@ final class Phone {
     func simulate(_ event: CallEvent) { … }</span>}</code></pre>
   </div>
   <aside class="transcript">
-    <p>Here is the picture as code. You will type all of it in the lab, so for now just find the three parts. Bodies marked with an ellipsis are filled in there.</p>
+    <p>Here is the picture as code. You will type all of it in the lab, so for now find the three parts. Bodies marked with an ellipsis are filled in there.</p>
     <p data-step="1">The causes: two stored properties. <code>private(set)</code> means any view can read them but only this class can write them.</p>
     <p data-step="2">The effects: computed properties. Notice there is no stored copy of anything here; each one is recalculated from <code>typed</code> when read.</p>
     <p data-step="3">The only writers. Two edit <code>typed</code>; three send an event to the call machine, so Lesson 1's table still decides every transition.</p>
