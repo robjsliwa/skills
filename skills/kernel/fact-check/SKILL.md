@@ -32,7 +32,7 @@ the code and the numbers.
 
 ## The build folder
 
-Beside the page it serves, e.g. `lessons/0002-one-phone/build/`:
+Beside the page it serves, e.g. `lessons/0002-one-timer/build/`:
 
 ```
 build/
@@ -65,16 +65,16 @@ build/
    when every row is `verified`, `failed`, or `unverifiable`.
 
 3. **Act on failures.** A `failed` claim is good news found early: change the
-   plan, not the evidence. Sometimes the failure is the lesson (the dial pad's
-   key-ten surprise came from running the parser one key at a time); hand that
+   plan, not the evidence. Sometimes the failure is the lesson (the timer's
+   zero surprise came from running the parser on every input); hand that
    back to the caller as a candidate challenge. An `unverifiable` claim either
    leaves the page or is said to the reader as uncertain ("I could not find a
    primary source for this"), with a `note`.
 
 4. **Template.** Write the page with slots instead of facts:
-   `{{value:tenth_hint}}` for a number or string from `values.json`,
-   `{{snip:phone_stored}}` for code between `snip:phone_stored` and
-   `end:phone_stored` marker comments in `build/ref/`, `{{file:Phone.swift}}`
+   `{{value:fourth_hint}}` for a number or string from `values.json`,
+   `{{snip:countdown_stored}}` for code between `snip:countdown_stored` and
+   `end:countdown_stored` marker comments in `build/ref/`, `{{file:Countdown.swift}}`
    for a complete file, `{{include:fig-1.svg.html}}` for a generated figure.
    Done when the template quotes no number of three or more digits and no code
    line by hand.

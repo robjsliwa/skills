@@ -55,7 +55,7 @@ and make the next lesson build on what they actually have.
 
 When they bring an attempt: run it or read it, say what works, then ask about
 the part that does not before fixing it ("What do you expect this line to do
-when the call is connected?"). Solved challenges are strong evidence for
+while the timer is paused?"). Solved challenges are strong evidence for
 learning records.
 
 ## Pace

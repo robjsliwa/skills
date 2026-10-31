@@ -191,7 +191,7 @@ the lab, set the status to `lab`.
 
 9. **Debrief.** When the learner says they are done: ask them to explain the
    lesson's idea back in their own words, applied to their project ("Why can't
-   your Call button go stale now?"). Judge it against the plan's objective.
+   your Start button go stale now?"). Judge it against the plan's objective.
    If it misses, say what is missing, reteach that part in a few sentences,
    and ask again once. Then, through `learner`: write the learning records the
    evidence supports (predictions, teach-back, challenges done), add the

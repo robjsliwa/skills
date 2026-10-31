@@ -3,7 +3,7 @@
 Fifteen to twenty minutes, ten to fifteen slides, built with the `slides`
 skill. The lecture gives the learner the mental model the lab needs, and
 nothing the lab does not need. The `slides` skill's `deck-template.html` is
-a complete example of this arc (the dial-pad lesson).
+a complete example of this arc (the kitchen timer lesson).
 
 ## The arc
 

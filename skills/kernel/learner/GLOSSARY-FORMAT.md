@@ -20,7 +20,7 @@ product's language. A workspace may render this one as
 A class whose stored properties record each read and announce each write, so
 SwiftUI knows which views depend on it.
 _Avoid_: model object, store, view model
-_Added:_ L2, after the learner explained why typing re-runs only DialerView.
+_Added:_ L2, after the learner explained why typing re-runs only KeypadView.
 ```
 
 ## Rules
@@ -31,5 +31,5 @@ _Added:_ L2, after the learner explained why typing re-runs only DialerView.
   `_Avoid_`.
 - **Define what it is**, in one or two sentences, using earlier glossary terms.
 - **Flag field ambiguity.** "In this workspace, 'state' always means
-  `CallState`; SwiftUI's `@State` is spelled with the `@`."
+  `TimerState`; SwiftUI's `@State` is spelled with the `@`."
 - **Revise in place** as understanding deepens.

@@ -78,7 +78,7 @@ Rules for this section:
 The dimensions that text usually skips and that later cause rewrites. Fill every row
 or strike it with a reason. Do not leave a row blank and silent.
 
-- **Latency / timing:** budgets, windows, deadlines. For anything in a call path,
+- **Latency / timing:** budgets, windows, deadlines. For anything in a request path,
   state the hard window and what happens when it is missed.
 - **Throughput / scale:** expected and peak volume, concurrency.
 - **Availability:** uptime target, degradation behavior, what "down" means here.

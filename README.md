@@ -555,7 +555,7 @@ Chromium to check the deck.
 ```text
 /professor macroeconomics
 /professor                      # continue: warm-up, then wherever the lesson is
-/professor explain why Phone is a class
+/professor explain why Countdown is a class
 /professor debrief
 ```
 

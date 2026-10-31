@@ -80,7 +80,7 @@ drop irrelevant detail and transfer
 *Educational Psychology Review* 26, 9–25).
 
 **Rule.** Every idea arrives in this order: a specific case with real values
-(the stale `isValid` flag, after ten keys and after one backspace), then a
+(the stale `isValid` flag, after four keys and after one backspace), then a
 picture of the structure, then the name and the general rule ("store the
 cause, compute the effect"). A trace is never shown before the thing it
 traces.

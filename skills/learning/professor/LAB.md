@@ -8,7 +8,7 @@ small verified steps, then what happens underneath and what breaks it.
 Template: `assets/lab-template.html` (copy to `build/lab.tpl.html`, fill,
 assemble with `fact-check`). Seed `assets/lab.css` and `assets/lab.js` into
 the workspace's `assets/` once. The template is a worked example: the
-lab for a SwiftUI dial-pad lesson, ordered problem → set up the project →
+lab for a SwiftUI kitchen timer lesson, ordered problem → set up the project →
 build the model → trace it → build the views → tests and the quirks they
 reveal → run on the phone → challenges.
 
@@ -67,9 +67,9 @@ reveal → run on the phone → challenges.
 
 ```html
 <section class="lab-step" id="step-model">
-  <h3><span class="n">3</span> Build the <code>Phone</code> model</h3>
-  <div class="do"><p>Create <code>SecondLine/SecondLine/Phone.swift</code> (File › New › File…, Swift File) with:</p>
-<pre><code>{{snip:phone_full}}</code></pre></div>
+  <h3><span class="n">3</span> Build the <code>Countdown</code> model</h3>
+  <div class="do"><p>Create <code>KitchenTimer/KitchenTimer/Countdown.swift</code> (File › New › File…, Swift File) with:</p>
+<pre><code>{{snip:countdown_full}}</code></pre></div>
   <div class="run"><code>⌘B</code> (Product › Build)</div>
   <div class="expect"><pre>** BUILD SUCCEEDED **</pre></div>
   <div class="why"><p>This is the <em>Store the cause, compute the effect</em> slide as code…</p></div>
@@ -80,7 +80,7 @@ reveal → run on the phone → challenges.
   <p>…</p>
 </details>
 
-<div class="checkpoint"><p>Run the tests: four green checks under <code>PhoneTests</code>.</p></div>
+<div class="checkpoint"><p>Run the tests: four green checks under <code>CountdownTests</code>.</p></div>
 
 <div class="challenge" data-kind="break">
   <h3>Quieter refusals</h3>
@@ -91,6 +91,6 @@ reveal → run on the phone → challenges.
 
 <div class="done">
   <p class="carry">Store what happened, compute what it means, and let views read only the meaning.</p>
-  <p class="teachback">In chat: why can't your Call button go stale now?</p>
+  <p class="teachback">In chat: why can't your Start button go stale now?</p>
 </div>
 ```

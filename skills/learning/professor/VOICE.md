@@ -52,16 +52,15 @@ section 6); decoding a clever sentence is load the learner did not need
 
 ## Before and after
 
-From the teach-me lesson this skill replaces (Lesson 2, "One Phone, Many
-Views"), and the same content in this voice.
+From a lesson in the older teach-me voice, and the same content in this voice.
 
 | teach-me wrote | professor writes | Rule |
 |---|---|---|
 | "The motive, as two losses." | "Here are two bugs that come from the same mistake." | 1 |
-| "The left panel is the classic one." | "Start with the dial pad. You store `isValid` next to `typed`…" | 1 |
+| "The left panel is the classic one." | "Start with the keypad. You store `isValid` next to `typed`…" | 1 |
 | "Map it back to Algorithm 1. `parsed` is step 2. The `do`/`catch` is the typed-throws shape from Lesson 1, seen from the caller's side." | "`parsed` runs your Lesson 1 parser every time someone reads it. Because the parser only throws `ParseError`, the `catch` block knows the error's exact type, so the switch in `hint` can list every case." | 1, 4 |
-| A key-by-key trace of `Phone`, `parsed`, and `hint` in §2.3, with the class shown in §2.5.2. | The class is shown first; the trace follows and refers to the properties the learner just read. | 3 |
-| Default Actor Isolation, SE-0466, and package deployment targets explained in §2.2, before the project exists. | One sentence when the learner sets Swift 6 in setup ("so the compiler checks thread safety now, before Twilio's callbacks arrive in Lesson 4"); the details in an Under the hood box beside the test that needs `@MainActor`. | 3, 8 |
+| A key-by-key trace of `Countdown`, `parsed`, and `hint` in §2.3, with the class shown in §2.5.2. | The class is shown first; the trace follows and refers to the properties the learner just read. | 3 |
+| Default Actor Isolation, SE-0466, and package deployment targets explained in §2.2, before the project exists. | One sentence when the learner sets Swift 6 in setup ("so the compiler checks thread safety now, before the notification callbacks arrive in Lesson 4"); the details in an Under the hood box beside the test that needs `@MainActor`. | 3, 8 |
 | "A compiler that says nothing is not a compiler that agrees." | Keep it. One dry line, earned by the experiment just shown. | 9 |
 
 ## Lecture transcript
@@ -71,14 +70,14 @@ is what is said while one step is on screen, and it talks about that step.
 Ask the predict questions as real questions and tell them to answer in chat
 before advancing.
 
-> Here is how most of us would build the dial pad the first time. Keep what
+> Here is how most of us would build the keypad the first time. Keep what
 > was typed in a string. Keep a flag, `isValid`, next to it, and set it to true
-> when the tenth digit arrives. Ten keys in, everything is right.
+> when the fourth digit arrives. Four keys in, everything is right.
 
 ## Lab prose
 
-Instructions are imperative and exact: "Create `Phone.swift` in the
-`SecondLine` folder (File › New › File…, Swift File) and paste this." After
+Instructions are imperative and exact: "Create `Countdown.swift` in the
+`KitchenTimer` folder (File › New › File…, Swift File) and paste this." After
 each block, two to four sentences on why it works, pointing back to the
 lecture slide by its title. Expected output is shown verbatim.
 
