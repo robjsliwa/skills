@@ -31,6 +31,10 @@ Run the app: <cmd>      # used for story demos
 ## Diagrams
 Validate: npx -y @mermaid-js/mermaid-cli   # or "off"
 Viewer port: 4178
+
+## Review
+Security: auto   # auto, a command or skill, or "off"
+Depth: auto      # auto, quick, standard, or deep
 ```
 
 Write exactly these sections and keys, in this order. `Notes` may run to several
@@ -56,6 +60,8 @@ directly under the `Notes:` line.
 | Commands / Run the app | What a person uses to see a story's Demo. | none; Demo is described, not run |
 | Diagrams / Validate | Command prefix for `mmdc`, or `off`. When off, diagrams are marked unvalidated. | `npx -y @mermaid-js/mermaid-cli` |
 | Diagrams / Viewer port | Port for `visualize`'s docs viewer. | `4178` |
+| Review / Security | How `review-change` fills its Security axis. `auto`: the agent's own security review if it has one, otherwise the built-in brief. A command or skill name: run that as well as the built-in brief, for example `semgrep scan --config auto` or `/security-review`. `off`: skip the axis, and the report says so. | `auto` |
+| Review / Depth | How hard `review-change` looks. `auto` sets it per change from the paths touched and the size; a fixed value applies to every change. | `auto` |
 
 ## Notes recipes
 

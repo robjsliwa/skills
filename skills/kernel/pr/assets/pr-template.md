@@ -3,7 +3,8 @@
 Built from the journal (a pairing slice's or a story's), the ADRs, and the
 diff, by the `pr` skill. Brief prose, no preamble, the glossary's domain
 language throughout. Remove a section that has nothing to say rather than
-writing "n/a". The `Summary` visual is one Mermaid diagram of what the change
+writing "n/a", except `Testing`, `Risk`, and `How to revert`, which every PR
+carries. The `Summary` visual is one Mermaid diagram of what the change
 did, its type picked from the table in the `pr` skill (a sequence when the
 interaction changed, before/after when the structure did, a state diagram
 for a lifecycle, and so on), drawn per the `visualize` skill's notation and
@@ -61,26 +62,40 @@ Full journal: the slice or story file above.
 - Drift: S1 §3.2 says half-up; we chose half-even (ADR 0004). <Spec updated
   in this PR | not yet, tracked in ROADMAP>.
 
-## Evidence
+## Testing
+
+How this was tested, with the commands that ran and what they returned, then
+what those checks would not catch.
 
 - [x] A1. Three-line invoice totals correctly: `go test ./invoice -run TestTotal` passes
 - [x] A2. Halves round to even: table test, 6 cases
 - Before: `TestTotal/halves` got 1001, want 1000. After: pass.
 - Full check: `make check` green on <sha>.
+- Not covered: rounding against the live payment provider; tested with a fake.
 
 ## Review
 
-| Finding | Axis | Disposition |
-|---|---|---|
-| D1 `Amount` conflicts with glossary | Decisions | fixed, 5d2e8aa |
-| S2 `total.go` exceeds 60 lines | Standards | deferred, ROADMAP |
-| P1 none | Spec | |
+| Finding | Axis | Tag | Disposition |
+|---|---|---|---|
+| D1 `Amount` conflicts with glossary | Decisions | Important | fixed, 5d2e8aa |
+| S2 `total.go` exceeds 60 lines | Standards | Nit | deferred, ROADMAP |
+| X1 unsigned webhook accepted | Security | Important | dismissed: signature checked at the gateway, `infra/gateway.tf:41` |
+| S3 stale cache key in `cart.go` | Standards | Pre-existing | deferred, ROADMAP |
 
-## Merge danger
+Depth: standard. Rounds: 2. Verifiers dropped 3 findings.
+
+## Risk
 
 **Door:** <one-way | two-way>. <What would be hard to undo, if anything:
 migrations, public API, data written.>
-**Blast radius:** <one word>. <Who or what notices if this is wrong.>
+**Blast radius:** <one word>. <Who or what notices if this is wrong, and how
+they would notice.>
+
+## How to revert
+
+<The exact steps: usually `git revert <merge sha>`, then anything a revert
+alone does not undo, such as a migration to roll back, a flag to flip, or data
+already written. If it cannot be fully undone, say what stays.>
 
 ## Follow-ups
 

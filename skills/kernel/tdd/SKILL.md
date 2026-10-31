@@ -95,7 +95,8 @@ Write an entry when a task is ticked, and also when:
 - the plan changes (a test skipped as redundant, a behaviour added): `Plan change`;
 - the code disagrees with the Design (with the `As built` note): `Decision`;
 - a hard bug is found via `diagnose`: `Debug: <symptom>`;
-- a `spike` returns: `Spike: <question>`, with the verdict.
+- a `spike` returns: `Spike: <question>`, with the verdict;
+- the fresh-eyes check finishes: `Self-review`.
 
 Never record an entry's own commit hash; `pr` maps entries to commits.
 
@@ -113,9 +114,26 @@ After the last task:
    do and what they should see.
 3. **Acceptance.** Tick each acceptance line you observed in the Demo or
    Verification. Leave unticked any you could not observe, and say why.
-4. **Status.** Set `**Status:** done` in the story file. With a tracker, close
+4. **Fresh-eyes check.** One quick look at the diff by someone who did not
+   write it, while a fix is still cheap. Spawn one sub-agent that gets no story,
+   journal, or chat, only the diff: `git diff <base>` plus any new files from
+   `git status --short`, since the work may not be committed yet, where `<base>`
+   is the commit the story started from or `git merge-base <default> HEAD`. A
+   host's own diff review, such as Claude Code's `/code-review`, serves as well.
+   Its brief:
+
+   > Find bugs in this diff: wrong behaviour, unhandled failures, broken edge
+   > cases. Cite a file and line for each and how it fails. Skip style. Under
+   > 200 words. Say "nothing found" if so.
+
+   No sub-agent tool? Re-read the diff from disk as if someone else wrote it,
+   and say so. Check each claim against the code. For a real bug, write the
+   failing test first, fix it, and re-run Verification. Journal a `Self-review`
+   entry with what it found and what was false. This does not replace
+   `review-change`; it clears the cheap mistakes before that runs.
+5. **Status.** Set `**Status:** done` in the story file. With a tracker, close
    the issue or move it to the done label using the profile's Notes recipe.
-5. **Suggest `review-change`** on the story's branch, with the story file as the
+6. **Suggest `review-change`** on the story's branch, with the story file as the
    spec source, then the `pr` skill to open the PR. Do not commit or open a PR
    unless the user asks; when they do, the PR is always written by the `pr`
    skill from the story's journal, never ad hoc.

@@ -3,9 +3,10 @@ name: pair-ship
 description: >-
   Ship the active slice: verify acceptance and the full check, update from
   main, open a PR whose body carries the rationale journal and a what, why,
-  and how of every change, run review-change on its three axes (standards,
-  spec, decisions), address findings, close out the memory bank, merge on an
-  explicit yes, and wrap up. Resumable at any stage. Use when the slice's
+  and how of every change, run review-change on its four axes (standards,
+  spec, decisions, security), address findings over at most three rounds,
+  close out the memory bank, merge on an explicit yes with no open Security
+  finding, and wrap up. Resumable at any stage. Use when the slice's
   plan is done, or the user runs /pair-ship.
 argument-hint: "Nothing. The stage is read from the slice and the PR."
 ---
@@ -45,7 +46,8 @@ Start at the first stage that is not done; each stage is safe to re-enter.
 | No PR, plan done | 1. Preflight |
 | PR open, no review round journaled | 4. Review |
 | PR open, findings without dispositions, unresolved human threads, or the default branch moved | 5. Address |
-| PR open, every finding settled, close-out commit not yet made | 6. Close out and merge |
+| PR open, every finding settled, last round had a Fix now, fewer than three rounds | 4. Review (next round) |
+| PR open, every finding settled, no more rounds due, close-out commit not yet made | 6. Close out and merge |
 | PR open, close-out commit made (`Phase: merging`) | 6, from step 2 (checks, then ask) |
 | PR merged | 7. Wrap |
 
@@ -89,12 +91,26 @@ when the PR exists and the memory bank points at it.
 Call the Skill tool with `review-change`, passing the slice file as the spec
 source and the slice's `base` as the fixed point (recompute it with
 `git merge-base <default> HEAD` if the branch was rebased). It runs
-standards, spec, and decisions as parallel sub-agents against
-`<base>...HEAD` and presents the three reports side by side, unmerged. Its
-Decisions axis reads the working agreement's `Stack` and `Layout` along with
-the ADRs, `GLOSSARY.md`, and `CONTEXT.md`.
+the axes for the change's depth (standards, spec, decisions, and security) as
+parallel sub-agents against `<base>...HEAD`, has fresh verifiers vote on every
+finding, and presents the reports side by side, unmerged. Its Decisions axis
+reads the working
+agreement's `Stack` and `Layout` along with the ADRs, `GLOSSARY.md`, and
+`CONTEXT.md`.
 
-If the agreement says to post reviews, write the three reports to a scratch
+**Rounds after the first** review only what the last round's fixes changed.
+Count the `Review round` entries in the journal; pass `review-change` the
+`Reviewed` sha and every finding from those entries with its disposition, so
+it reviews from that sha, runs only the axes that are due, and repeats nothing.
+
+**The cap is three rounds.** Do not start a fourth. If round 3 reports any
+Important finding, stop before fixing it and tell the user that review is not
+converging, then ask how to step back: rethink the approach through `pairing`,
+split the slice with `pair-slice`, or settle what is left by hand, in which
+case say in the PR that those fixes had no agent review. A rework that replaces
+the approach starts a new count; say so in the journal.
+
+If the agreement says to post reviews, write the reports to a scratch
 file and post it with `gh pr comment <n> --body-file <file>`. In local mode,
 the reports go in the `Review round N` journal entry instead. Done when the
 reports are in front of the user.
@@ -114,15 +130,29 @@ finding: rerun preflight step 3.
 Take each finding one at a time. The user picks a disposition:
 
 - **Fix now**: run it through the `pairing` step loop (propose, build, prove,
-  journal, commit), and push.
-- **Defer**: a `later` row in `ROADMAP.md`, linked from the PR.
-- **Dismiss**: one line of reason.
+  journal, commit), and push. When the finding names a class of bug, fix every
+  instance in this one step, not just the line it cites.
+- **Defer**: a `later` row in `ROADMAP.md`, linked from the PR. An Important
+  Security finding cannot be deferred.
+- **Dismiss**: one line of reason. For a Security finding that reason goes in
+  the PR, so a false positive is cleared on the record.
 
-Journal one `Review round N` entry listing every finding and its disposition.
+**Fix it at the source.** Before closing the round, look for a repeat: the same
+class of finding in an earlier round or in the `Review round` entries of past
+slices, whether it was fixed or dismissed each time. Propose one home for it,
+on a yes as its own journaled step: a rule or a skip in `REVIEW.md`, a
+convention in `CLAUDE.md`, or a lint rule, which beats both when the check can
+be mechanical. If the finding came from a false positive, the rule says what
+not to flag.
+
+Journal one `Review round N` entry with the head sha it reviewed as
+`Reviewed: <sha>` and its depth, listing every finding, its tag, and its disposition.
 Then regenerate the PR body with the `pr` skill so its journal and review
 sections include the round, and update it with `gh pr edit <n> --body-file <file>`. If waiting on a
 human reviewer, run `pair-checkpoint` and stop; `/pair` resumes here later.
-Done when every finding has a disposition and every fix is pushed.
+Done when every finding has a disposition and every fix is pushed. If this
+round pushed fixes and fewer than three rounds have run, go back to 4;
+otherwise go to 6.
 
 ## 6. Close out and merge
 
@@ -135,10 +165,14 @@ Done when every finding has a disposition and every fix is pushed.
    shipped, and the next `pair-slice` records it as `merged`. If fixes land
    after this commit, keep it; the state is still true.
 2. Wait for checks: `gh pr checks <n> --watch` when CI exists.
-3. **Ask, explicitly**: "Merge #N into main with <strategy>?" Merge only on a
+3. **Security gate.** Read the journal's `Review round` entries. If any
+   Important Security finding is neither fixed nor dismissed with a reason,
+   stop and go back to 5. No yes in chat overrides this; dismissing it with a
+   reason does. If the security axis did not run at all, say so before asking.
+4. **Ask, explicitly**: "Merge #N into main with <strategy>?" Merge only on a
    clear yes in chat, and only if the agreement lets the agent merge;
    otherwise hand the user the command.
-4. `gh pr merge <n> --delete-branch` with `--squash`, `--merge`, or
+5. `gh pr merge <n> --delete-branch` with `--squash`, `--merge`, or
    `--rebase` for the agreement's squash, merge commit, or rebase. For
    squash or merge, add `--subject "<PR title> (#<n>)"` so the commit on
    `main` points at the PR, whose body keeps the full rationale.
@@ -164,3 +198,7 @@ next piece from `ROADMAP.md`, with `/clear` then `/pair-slice` (or `/pair`).
 - **Never commit to the default branch**, and never force-push it.
 - **Review findings are dispositioned, not argued.** Fix, defer, or dismiss
   with a reason; the user decides.
+- **Review converges.** Three rounds at most, each after the first reviewing
+  only the new diff, and no finding reported twice.
+- **An open Security finding blocks the merge.** Fix it or dismiss it with a
+  reason on the record.

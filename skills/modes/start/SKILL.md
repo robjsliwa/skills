@@ -92,7 +92,7 @@ elaborate-current-phase   this phase only, via to-story → stories/NN-MM-*.md
 tdd  or  code-along        one story per context window; flip Status to done
    │                         tdd builds it for you, task by task; code-along builds
    │                         it with you, as a lesson you code, then a debrief
-review-change              three-axis review against the story
+review-change              review against the story, scaled to its risk
    │
    └── every story in the phase done ──► elaborate-current-phase again,
                                           re-derived against the real code.
