@@ -13,20 +13,20 @@ and fixes what made its lessons hard to follow.
 
 ## Why teach-me's lessons were hard to follow
 
-Read against Lesson 2 of a real `teach-me` course ("One Phone, Many Views",
-a SwiftUI dial pad on top of a Swift package):
+Read against a real `teach-me` lesson (a SwiftUI screen on top of a Swift
+package):
 
 | What happened | Where | What the evidence says |
 |---|---|---|
-| Theory before code: a key-by-key trace of `Phone`, `parsed` and `hint`, and an observation loop over three views, all before the reader had created the project or seen the class. | §2.3–2.4; the code arrives in §2.5 | Concrete, then picture, then abstract (Fyfe et al. 2014). Tracing unseen code is extraneous load (Sweller et al. 2019). |
-| Edge cases inside the core explanation: Default Actor Isolation and SE-0466, package deployment targets, NANPA area codes, and an observation quirk about the call log, all on the way to explaining `@Observable`. | §2.2, §2.3, §2.4 | One new idea at a time, small steps (Rosenshine 2012); coherence: leave out what is not essential now (Mayer 2020). |
+| Theory before code: a key-by-key trace of the model, and an observation loop over three views, all before the reader had created the project or seen the class. | §2.3–2.4; the code arrives in §2.5 | Concrete, then picture, then abstract (Fyfe et al. 2014). Tracing unseen code is extraneous load (Sweller et al. 2019). |
+| Edge cases inside the core explanation: Default Actor Isolation and SE-0466, package deployment targets, input-format rules, and an observation quirk, all on the way to explaining `@Observable`. | §2.2, §2.3, §2.4 | One new idea at a time, small steps (Rosenshine 2012); coherence: leave out what is not essential now (Mayer 2020). |
 | Clipped, literary prose: "The motive, as two losses." "The left panel is the classic one." "Map it back to Algorithm 1. `parsed` is step 2." | §2.1, §2.5.2 | Conversational style helps (Mayer's personalisation principle); decoding sentences is load the learner did not need. |
 | One page doing four jobs: lecture, reference manual, lab, quiz. Setup clicks in §2.5.1 after concurrency settings were explained without context in §2.2. | whole page | Segment into learner-paced pieces; put procedural information where it is used (van Merriënboer et al. 2002). |
 | A multiple-choice quiz at the end. | Check yourself | With feedback, short answer beats multiple choice (Kang et al. 2007); constructive beats active (Chi & Wylie 2014). |
 
 The rewrite that prompted this design reordered the same material: problem →
 set up the project → build the model → trace it → build the views → tests and
-the quirks they reveal → run on the phone → what comes next → challenges. It
+the quirks they reveal → run on the device → what comes next → challenges. It
 kept every fact. That ordering is now the lab's shape (LAB.md), and the
 explanation it opens with is the lecture's.
 

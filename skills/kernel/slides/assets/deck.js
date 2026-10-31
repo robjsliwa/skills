@@ -1,6 +1,6 @@
 // deck.js: runs a lecture deck written per the slides skill's DECK-FORMAT.md.
 //
-//   <div class="deck" data-title="Lesson 2 · One Phone, Many Views">
+//   <div class="deck" data-title="Lesson 2 · One Timer, Many Views">
 //     <section class="slide" id="hook">
 //       <div class="canvas"> ...data-step="1" reveals at step 1; data-hl="2" highlights at step 2... </div>
 //       <aside class="transcript"> <p>...</p> <p data-step="1">...</p> </aside>

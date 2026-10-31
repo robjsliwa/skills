@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "name": "somos-engineering-skills",
-    "version": "2.4.0"
+    "name": "agent-skills",
+    "version": "3.0.0"
   },
   "plugins": [
     {
-      "name": "somos-engineering",
+      "name": "agent-skills",
       "skills": [
         "./skills/modes/start",
         "./skills/modes/light",
@@ -25,22 +25,16 @@
         "./skills/kernel/learner",
         "./skills/kernel/slides",
         "./skills/kernel/fact-check",
-        "./skills/engineering/planning-loop",
         "./skills/engineering/write-requirements",
         "./skills/engineering/solution-design",
         "./skills/engineering/vertical-slice-phasing",
         "./skills/engineering/elaborate-current-phase",
         "./skills/engineering/to-story",
         "./skills/engineering/go-boilerplate",
-        "./skills/engineering/let-me-code",
         "./skills/engineering/code-along",
         "./skills/learning/professor",
         "./skills/learning/teach-me",
         "./skills/productivity/detour",
-        "./skills/gamedev/narrative-grill",
-        "./skills/gamedev/story-decompose",
-        "./skills/gamedev/beat-grill",
-        "./skills/gamedev/subquest-fill",
         "./skills/pairing/pairing",
         "./skills/pairing/pair",
         "./skills/pairing/pair-setup",
@@ -48,7 +42,7 @@
         "./skills/pairing/pair-checkpoint",
         "./skills/pairing/pair-ship"
       ],
-      "version": "2.4.0",
+      "version": "3.0.0",
       "description": "Five ways to build software with an agent (trailblazer research, full loop, light loop, code-along, pairing) on a shared kernel, with stories people can see, spikes and prototypes, Mermaid pictures in the docs, and a professor that teaches any subject through lectures and project labs."
     }
   ]

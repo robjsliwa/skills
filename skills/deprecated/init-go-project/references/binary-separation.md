@@ -14,8 +14,8 @@ into separate binaries with separate entry points.
 A common (and tempting) pattern is to ship one binary with subcommands:
 
 ```bash
-faktotum server     # starts the HTTP service
-faktotum cli ...    # operator commands
+orderhub server     # starts the HTTP service
+orderhub cli ...    # operator commands
 ```
 
 This is convenient locally. It is also a security problem in production.
@@ -105,8 +105,8 @@ ENTRYPOINT ["/app/{{CLI_NAME}}"]
 ```
 
 Tag this image differently in your registry (e.g.,
-`registry.example.com/faktotum-ops:v1.0.0` vs
-`registry.example.com/faktotum:v1.0.0`) so it's obvious which is which.
+`registry.example.com/orderhub-ops:v1.0.0` vs
+`registry.example.com/orderhub:v1.0.0`) so it's obvious which is which.
 Run the ops image only on operator workstations or jumpbox containers
 that have appropriate IAM credentials. Do NOT deploy it to your
 production cluster.

@@ -14,9 +14,9 @@ after a gap, which is where retrieval does the most for retention.
 
 | # | Prompt | From | Due | Last answer |
 |---|---|---|---|---|
-| 1 | Why can't the Call button go stale when `isValid` is never stored? | L2 | L3 | — |
+| 1 | Why can't the Start button go stale when `isValid` is never stored? | L2 | L3 | — |
 | 2 | Typing a digit: which view bodies re-run, and how does SwiftUI know? | L2 | L3 | — |
-| 3 | A call is a value. What does that buy over a class with a status field? | L1 | L4 | solid (L2) |
+| 3 | A timer is a value. What does that buy over a class with a status field? | L1 | L4 | solid (L2) |
 
 ## Retired
 - {prompts answered solidly twice, with the lessons}

@@ -47,7 +47,7 @@ present. The discipline is in the sections you are tempted to skip:
   infinite and the requirements are not done.
 - **Non-functional requirements** has a row per dimension. Fill each or strike it with
   a stated reason. A blank, silent row is the bug this skill exists to catch. For
-  anything in a call path, the latency window is not optional.
+  anything in a request path, the latency window is not optional.
 - **Edge cases and failure modes** must be a real list. For every happy-path
   requirement, ask what its failure requirement is.
 - **Acceptance criteria** are checkable, each tied to a numbered requirement. "It

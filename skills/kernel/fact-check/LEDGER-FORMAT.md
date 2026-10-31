@@ -9,7 +9,7 @@ A JSON list, one object per claim, in the order the page makes them.
   {
     "id": "C07",
     "kind": "behaviour",
-    "text": "Removing @MainActor from PhoneTests makes Swift 6 reject `let phone = Phone()`.",
+    "text": "Removing @MainActor from CountdownTests makes Swift 6 reject `let countdown = Countdown()`.",
     "where": "lab §5, 'Why @MainActor'",
     "source": "build/run/no-mainactor.txt",
     "status": "verified",
@@ -80,17 +80,17 @@ run.
 import json, subprocess
 
 def hint_after(keys):            # runs the verified Swift parser on a prefix
-    out = subprocess.run(["swift", "run", "--package-path", "ref/PhoneCore", "phonesim", "hint", keys],
+    out = subprocess.run(["swift", "run", "--package-path", "ref/TimerCore", "timersim", "hint", keys],
                          capture_output=True, text=True, check=True).stdout.strip()
     return out
 
 values = {
-    "hint_9": hint_after("415555267"),
-    "hint_10": hint_after("4155552671"),
-    "hint_11": hint_after("41555526711"),
-    "key10_trap": hint_after("1415555267"),
+    "hint_3": hint_after("123"),
+    "hint_4": hint_after("1230"),
+    "hint_5": hint_after("12305"),
+    "zero_trap": hint_after("0000"),
 }
-assert values["hint_10"] == "Call +14155552671", values["hint_10"]
+assert values["hint_4"] == "Start 12:30", values["hint_4"]
 json.dump(values, open("values.json", "w"), indent=2)
 print(f"{len(values)} values")
 ```

@@ -11,11 +11,11 @@ else is needed.
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2 · One Phone, Many Views</title>
+<title>Lesson 2 · One Timer, Many Views</title>
 <link rel="stylesheet" href="../../assets/deck.css">
 </head>
 <body>
-<div class="deck" data-title="Lesson 2 · One Phone, Many Views">
+<div class="deck" data-title="Lesson 2 · One Timer, Many Views">
 
   <section class="slide" id="stale-flag">
     <div class="canvas">

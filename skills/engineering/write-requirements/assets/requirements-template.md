@@ -24,9 +24,9 @@ this is not.
 ## Actors and surfaces
 
 Who or what interacts with this, and through which surface. Be specific about machine
-actors as well as humans: an upstream carrier, an SBC, an agent, a cron job, an MCP
-client. For each, name the surface they touch (CLI, REST, SIP, MCP, library API,
-webhook) and what they are trying to accomplish.
+actors as well as humans: an upstream service, a payment provider, an agent, a cron
+job, an MCP client. For each, name the surface they touch (CLI, REST, gRPC, MCP,
+library API, webhook) and what they are trying to accomplish.
 
 Draw it as a C4 level 1 context diagram (see `visualize` NOTATION.md): people and
 outside systems around one box for this system, every arrow labelled with what
@@ -78,7 +78,7 @@ Rules for this section:
 The dimensions that text usually skips and that later cause rewrites. Fill every row
 or strike it with a reason. Do not leave a row blank and silent.
 
-- **Latency / timing:** budgets, windows, deadlines. For anything in a call path,
+- **Latency / timing:** budgets, windows, deadlines. For anything in a request path,
   state the hard window and what happens when it is missed.
 - **Throughput / scale:** expected and peak volume, concurrency.
 - **Availability:** uptime target, degradation behavior, what "down" means here.
@@ -88,7 +88,7 @@ or strike it with a reason. Do not leave a row blank and silent.
   controlled. Name the threat this must withstand.
 - **Privacy and data handling:** what is collected, retention, who can see it.
 - **Compliance / standards:** the specifications or regulations that constrain this
-  (for example STIR/SHAKEN verstat handling, RFC conformance, GLEIF, CAMARA scopes).
+  (for example RFC conformance, GDPR, PCI DSS, SOC 2 controls).
 - **Operability:** what an operator must be able to see and do at runtime.
 
 ## Data

@@ -12,7 +12,7 @@ The story file path is `phase-NN-<phase-slug>/story-NN-MM-<story-slug>.md` and t
 A short (1–4 paragraph) explanation of *why* this story exists and how
 it fits the proposal. Reference proposal sections by name or number
 where it sharpens the connection ("§4.2 of the proposal defines
-GearSpec; this story implements a slimmed version"). Set scope
+StepSpec; this story implements a slimmed version"). Set scope
 expectations early: what's *in* this story, what's deferred, what's
 being deliberately kept simple.
 

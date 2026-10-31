@@ -17,6 +17,8 @@ description: >
   GitHub Copilot). Usable interactively or non-interactively (e.g., from Backstage via
   `claude -p --permission-mode bypassPermissions`).
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # init-go-project — Go Service Scaffolder (v3)
@@ -47,8 +49,8 @@ Accept parameters from the invocation message OR ask interactively.
 - `cli_name` — name for the CLI binary (required when `include_cli=true`).
   This becomes the directory `cmd/{cli_name}/` and the binary name
   `bin/{cli_name}`. Suggested: keep it distinct from `project_name` to
-  make it obvious which binary is which (e.g. `project_name=faktotum`,
-  `cli_name=fakctl`). If the user says `include_cli=true` but doesn't
+  make it obvious which binary is which (e.g. `project_name=orderhub`,
+  `cli_name=orderctl`). If the user says `include_cli=true` but doesn't
   provide a name, ask.
 
 **Optional:**
@@ -62,7 +64,7 @@ Accept parameters from the invocation message OR ask interactively.
 **Collection logic:**
 
 1. Parse the invocation for `key=value` pairs and natural-language
-   equivalents ("use postgres", "with cli named fakctl", etc.)
+   equivalents ("use postgres", "with cli named orderctl", etc.)
 2. If `description_file` is given, read it and use its contents
 3. For any required parameter still missing, ask **one question at a
    time** in this order: project_name, module, database, description,
@@ -71,7 +73,7 @@ Accept parameters from the invocation message OR ask interactively.
    entity is the core resource the API manages. Examples:
    - "Service for managing inventory items" → entity = `Item`
    - "Task management API" → entity = `Task`
-   - "Certificate lifecycle management" → entity = `Certificate`
+   - "Subscription billing service" → entity = `Subscription`
    - "User notification service" → entity = `Notification`
    If the description is ambiguous, ask. Use PascalCase for the struct
    (`Item`), camelCase for variables (`item`), snake_case for tables
@@ -155,7 +157,7 @@ Then generate ALL of the following Go files. Do not skip any. The verify
 step will catch omissions, but it's better to get them right the first time.
 
 **IMPORTANT — Domain Entity:** Throughout the generated code, use the
-domain entity name derived in Step 1 (e.g., `Task`, `Certificate`,
+domain entity name derived in Step 1 (e.g., `Task`, `Subscription`,
 `Order`). The reference docs use `Widget` as a pattern placeholder —
 do NOT generate Widget/WidgetRepository/WidgetService unless the user's
 description actually calls for widgets. Replace every occurrence:
@@ -168,8 +170,8 @@ description actually calls for widgets. Replace every occurrence:
 - `widgets:read`/`widgets:write` → `{entities}:read`/`{entities}:write`
 
 Also adapt the struct fields to match the entity. For example, a
-`Certificate` entity would have fields like `SerialNumber`, `Issuer`,
-`ExpiresAt` rather than generic `Name`/`Description`. Use the project
+`Subscription` entity would have fields like `Plan`, `Status`,
+`RenewsAt` rather than generic `Name`/`Description`. Use the project
 description to infer appropriate fields.
 
 **Required (always):**

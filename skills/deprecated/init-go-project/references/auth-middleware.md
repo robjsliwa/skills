@@ -2,7 +2,7 @@
 
 > **NOTE:** Route and scope examples below use `widgets` as a placeholder
 > resource name. Replace with the actual domain entity's plural form
-> (e.g., `tasks`, `certificates`, `orders`) and adapt scope names
+> (e.g., `tasks`, `subscriptions`, `orders`) and adapt scope names
 > accordingly (e.g., `tasks:read`, `tasks:write`).
 
 Defines the JWT/OAuth validation middleware shipped in

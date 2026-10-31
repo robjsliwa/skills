@@ -38,7 +38,7 @@ work when they have this? Push past "to understand X" to the outcome.}
 ## Rules
 
 - **One mission per workspace.**
-- **Concrete over abstract.** "Make calls from my own iPhone app over Twilio"
+- **Concrete over abstract.** "Ship a habit tracker to my own iPhone"
   beats "learn iOS."
 - **Push back on vagueness.** If the learner cannot say why, interview them
   before writing anything. A bad mission is worse than none.

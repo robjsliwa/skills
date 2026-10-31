@@ -245,7 +245,7 @@ the next skill picks up from disk.
 /elaborate-current-phase ...        # then the next phase, against the code you now have
 ```
 
-Lost? `/planning-loop` reads `docs/planning/` and names the next step.
+Lost? `/start` reads `docs/planning/` and names the next step.
 
 ### ⚡ Light loop
 
@@ -483,10 +483,9 @@ are always files.
 
 | Skill | What it does |
 |---|---|
-| `start` | Reads the repo and your goal, recommends a mode and its first command. |
+| `start` | Reads the repo, the planning artifacts, and your goal, then names the mode or next step and its first command. |
 | `trailblazer` | Pair research around a living trail map: one question per turn, facts fetched in the background, forks shown as pictures, you pick the next node. |
 | `light` | Align briefly, write one story with its own small design, build it. Escalates when the change is heavy. |
-| `planning-loop` | The full loop's router: reads `docs/planning/` and names the next step. |
 | `code-along` | Turns a story into a verified lesson you code yourself, then debriefs you. |
 | `pair` and friends | The pairing loop: `pair-setup`, `pair-slice`, `pair`, `pairing`, `pair-checkpoint`, `pair-ship`. |
 
@@ -529,7 +528,7 @@ are always files.
 </details>
 
 <details>
-<summary><b>Learning</b>: <code>professor</code>, <code>teach-me</code>, <code>let-me-code</code></summary>
+<summary><b>Learning</b>: <code>professor</code>, <code>teach-me</code></summary>
 
 **`professor`** teaches any subject over many sessions, one lesson at a time, in
 a teaching workspace. Each lesson is one idea and one milestone of a project
@@ -556,7 +555,7 @@ Chromium to check the deck.
 ```text
 /professor macroeconomics
 /professor                      # continue: warm-up, then wherever the lesson is
-/professor explain why Phone is a class
+/professor explain why Countdown is a class
 /professor debrief
 ```
 
@@ -572,9 +571,6 @@ is its successor.
 /teach-me consistency proofs
 ```
 
-**`let-me-code`** writes a TDD tutorial that guides you to type each line
-yourself. Trigger with "teach me to build X" or "don't write the code for me."
-
 </details>
 
 <details>
@@ -583,28 +579,6 @@ yourself. Trigger with "teach me to build X" or "don't write the code for me."
 | Skill | What it does |
 |---|---|
 | `detour` | Pauses the active flow through its own checkpoint, writes a committed brief of the gap you hit, sends it to `professor`, `trailblazer`, or `spike` in a clean context, and brings the answer back for the flow to fold in. |
-
-</details>
-
-<details>
-<summary><b>Gamedev</b>: branching stories for games</summary>
-
-Four skills that turn a game-story idea into an authored, branching story you
-build one piece at a time, with story content in git next to the code.
-
-```text
-narrative-grill ──► story-bible.md ──► story-decompose ──► beats/*.md
-                        ▲                                      │
-                        └──────────── beat-grill ◄─────────────┘ (one beat at a time)
-                  subquest-fill ──► beats/subquests/<faction>/*.md
-```
-
-| Skill | What it does |
-|---|---|
-| `narrative-grill` | Interviews you into `story-bible.md`: premise, theme, world rules, factions, arc, tone, a structural spine, and the world-state flags. |
-| `story-decompose` | Breaks the spine into a `beats/` folder of stubs, in order. Refuses to invent plot. |
-| `beat-grill` | Expands one beat into branching content: choices, flags, consequences, dialog. |
-| `subquest-fill` | Seeds side quests hanging off existing factions and flags. |
 
 </details>
 
@@ -642,6 +616,11 @@ python3 skills/kernel/visualize/scripts/mermaid_check.py .    # every Mermaid bl
 bash scripts/list-skills.sh                                   # list skill folders
 ```
 
+To retire a skill, move it to `skills/deprecated/` and set `metadata.internal: true`
+in its frontmatter. `npx skills` then hides it from `add` and lists, though
+`--skill <name>` still installs it, and `check-skills.py` fails if the flag is
+missing.
+
 Skills refer to each other by name ("the `story` skill's `FORMAT.md`"), never by
 path, so they work however your agent installs them. The plans, written with
 these skills, are in [`docs/planning/`](docs/planning/), with their decisions in
@@ -652,13 +631,12 @@ skills/
   kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change,
                  pr, research, spike, prototype, learner, slides, fact-check
   modes/         start, light, trailblazer
-  engineering/   planning-loop, write-requirements, solution-design, vertical-slice-phasing,
-                 elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate
+  engineering/   write-requirements, solution-design, vertical-slice-phasing,
+                 elaborate-current-phase, to-story, code-along, go-boilerplate
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
   learning/      professor, teach-me
   productivity/  detour
-  gamedev/       narrative-grill, story-decompose, beat-grill, subquest-fill
-  deprecated/    design-interview, init-go-project, phased-implementation-plan (not linked)
+  deprecated/    retired skills, hidden from `npx skills` and not linked
 ```
 
 ## 🙏 Credits

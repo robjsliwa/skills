@@ -51,7 +51,7 @@ lesson. The plan's parking lot lists each one and where it went. Names the
 lab will use are introduced in the lecture first.
 
 *Seen in the teach-me lesson this skill replaces:* actor-isolation defaults,
-package deployment targets, NANPA numbering rules, and an observation quirk
+package deployment targets, number-format rules, and an observation quirk
 all arrived inside the explanation of `@Observable`, before any code existed.
 
 ## 4. Worked examples first, then fade the help
@@ -80,7 +80,7 @@ drop irrelevant detail and transfer
 *Educational Psychology Review* 26, 9–25).
 
 **Rule.** Every idea arrives in this order: a specific case with real values
-(the stale `isValid` flag, after ten keys and after one backspace), then a
+(the stale `isValid` flag, after four keys and after one backspace), then a
 picture of the structure, then the name and the general rule ("store the
 cause, compute the effect"). A trace is never shown before the thing it
 traces.

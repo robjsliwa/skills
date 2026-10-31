@@ -68,14 +68,14 @@ Within a phase, the first story usually defines interfaces, types, or schemas. L
 
 Example for Phase 3 (execution) of a workflow service:
 
-1. Gear interface + minimal catalog. (Defines the contract.)
+1. Step interface + minimal catalog. (Defines the contract.)
 2. In-memory broker port + worker pool. (Implements one collaborator.)
 3. Pipeline executor. (Uses the contract and the collaborator.)
 4. Execute API + CLI. (Wires the executor to user-facing surfaces.)
 5. Run event stream. (Adds observability.)
 6. Live tail TUI. (Polish using the events from #5.)
 
-This ordering means: by the end of story 1, the gears interface is stable; story 2 builds on it; story 3 needs both; etc.
+This ordering means: by the end of story 1, the step interface is stable; story 2 builds on it; story 3 needs both; etc.
 
 ### Defer polish
 

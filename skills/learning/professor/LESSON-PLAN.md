@@ -15,7 +15,7 @@ it to two screens.
 **Hook:** {The concrete failure, puzzle, or case that opens the lecture, with real values.}
 
 ## Where they start
-- Builds on: {records LR-0003, LR-0005; lesson 1's CallMachine}
+- Builds on: {records LR-0003, LR-0005; lesson 1's TimerMachine}
 - Live misconceptions: {from records, or "none"}
 - Guidance level: {full steps | goals and tests, hints collapsed | goal only}, because {records}
 
@@ -28,7 +28,7 @@ it to two screens.
 | # | Slide id | Kind | Shows | Says (the point of the transcript) |
 |---|---|---|---|---|
 | 1 | title | title | promise | where we are going |
-| 2 | last-time | picture | PhoneCore box, then the screen above it | warm-up recall, then today's piece |
+| 2 | last-time | picture | TimerCore box, then the screen above it | warm-up recall, then today's piece |
 | … | | | | |
 
 **Predict points:** {slide id: question → answer, for each of two or three}
@@ -46,8 +46,8 @@ it to two screens.
 | Aside or edge case | Goes to |
 |---|---|
 | Default actor isolation details | Under the hood, lab step 6 (the tests) |
-| NANPA area codes reject a leading 1 | Challenge 1 |
-| Observation tracks the whole `call` struct | Challenge 4 |
+| Parser accepts 0000 | Challenge 1 |
+| Observation tracks the whole `machine` struct | Challenge 4 |
 
 ## Checks
 **Teach-back:** {The question asked at the debrief, applied to their project.}

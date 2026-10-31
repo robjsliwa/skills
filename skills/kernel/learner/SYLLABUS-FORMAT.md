@@ -17,7 +17,7 @@ so it changes: the learning records are the evidence that moves it.
 ## The project
 {2-4 sentences. What the learner will have built, written, composed, or
 analysed by the end, and why it is a fair test of the mission. Where it
-lives: `~/code/webrtc-phone`, `~/learning/macro/notebooks/`.}
+lives: `~/code/my-project`, `~/learning/macro/notebooks/`.}
 
 ## How we verify
 {One line per kind of claim, from the lens: "code runs and its tests pass",
@@ -28,8 +28,8 @@ RESOURCES.md", "harmony checked against the rules in Aldwell & Schachter".}
 
 | # | Idea (the lecture) | Milestone (the lab) | Status |
 |---|---|---|---|
-| 1 | A call is a value: model state as data | `PhoneCore` package, eight tests green | done |
-| 2 | One source of truth for many views | Dial pad on the iPhone, Call lights at 10 digits | lab |
+| 1 | A timer is a value: model state as data | `TimerCore` package, eight tests green | done |
+| 2 | One source of truth for many views | Keypad on the iPhone, Start lights at 4 digits | lab |
 | 3 | Who may mint a credential | Go token server returns a signed JWT | planned |
 
 ## Later, maybe

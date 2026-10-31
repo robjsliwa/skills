@@ -11,6 +11,8 @@ description: >-
   one at a time. The output is a beats/ folder of stub files, each a unit that
   beat-grill later expands. Do not use this to write the story bible itself (that
   is narrative-grill) or to fill a beat's branching dialog (that is beat-grill).
+metadata:
+  internal: true
 ---
 
 # Story Decompose

@@ -73,7 +73,7 @@ To pre-supply parameters:
 
 ```
 Run init-go-project with project_name=widget-svc,
-module=github.com/robjsliwa/widget-svc, database=postgres,
+module=github.com/acme/widget-svc, database=postgres,
 include_cli=true, cli_name=widgetctl, auth_enabled=true.
 Description coming next.
 ```
@@ -88,7 +88,7 @@ mkdir my-new-service && cd my-new-service
 claude -p --permission-mode bypassPermissions \
   "Run init-go-project skill non-interactively:
    project_name=widget-svc
-   module=github.com/robjsliwa/widget-svc
+   module=github.com/acme/widget-svc
    database=postgres
    include_cli=true
    cli_name=widgetctl
