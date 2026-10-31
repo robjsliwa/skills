@@ -52,7 +52,7 @@ before any adapter that implements one.
 ## Adapters
 
 The concrete implementations behind each port, one row per adapter. For each: which
-port it satisfies, the external thing it adapts (a database, a SIP stack, an HTTP
+port it satisfies, the external thing it adapts (a database, a message broker, an HTTP
 client, the filesystem), and whether it is MVP or deferred. A port may have a
 degenerate adapter now and a real one later; say so, that is a designed seam.
 

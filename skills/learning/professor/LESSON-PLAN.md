@@ -46,7 +46,7 @@ it to two screens.
 | Aside or edge case | Goes to |
 |---|---|
 | Default actor isolation details | Under the hood, lab step 6 (the tests) |
-| NANPA area codes reject a leading 1 | Challenge 1 |
+| Parser rejects a leading 1 | Challenge 1 |
 | Observation tracks the whole `call` struct | Challenge 4 |
 
 ## Checks

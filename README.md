@@ -245,7 +245,7 @@ the next skill picks up from disk.
 /elaborate-current-phase ...        # then the next phase, against the code you now have
 ```
 
-Lost? `/planning-loop` reads `docs/planning/` and names the next step.
+Lost? `/start` reads `docs/planning/` and names the next step.
 
 ### ⚡ Light loop
 
@@ -483,10 +483,9 @@ are always files.
 
 | Skill | What it does |
 |---|---|
-| `start` | Reads the repo and your goal, recommends a mode and its first command. |
+| `start` | Reads the repo, the planning artifacts, and your goal, then names the mode or next step and its first command. |
 | `trailblazer` | Pair research around a living trail map: one question per turn, facts fetched in the background, forks shown as pictures, you pick the next node. |
 | `light` | Align briefly, write one story with its own small design, build it. Escalates when the change is heavy. |
-| `planning-loop` | The full loop's router: reads `docs/planning/` and names the next step. |
 | `code-along` | Turns a story into a verified lesson you code yourself, then debriefs you. |
 | `pair` and friends | The pairing loop: `pair-setup`, `pair-slice`, `pair`, `pairing`, `pair-checkpoint`, `pair-ship`. |
 
@@ -529,7 +528,7 @@ are always files.
 </details>
 
 <details>
-<summary><b>Learning</b>: <code>professor</code>, <code>teach-me</code>, <code>let-me-code</code></summary>
+<summary><b>Learning</b>: <code>professor</code>, <code>teach-me</code></summary>
 
 **`professor`** teaches any subject over many sessions, one lesson at a time, in
 a teaching workspace. Each lesson is one idea and one milestone of a project
@@ -571,9 +570,6 @@ is its successor.
 ```text
 /teach-me consistency proofs
 ```
-
-**`let-me-code`** writes a TDD tutorial that guides you to type each line
-yourself. Trigger with "teach me to build X" or "don't write the code for me."
 
 </details>
 
@@ -652,13 +648,13 @@ skills/
   kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change,
                  pr, research, spike, prototype, learner, slides, fact-check
   modes/         start, light, trailblazer
-  engineering/   planning-loop, write-requirements, solution-design, vertical-slice-phasing,
-                 elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate
+  engineering/   write-requirements, solution-design, vertical-slice-phasing,
+                 elaborate-current-phase, to-story, code-along, go-boilerplate
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
   learning/      professor, teach-me
   productivity/  detour
   gamedev/       narrative-grill, story-decompose, beat-grill, subquest-fill
-  deprecated/    design-interview, init-go-project, phased-implementation-plan (not linked)
+  deprecated/    design-interview, init-go-project, let-me-code, phased-implementation-plan (not linked)
 ```
 
 ## 🙏 Credits

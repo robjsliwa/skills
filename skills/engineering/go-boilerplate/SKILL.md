@@ -1,10 +1,17 @@
 ---
 name: go-boilerplate
-description: Scaffold a new Go REST API service from the boilerplate (Chi, OpenTelemetry, Swagger).
-allowed-tools: Bash(bash ~/.claude/skills/go-boilerplate/scripts/apply.sh *)
+description: >-
+  Scaffold a new Go REST API service from a frozen boilerplate (Chi router,
+  OpenTelemetry, Swagger, Makefile, Dockerfile, CI, tests) into a directory. Use
+  when the user says "new Go service," "scaffold a Go API," "start a Go REST
+  service," "bootstrap a Go project," or runs /go-boilerplate. Not for adding
+  features to an existing service.
+allowed-tools: Bash(bash */go-boilerplate/scripts/apply.sh *)
 ---
 
 Gather the required parameters, then run the script. Do not perform any replacements yourself.
+
+`<skill-dir>` below is the folder this `SKILL.md` was loaded from.
 
 ## Parameters
 
@@ -21,7 +28,7 @@ Gather the required parameters, then run the script. Do not perform any replacem
 1. Ask the user for `project_name`, `github_user`, and `description` if not already provided.
 2. Run:
    ```
-   bash ~/.claude/skills/go-boilerplate/scripts/apply.sh \
+   bash <skill-dir>/scripts/apply.sh \
      --project-name "<project_name>" \
      --github-user  "<github_user>" \
      --description  "<description>" \

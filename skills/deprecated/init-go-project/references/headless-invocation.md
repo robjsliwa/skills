@@ -28,7 +28,7 @@ claude -p \
   --permission-mode bypassPermissions \
   "Run the init-go-project skill non-interactively with these parameters:
    project_name=widget-service
-   module=github.com/robjsliwa/widget-service
+   module=github.com/acme/widget-service
    database=postgres
    include_cli=true
    cli_name=widgetctl
@@ -43,7 +43,7 @@ For longer descriptions, use a description file:
 claude -p \
   --permission-mode bypassPermissions \
   "Run init-go-project: project_name=widget-service
-   module=github.com/robjsliwa/widget-service
+   module=github.com/acme/widget-service
    database=postgres
    include_cli=true
    cli_name=widgetctl
@@ -77,7 +77,7 @@ spec:
         owner:
           type: string
           title: GitHub org or user
-          default: robjsliwa
+          default: acme
     - title: Architecture
       properties:
         database:
@@ -92,7 +92,7 @@ spec:
         cli_name:
           type: string
           title: CLI binary name
-          description: 'Required when include_cli=true. E.g. "fakctl" for project "faktotum".'
+          description: 'Required when include_cli=true. E.g. "orderctl" for project "orderhub".'
           pattern: '^[a-z][a-z0-9-]*$'
         auth_enabled:
           type: boolean
@@ -169,7 +169,7 @@ mkdir -p /tmp/scaffold-test && cd /tmp/scaffold-test
 claude -p --permission-mode bypassPermissions \
   "Run init-go-project non-interactively:
    project_name=test-svc
-   module=github.com/robjsliwa/test-svc
+   module=github.com/acme/test-svc
    database=postgres
    include_cli=true
    cli_name=tsvcctl

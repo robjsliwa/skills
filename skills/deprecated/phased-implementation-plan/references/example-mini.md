@@ -188,4 +188,4 @@ curl -sI http://localhost:8080/$SLUG
 - Verification has both a unit-test invocation and an end-to-end smoke that produces visible output.
 - The narrative names what's deliberately omitted ("no click tracking, no rate limiting"). This prevents the agent from inventing scope.
 
-When you write a real plan, follow this shape but expect the substance to be deeper. The Faktotum plan that motivated this skill has stories that are 250–450 lines because the underlying work — DAG execution, OAuth device flow, OPA policy integration — is substantively complex. The shape is the same; the length scales with the actual work.
+When you write a real plan, follow this shape but expect the substance to be deeper. Stories for substantively complex work can run to 250–450 lines. The shape is the same; the length scales with the actual work.

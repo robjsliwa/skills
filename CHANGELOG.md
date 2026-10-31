@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.0.0 (2026-10-31)
+
+A cleanup, and the repo is now general purpose.
+
+### Changed
+
+- The plugin and its marketplace entry are now both `agent-skills`. Anyone
+  installed through the old `.claude-plugin` names must reinstall.
+- `start` absorbs `planning-loop`: it holds the full loop and names the next
+  step from `docs/planning/`. It can now be invoked by the model, so "what
+  comes next" reaches it without typing `/start`.
+- `code-along` picks up the "don't write the code for me" requests and, with no
+  story, sends a small change to `light` for one.
+- `go-boilerplate` finds its script from `<skill-dir>`, so it works however the
+  skill is installed, and its description says when to use it.
+- Examples in templates and format files use neutral wording.
+
+### Removed
+
+- `planning-loop`: use `/start`.
+- `let-me-code`: use `code-along`. Moved to `skills/deprecated/`.
+- `docs/adr/vpid`, a stray process-id file.
+
 ## 2.4.0 (2026-10-28)
 
 A professor for any subject. Design: [`docs/planning/professor/`](docs/planning/professor/design.md),

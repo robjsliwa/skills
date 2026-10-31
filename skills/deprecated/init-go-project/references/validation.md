@@ -289,7 +289,7 @@ Common patterns to drop on DTO fields:
 | `validate:"omitempty,email"` | Skip if zero, validate if present |
 | `validate:"required_if=Type premium"` | Conditional |
 
-For custom rules (e.g., "must be a valid TN format"), register on the
+For custom rules (e.g., "must be a valid SKU format"), register on the
 shared validator:
 
 ```go

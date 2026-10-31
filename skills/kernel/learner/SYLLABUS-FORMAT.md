@@ -17,7 +17,7 @@ so it changes: the learning records are the evidence that moves it.
 ## The project
 {2-4 sentences. What the learner will have built, written, composed, or
 analysed by the end, and why it is a fair test of the mission. Where it
-lives: `~/code/webrtc-phone`, `~/learning/macro/notebooks/`.}
+lives: `~/code/my-project`, `~/learning/macro/notebooks/`.}
 
 ## How we verify
 {One line per kind of claim, from the lens: "code runs and its tests pass",

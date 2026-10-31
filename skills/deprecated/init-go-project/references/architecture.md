@@ -100,7 +100,7 @@ Env loading and validation.
 
 > **NOTE:** The examples below use `Widget` as a placeholder entity name.
 > When generating code, replace `Widget` with the actual domain entity
-> derived from the project description (e.g., `Task`, `Certificate`,
+> derived from the project description (e.g., `Task`, `Subscription`,
 > `Order`). Adapt struct fields to match the real entity's attributes.
 
 The scaffold ships with one domain entity end-to-end:

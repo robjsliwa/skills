@@ -6,8 +6,9 @@ description: >-
   the next lesson. The human-in-the-loop alternative to tdd in the planning
   loop. Use when the user says "code along," "let's build this story
   together," "teach me while we build," "I want to understand this code," "I
-  want to write it myself," or runs /code-along on a story file or with no
-  argument to continue. Writes lessons and debriefs; never writes the
+  want to write it myself," "don't write the code for me," "walk me through it
+  step by step," or runs /code-along on a story file or with no argument to
+  continue. Writes lessons and debriefs; never writes the
   project's source on its own initiative.
 argument-hint: "A story file to start, or nothing to continue (debrief the open lesson, then write the next)."
 ---
@@ -91,7 +92,7 @@ Read the state from disk, then take the first row that matches.
 | The user named a story, no open lesson | **Write the lesson** for that story |
 | No argument, a phase with an unblocked story that has no lesson | **Write the lesson** for the first unblocked story, in `NN-MM` order |
 | Every story of the current phase done | Stop. Hand off to `elaborate-current-phase` |
-| No `phases.md` or no stories | Stop. Name the planning-loop step that is missing |
+| No story at all | Stop. For one small change, send the user to `/light`, which writes the story; otherwise name the step `start` would |
 
 If two lessons are open, ask which one the user is working on. Never write a
 new lesson while one is open; the debrief is what shapes the next lesson.

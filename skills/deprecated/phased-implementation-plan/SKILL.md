@@ -100,7 +100,7 @@ The plan is read by both a human reviewer and a coding agent. Both benefit from 
 - **Direct and practitioner-grounded.** "Use Postgres RLS — set `app.tenant_id` inside the transaction, never write `WHERE tenant_id = ?` in app code." Not "Implement comprehensive multi-tenancy isolation strategy."
 - **Concrete code/SQL/YAML samples** in fenced blocks. A 30-line SQL migration sketch is more useful than three paragraphs of prose about it.
 - **Out-of-scope items explicitly named.** Every story should list what it deliberately does *not* do. This prevents scope creep and tells the agent it doesn't need to invent anything beyond the brief.
-- **Verifiable acceptance criteria.** Checkbox items that can each be checked individually. "All 12 tests pass." "Migration applies cleanly on a fresh database." "`faktotum login` exits 0 with a credentials file."
+- **Verifiable acceptance criteria.** Checkbox items that can each be checked individually. "All 12 tests pass." "Migration applies cleanly on a fresh database." "`orderhub login` exits 0 with a credentials file."
 - **Verification commands at the end of every story** with expected output. The agent should know what success looks like before it starts.
 
 Avoid:

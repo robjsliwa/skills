@@ -51,7 +51,7 @@ lesson. The plan's parking lot lists each one and where it went. Names the
 lab will use are introduced in the lecture first.
 
 *Seen in the teach-me lesson this skill replaces:* actor-isolation defaults,
-package deployment targets, NANPA numbering rules, and an observation quirk
+package deployment targets, number-format rules, and an observation quirk
 all arrived inside the explanation of `@Observable`, before any code existed.
 
 ## 4. Worked examples first, then fade the help
