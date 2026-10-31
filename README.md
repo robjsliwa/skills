@@ -583,28 +583,6 @@ is its successor.
 </details>
 
 <details>
-<summary><b>Gamedev</b>: branching stories for games</summary>
-
-Four skills that turn a game-story idea into an authored, branching story you
-build one piece at a time, with story content in git next to the code.
-
-```text
-narrative-grill ──► story-bible.md ──► story-decompose ──► beats/*.md
-                        ▲                                      │
-                        └──────────── beat-grill ◄─────────────┘ (one beat at a time)
-                  subquest-fill ──► beats/subquests/<faction>/*.md
-```
-
-| Skill | What it does |
-|---|---|
-| `narrative-grill` | Interviews you into `story-bible.md`: premise, theme, world rules, factions, arc, tone, a structural spine, and the world-state flags. |
-| `story-decompose` | Breaks the spine into a `beats/` folder of stubs, in order. Refuses to invent plot. |
-| `beat-grill` | Expands one beat into branching content: choices, flags, consequences, dialog. |
-| `subquest-fill` | Seeds side quests hanging off existing factions and flags. |
-
-</details>
-
-<details>
 <summary><b>Scaffolding</b>: <code>go-boilerplate</code></summary>
 
 Scaffolds a Go REST API service with Chi, OpenTelemetry, and Swagger: module and
@@ -638,6 +616,11 @@ python3 skills/kernel/visualize/scripts/mermaid_check.py .    # every Mermaid bl
 bash scripts/list-skills.sh                                   # list skill folders
 ```
 
+To retire a skill, move it to `skills/deprecated/` and set `metadata.internal: true`
+in its frontmatter. `npx skills` then hides it from `add` and lists, though
+`--skill <name>` still installs it, and `check-skills.py` fails if the flag is
+missing.
+
 Skills refer to each other by name ("the `story` skill's `FORMAT.md`"), never by
 path, so they work however your agent installs them. The plans, written with
 these skills, are in [`docs/planning/`](docs/planning/), with their decisions in
@@ -653,8 +636,7 @@ skills/
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
   learning/      professor, teach-me
   productivity/  detour
-  gamedev/       narrative-grill, story-decompose, beat-grill, subquest-fill
-  deprecated/    design-interview, init-go-project, let-me-code, phased-implementation-plan (not linked)
+  deprecated/    retired skills, hidden from `npx skills` and not linked
 ```
 
 ## 🙏 Credits

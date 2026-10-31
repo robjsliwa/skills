@@ -22,6 +22,15 @@ A cleanup, and the repo is now general purpose.
 - `planning-loop`: use `/start`.
 - `let-me-code`: use `code-along`. Moved to `skills/deprecated/`.
 - `docs/adr/vpid`, a stray process-id file.
+- The gamedev skills (`narrative-grill`, `story-decompose`, `beat-grill`,
+  `subquest-fill`). Moved to `skills/deprecated/`.
+
+### Fixed
+
+- `learner` installs with `npx skills`: broken YAML in its frontmatter kept
+  the CLI from seeing it. `check-skills.py` now catches that mistake.
+- Deprecated skills no longer install with `npx skills add`: they set
+  `metadata.internal: true`. Ask for one by name with `--skill` to get it.
 
 ## 2.4.0 (2026-10-28)
 

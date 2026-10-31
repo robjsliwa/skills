@@ -6,10 +6,14 @@ Usage: python3 scripts/check-skills.py [--root DIR]
 1. Every skills/**/SKILL.md (outside skills/deprecated) starts with YAML
    frontmatter whose `name` equals its folder name and whose `description`
    is non-empty.
+   Column-zero lines inside the frontmatter must be keys, which catches a block
+   scalar that lost its indent (invalid YAML: installers skip the skill).
 2. No two skills share a name.
 3. Independence: no file under skills/ (outside deprecated) mentions a v1
    dependency, except on lines that say "replaces", "v1", "migrat..." or
    "attribution".
+4. Every skills/deprecated/*/SKILL.md sets `metadata.internal: true`, which
+   hides it from `npx skills`.
 
 Exits 1 if any check fails. Python 3 standard library only.
 """
@@ -51,6 +55,8 @@ def parse_frontmatter(text):
             block = None
         m = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
         if not m:
+            if line.strip() and not line.startswith((" ", "\t", "#")):
+                data["__invalid__"] = line.strip()
             continue
         key, value = m.group(1), m.group(2).strip()
         if re.fullmatch(r"[>|][+-]?", value):
@@ -84,7 +90,7 @@ def main():
         print(f"no skills/ directory under {root}")
         return 1
 
-    problems = {"frontmatter": [], "duplicates": [], "independence": []}
+    problems = {"frontmatter": [], "duplicates": [], "independence": [], "deprecated": []}
     names = {}
     skill_count = 0
 
@@ -98,6 +104,8 @@ def main():
             if fm is None:
                 problems["frontmatter"].append(f"{rel}: no YAML frontmatter")
             else:
+                if "__invalid__" in fm:
+                    problems["frontmatter"].append(f"{rel}: not a YAML key: {fm['__invalid__'][:60]}")
                 name = fm.get("name", "")
                 if not name:
                     problems["frontmatter"].append(f"{rel}: missing name")
@@ -119,6 +127,14 @@ def main():
         except UnicodeDecodeError:
             continue
 
+    deprecated_dir = os.path.join(skills_dir, "deprecated")
+    for entry in sorted(os.listdir(deprecated_dir)) if os.path.isdir(deprecated_dir) else []:
+        path = os.path.join(deprecated_dir, entry, "SKILL.md")
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as fh:
+                if not re.search(r"^metadata:\n  internal: true$", fh.read(), re.M):
+                    problems["deprecated"].append(f"{os.path.relpath(path, root)}: missing metadata.internal: true")
+
     for name, paths in sorted(names.items()):
         if len(paths) > 1:
             problems["duplicates"].append(f"'{name}' in " + ", ".join(paths))
@@ -127,6 +143,7 @@ def main():
         "frontmatter": "Frontmatter (name matches folder, description present)",
         "duplicates": "Unique skill names",
         "independence": "Independence (no v1 dependency references)",
+        "deprecated": "Deprecated skills hidden from installers",
     }
     failed = False
     print(f"Checked {skill_count} skills under {os.path.relpath(skills_dir, os.getcwd())} (skipping deprecated)\n")

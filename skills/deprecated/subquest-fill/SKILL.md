@@ -12,6 +12,8 @@ description: >-
   files under the beats folder, each tied to a faction and referencing existing
   flags. Do not use this to write the bible (narrative-grill), decompose the main
   spine (story-decompose), or write a beat's dialog (beat-grill).
+metadata:
+  internal: true
 ---
 
 # Subquest Fill

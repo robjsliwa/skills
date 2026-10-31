@@ -8,6 +8,8 @@ description: >-
   the approach," or "resolve the open questions," or faces a branching set of
   interdependent decisions best settled in dependency order.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Design Interview

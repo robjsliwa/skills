@@ -1,6 +1,8 @@
 ---
 name: let-me-code
 description: Generate a TDD-structured tutorial markdown file that guides the user to type each line of code themselves for learning and muscle memory. Use when the user wants to learn by doing, says "teach me", "I want to code it myself", "walk me through step by step", "don't write the code for me", or asks for a hands-on coding tutorial. The tutorial follows red-green-refactor cycles where each step is a complete, typeable unit.
+metadata:
+  internal: true
 ---
 
 # Let Me Code

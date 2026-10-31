@@ -12,6 +12,8 @@ description: >-
   content, with any new flags appended to the bible's flag list. Do not use this to
   write the bible (narrative-grill), to split the arc into beats (story-decompose),
   or to seed subquests (subquest-fill).
+metadata:
+  internal: true
 ---
 
 # Beat Grill

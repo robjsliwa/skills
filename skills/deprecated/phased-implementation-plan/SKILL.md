@@ -2,6 +2,8 @@
 name: phased-implementation-plan
 description: DEPRECATED. Superseded by vertical-slice-phasing (build order) plus to-story (design-rich stories, one phase at a time via elaborate-current-phase). Kept for reference; explodes a whole proposal into a phase/story file bundle in one pass.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Phased implementation plan from a proposal

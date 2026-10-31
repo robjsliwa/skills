@@ -13,6 +13,8 @@ description: >-
   James Scott Bell's LOCK and two doorways, swappable). Prefer this over a generic
   design interview when the subject is a game's STORY not its software, and over
   writing the story in one pass when it deserves steering one decision at a time.
+metadata:
+  internal: true
 ---
 
 # Narrative Grill

@@ -17,6 +17,8 @@ description: >
   GitHub Copilot). Usable interactively or non-interactively (e.g., from Backstage via
   `claude -p --permission-mode bypassPermissions`).
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # init-go-project — Go Service Scaffolder (v3)

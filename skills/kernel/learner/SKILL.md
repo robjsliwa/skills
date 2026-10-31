@@ -6,9 +6,9 @@ description: >-
   each lesson's status), RESOURCES.md (trusted sources and communities),
   learning-records/ (what they have demonstrably learned), PRACTICE.md (the
   spaced retrieval queue), GLOSSARY.md, and NOTES.md. Reads them to place the
-  zone of proximal development and writes them when evidence arrives. Lessons are numbered `NNNN` in file
-names and `L<n>` in tables (`L2` is `lessons/0002-*`). Use when
-  a teaching skill (professor, teach-me, code-along) starts or closes a
+  zone of proximal development and writes them when evidence arrives. Lessons
+  are numbered `NNNN` in file names and `L<n>` in tables (`L2` is
+  `lessons/0002-*`). Use when a teaching skill (professor, teach-me, code-along) starts or closes a
   session, when the user states prior knowledge, shows they understand or
   misunderstand something, changes their goal, or asks "what have I learned,"
   "what's next," or "where am I in the course."
