@@ -1,0 +1,97 @@
+/* lab.css: the studio lab page. Seeded into a workspace's assets/ by the
+   professor skill. Shares its palette with the slides skill's deck.css. */
+
+:root {
+  --ink: #1d1b18;
+  --paper: #fbf8f1;
+  --muted: #6b665c;
+  --rule: #ddd5c4;
+  --accent: #a3410f;
+  --accent-tint: #f6e3d6;
+  --ok: #1f6b3d;
+  --ok-tint: #e3f1e7;
+  --bad: #a52a1d;
+  --code-bg: #f3efe4;
+  --note-bg: #f5f0e5;
+  --sans: "Inter", "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Charter", "Iowan Old Style", Palatino, Georgia, serif;
+  --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 18.5px; line-height: 1.6; }
+main { max-width: 47rem; margin: 0 auto; padding: 2.5rem 16px 6rem; }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: .84em; background: var(--code-bg); padding: .08em .32em; border-radius: 4px; }
+pre { font-family: var(--mono); font-size: 14px; line-height: 1.5; background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: .6em 0; }
+pre code { background: none; padding: 0; font-size: 1em; }
+h1, h2, h3 { font-family: var(--serif); line-height: 1.2; }
+h1 { font-size: 2.1rem; font-weight: 500; font-style: italic; margin: .2em 0 .3em; }
+h2 { font-size: 1.45rem; margin: 2.4em 0 .6em; padding-top: .6em; border-top: 1px solid var(--rule); }
+h3 { font-size: 1.12rem; margin: 0 0 .5em; }
+
+/* ---------- header ---------- */
+.lab-kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0; }
+.lab-meta { font-family: var(--sans); font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 1.2em; }
+.milestone { font-size: 1.12rem; border-left: 4px solid var(--accent); padding: .2em 0 .2em 1em; margin: 1em 0 1.6em; }
+
+/* ---------- steps ---------- */
+.lab-step { background: #fffdf8; border: 1px solid var(--rule); border-radius: 10px; padding: 18px 20px 14px; margin: 1.2em 0; }
+.lab-step h3 { display: flex; align-items: baseline; gap: 10px; }
+.lab-step h3 .n { flex: none; font-family: var(--mono); font-size: 13px; color: #fff; background: var(--accent); border-radius: 999px; min-width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; }
+.lab-step h3 label { margin-left: auto; font-family: var(--sans); font-size: 13px; font-weight: 400; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.lab-step.is-done { border-color: #b9d8c3; }
+.lab-step.is-done h3 .n { background: var(--ok); }
+.do, .run, .expect, .why { margin: .7em 0; }
+.do > p:first-child, .why > p:first-child { margin-top: 0; }
+.run, .expect { font-family: var(--sans); font-size: 15px; }
+.run::before, .expect::before, .why::before { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 4px; }
+.run::before { content: "Run"; color: var(--muted); }
+.expect::before { content: "You should see"; color: var(--ok); }
+.why::before { content: "Why"; color: var(--accent); }
+.expect pre { background: var(--ok-tint); border-left: 3px solid var(--ok); }
+.why { font-size: .97em; }
+
+.checkpoint { font-family: var(--sans); font-size: 15px; background: var(--ok-tint); border-radius: 8px; padding: 10px 14px; margin: 1em 0; }
+.checkpoint::before { content: "✓ Checkpoint"; font-weight: 650; color: var(--ok); margin-right: .6em; }
+.checkpoint p { display: inline; margin: 0; }
+
+/* ---------- under the hood (collapsed by default) ---------- */
+details.under-hood { background: var(--note-bg); border-radius: 8px; margin: .8em 0 1.2em; font-size: .95em; }
+details.under-hood > summary { cursor: pointer; padding: 10px 14px; font-family: var(--sans); font-size: 15px; color: var(--muted); list-style: none; }
+details.under-hood > summary::before { content: "▸ Under the hood: "; color: var(--accent); font-weight: 600; }
+details.under-hood[open] > summary::before { content: "▾ Under the hood: "; }
+details.under-hood > :not(summary) { padding: 0 16px; }
+details.under-hood > :last-child { padding-bottom: 12px; }
+
+/* ---------- troubleshooting ---------- */
+.trouble dt { font-family: var(--mono); font-size: 14px; color: var(--bad); margin-top: .8em; }
+.trouble dd { margin: .2em 0 0 0; }
+
+/* ---------- challenges ---------- */
+.challenge { border: 1px dashed var(--accent); border-radius: 10px; padding: 14px 18px; margin: 1em 0; }
+.challenge h3::before { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 2px; }
+.challenge[data-kind="extend"] h3::before { content: "Extend"; }
+.challenge[data-kind="break"] h3::before { content: "Break and fix"; }
+.challenge[data-kind="transfer"] h3::before { content: "Transfer"; }
+.challenge .success { font-family: var(--sans); font-size: 15px; color: var(--ok); }
+details.hint > summary { cursor: pointer; font-family: var(--sans); font-size: 14px; color: var(--muted); }
+
+/* ---------- done ---------- */
+.done { background: var(--accent-tint); border-radius: 10px; padding: 16px 20px; margin-top: 2em; }
+.done .carry { font-size: 1.15rem; font-style: italic; }
+.done .teachback { font-family: var(--sans); font-size: 15px; }
+.done .teachback::before { content: "In chat → "; font-weight: 650; color: var(--accent); }
+.sources { font-size: .9em; color: var(--muted); }
+
+.lab-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--ok); width: 0; transition: width .2s; }
+
+@media print {
+  details.under-hood, details.hint { display: block; }
+  .lab-step h3 label, .lab-progress { display: none; }
+}
+
+/* ---------- tables (traces) ---------- */
+main table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: 15px; margin: .8em 0 1.2em; }
+main th, main td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); }
+main th { color: var(--muted); font-weight: 600; font-size: 13.5px; }

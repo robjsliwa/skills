@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-2.3.0-1168bd">
+  <img alt="version" src="https://img.shields.io/badge/version-2.4.0-1168bd">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-438dd5">
   <img alt="works with" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20any%20SKILL.md%20agent-85bbf0">
 </p>
@@ -59,8 +59,13 @@ flowchart TB
 Every mode reads and writes the same files in your repo, so you can switch
 modes per story without losing anything.
 
-**What's new in 2.3:** `detour`, for when you hit something you don't
-understand mid-flow: it pauses the work, sends the gap to `teach-me` or
+**What's new in 2.4:** `professor`, which teaches any subject one lesson at a
+time: a lecture deck built step by step, then a lab that builds the next slice
+of a real project, then office hours and a teach-back, with spaced practice
+instead of a quiz. It stands on three new kernel skills, `learner`, `slides`,
+and `fact-check`.
+**In 2.3:** `detour`, for when you hit something you don't
+understand mid-flow: it pauses the work, sends the gap to `professor` or
 `trailblazer` in a clean context, and brings the answer back to where you
 stopped.
 **In 2.1:** `trailblazer`, research you do together around a living
@@ -330,7 +335,7 @@ round trip instead of a derail.
 ```mermaid
 flowchart LR
   work["Pairing, code-along,<br/>trailblazer, or interview"] -->|"/detour the gap"| brief["docs/detours/NNNN.md<br/>gap, where it hit,<br/>unstuck means"]
-  brief -->|"clean context"| learn["teach-me, trailblazer,<br/>or spike"]
+  brief -->|"clean context"| learn["professor, trailblazer,<br/>or spike"]
   learn -->|"/detour back"| ret["Return section<br/>the answer, what changes"]
   ret -->|"/pair, /code-along, ..."| work
 ```
@@ -344,8 +349,8 @@ answers those in place, and runs `research` in the background for plain facts.
 
 ```text
 /detour how does context cancellation reach a blocked read?
-# paused slice 0003 at step 5; brief written; "/clear, then in ~/learning/go: /teach-me ..."
-/detour back                     # in the teach-me workspace, once unstuck
+# paused slice 0003 at step 5; brief written; "/clear, then in ~/learning/go: /professor ..."
+/detour back                     # in the professor workspace, once unstuck
 /pair                            # folds the answer into step 5 and carries on
 ```
 
@@ -502,6 +507,9 @@ are always files.
 | `review-change` | Three parallel reviews of a change: standards, spec (the story or slice), and decisions (ADRs, glossary). |
 | `pr` | Writes and opens the PR in every mode, from the journal: why, a Mermaid picture of the type that fits the change, what/why/how per concern, the rationale journal with dead ends, decisions, evidence. |
 | `research` | A background agent answers a factual question from primary sources, cited; or a recon of what the repo already has. |
+| `learner` | The learner's record in a teaching workspace: mission, syllabus, resources, learning records, the spaced practice queue, glossary, notes. Shared by `professor`, `teach-me`, and `code-along`. |
+| `slides` | A lecture deck as one HTML page: a 16:9 canvas that builds step by step over a transcript, keyboard navigation, a handout view, and a checker that flags overflow, crowding, and overlapping labels and screenshots every step. |
+| `fact-check` | Every claim a page makes, inventoried and verified by its kind (run, recompute, match the quote, open the link) in a ledger; the page is assembled from verified code and values so it cannot disagree with them. |
 | `spike` | One technical question, run for real in an isolated worktree, timeboxed, ending in a verdict and a brief. |
 | `prototype` | Throwaway LOGIC, UI, or FLOW prototypes with a tradeoff drawer and a feedback bar, closed by redrawing the decision as Mermaid. |
 
@@ -521,14 +529,44 @@ are always files.
 </details>
 
 <details>
-<summary><b>Learning</b>: <code>teach-me</code>, <code>let-me-code</code></summary>
+<summary><b>Learning</b>: <code>professor</code>, <code>teach-me</code>, <code>let-me-code</code></summary>
+
+**`professor`** teaches any subject over many sessions, one lesson at a time, in
+a teaching workspace. Each lesson is one idea and one milestone of a project
+you chose (or it proposes two or three for you):
+
+```mermaid
+flowchart LR
+  warm["warm-up<br/>spaced practice prompts"] --> lec["lecture<br/>deck built step by step,<br/>predict slides"]
+  lec --> lab["lab<br/>next slice of the project,<br/>verified steps"]
+  lab --> oh["office hours<br/>questions become<br/>addendum slides"]
+  oh --> deb["debrief<br/>teach-back, records,<br/>next lesson"]
+  deb --> warm
+```
+
+Before it teaches, it researches primary sources in the background, writes a
+lesson plan checked against a pedagogy checklist (concrete before abstract,
+setup before code, happy path before edge cases), verifies every claim, code
+line, and number, and has a fresh agent cold-read the lesson as you would. It
+works through five subject lenses (engineering, quantitative, natural science,
+humanities and law, creative craft) rather than a skill per subject. It can
+adopt a `teach-me` workspace as it stands. Needs Python 3 and Chrome or
+Chromium to check the deck.
+
+```text
+/professor macroeconomics
+/professor                      # continue: warm-up, then wherever the lesson is
+/professor explain why Phone is a class
+/professor debrief
+```
 
 **`teach-me`** teaches a topic over many sessions in a teaching workspace. Every
 lesson is a chapter: motive before mechanism, a hand-drawn figure of the whole
 machine and one per state change, algorithms traced by hand before code, try-its,
 a quiz, challenges, and a design note. A build script cuts code from a verified
 module, recomputes every value the prose quotes, and the page is rendered and
-looked at before it reaches you. Needs Python 3 and Google Chrome.
+looked at before it reaches you. Needs Python 3 and Google Chrome. `professor`
+is its successor.
 
 ```text
 /teach-me consistency proofs
@@ -544,7 +582,7 @@ yourself. Trigger with "teach me to build X" or "don't write the code for me."
 
 | Skill | What it does |
 |---|---|
-| `detour` | Pauses the active flow through its own checkpoint, writes a committed brief of the gap you hit, sends it to `teach-me`, `trailblazer`, or `spike` in a clean context, and brings the answer back for the flow to fold in. |
+| `detour` | Pauses the active flow through its own checkpoint, writes a committed brief of the gap you hit, sends it to `professor`, `trailblazer`, or `spike` in a clean context, and brings the answer back for the flow to fold in. |
 
 </details>
 
@@ -612,12 +650,12 @@ these skills, are in [`docs/planning/`](docs/planning/), with their decisions in
 ```text
 skills/
   kernel/        repo-setup, interview, glossary, visualize, story, tdd, diagnose, review-change,
-                 pr, research, spike, prototype
+                 pr, research, spike, prototype, learner, slides, fact-check
   modes/         start, light, trailblazer
   engineering/   planning-loop, write-requirements, solution-design, vertical-slice-phasing,
                  elaborate-current-phase, to-story, code-along, let-me-code, go-boilerplate
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
-  learning/      teach-me
+  learning/      professor, teach-me
   productivity/  detour
   gamedev/       narrative-grill, story-decompose, beat-grill, subquest-fill
   deprecated/    design-interview, init-go-project, phased-implementation-plan (not linked)

@@ -1,5 +1,47 @@
 # Changelog
 
+## 2.4.0 (2026-10-28)
+
+A professor for any subject. Design: [`docs/planning/professor/`](docs/planning/professor/design.md),
+[ADR 0005](docs/adr/0005-learning-kernel-and-no-quiz.md).
+
+### Added
+
+- `professor` (learning): teaches any subject over many sessions, one lesson
+  at a time. Each lesson is a lecture deck (a canvas built step by step over a
+  conversational transcript, with predict slides answered in chat), a lab that
+  builds the next slice of a project the learner chose or picked from two or
+  three proposals, office hours, and a teach-back debrief. Before teaching it
+  researches primary sources, writes a lesson plan checked against a
+  research-backed checklist (PEDAGOGY.md, with citations), verifies every
+  claim, and has a fresh agent cold-read the lesson as the learner. Five
+  subject lenses (DOMAINS.md) replace per-subject skills. No multiple-choice
+  quiz: spaced open prompts open each session instead. Can adopt a
+  `teach-me` workspace and rewrite its lessons.
+- `learner` (kernel): owns the teaching workspace record: `MISSION.md` (now
+  with a Starting point), `SYLLABUS.md`, `RESOURCES.md` with source tiers,
+  learning records, `PRACTICE.md` (the spaced retrieval queue), `GLOSSARY.md`,
+  and `NOTES.md`. Formats match `teach-me` and `code-along`.
+- `slides` (kernel): lecture decks as one HTML page with step reveals,
+  highlight-only steps for code, a handout view, and `render_deck.py`, which
+  finds Chrome or a Playwright Chromium, reports overflow, crowded canvases,
+  step gaps, and overlapping SVG labels, and screenshots every step.
+- `fact-check` (kernel): a claims ledger verified by kind, a values script,
+  and `assemble.py`, which fills a page from verified snippets and values and
+  refuses to write it while anything is unresolved, unverified, or quoted by
+  hand.
+
+### Changed
+
+- `research` notes gain an optional For teaching section (core idea,
+  misconceptions, a concrete example, what can wait), and go to `research/` in
+  a teaching workspace.
+- `detour`, `start`, and `trailblazer` send "I need to learn this" to
+  `professor` (`teach-me` still works in its existing workspaces).
+- `code-along` records use the `learner` skill's format.
+- `teach-me` points to `professor` as its successor; its behaviour is
+  unchanged.
+
 ## 2.3.0 (2026-10-18)
 
 Step out to learn, then come back.

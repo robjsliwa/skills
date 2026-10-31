@@ -196,8 +196,9 @@ Write one only when one of these is true:
 When a later record contradicts an earlier one, add `**Status:** superseded by
 NNNN` to the old one rather than deleting it.
 
-A learning record here uses the same format as `teach-me`'s, so the two can
-share a directory if the user wants that; `NOTES.md` would say so.
+A learning record here uses the `learner` skill's RECORD-FORMAT.md, the same
+format `professor` and `teach-me` write, so they can share a directory if the
+user wants that; `NOTES.md` would say so.
 
 ## The debrief section
 

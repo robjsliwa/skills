@@ -11,7 +11,7 @@ way out; only Status, Returned, and Return change after that.
 **Opened:** 2026-10-18   **Returned:**
 **Paused:** pairing, slice 0003 step 5 (docs/pairing/STATE.md)
 **Repo:** /Users/me/code/invoices (feat/0003-invoice-totals)
-**Go to:** teach-me, in ~/learning/go-concurrency
+**Go to:** professor, in ~/learning/go-concurrency
 
 ## The gap
 
@@ -52,7 +52,7 @@ I can explain why the read ignores the context, and write the cancel path for
 
 ```text
 cd ~/learning/go-concurrency
-/teach-me how context cancellation reaches a blocked read. Detour brief: /Users/me/code/invoices/docs/detours/0002-context-cancellation.md
+/professor how context cancellation reaches a blocked read. Detour brief: /Users/me/code/invoices/docs/detours/0002-context-cancellation.md
 ```
 
 When unstuck: `/detour back /Users/me/code/invoices/docs/detours/0002-context-cancellation.md`
@@ -73,7 +73,7 @@ When unstuck: `/detour back /Users/me/code/invoices/docs/detours/0002-context-ca
   finds its briefs by this line.
 - **Repo:** absolute path and branch, so a detour in another directory can find
   its way back.
-- **Go to:** the destination skill, and for `teach-me` the workspace.
+- **Go to:** the destination skill, and for `professor` or `teach-me` the workspace.
 
 ## Sections
 
@@ -84,10 +84,10 @@ When unstuck: `/detour back /Users/me/code/invoices/docs/detours/0002-context-ca
   design fork, the options as the user saw them. Link to files, specs, ADRs,
   and trail nodes instead of copying them.
 - **What I already know:** what the user knows and has tried, so the teacher
-  starts in the right place. For `teach-me`, this is evidence for the zone of
+  starts in the right place. For `professor` or `teach-me`, this is evidence for the zone of
   proximal development, not a learning record.
 - **Unstuck means:** what the user will be able to do or decide at the end, in
-  terms of the paused work. `teach-me` takes it as the lesson's target,
+  terms of the paused work. `professor` and `teach-me` take it as the lesson's objective,
   `trailblazer` as its destination, `spike` as its pass criteria.
 - **Out of scope:** what the detour must not grow into.
 - **Context:** only when Paused is `none`. What the next session needs because

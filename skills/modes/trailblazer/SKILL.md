@@ -165,7 +165,7 @@ in scope. Write `report.md` per MAP-FORMAT.md, set the map's status to
 | A spec: a feature to build, architecture-heavy | `write-requirements`, pointed at `report.md` |
 | A change: small, or one piece to build | `light` to plan and build it, or `pair-slice` with `report.md` as the source to build it together |
 | A recommendation | The report is the deliverable. Offer an ADR if it commits to something. |
-| An understanding | The report is the deliverable. Offer `teach-me` if the user wants to go deeper. |
+| An understanding | The report is the deliverable. Offer `professor` if the user wants to go deeper. |
 
 **Park** when the user says to stop the trail, not just for today: write a
 partial `report.md` (what is decided, what is open, what is running, how to
@@ -177,7 +177,7 @@ The user can steer at any point, in their own words. Act without fuss: "zoom
 out" (the whole map and Fog), "go deeper" (split the active node), "park it"
 (the node back to Fog), "that's out" (Out of scope, with the reason), "look it
 up" (research node), "spike it" (spike node), "show me" (prototype node), "ask
-<person>" (ask node), "I need to learn this first" (`detour` to `teach-me`; the
+<person>" (ask node), "I need to learn this first" (`detour` to `professor`; the
 node waits on it), "you decide" (decide, recorded as delegated), "stop for
 today" (checkpoint), "park the trail" (step 7).
 

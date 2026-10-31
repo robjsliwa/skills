@@ -5,9 +5,9 @@ description: >-
   context, then come back with the answer. Leaving pauses the active flow
   (pairing, code-along, trailblazer, interview) through its own checkpoint,
   writes a committed brief in docs/detours/ that states the gap, where it hit,
-  and what "unstuck" means, and prints the first line for teach-me,
-  trailblazer, or spike. Returning writes the answer into the brief so the
-  paused flow folds it in on resume. Use when the user says "I don't
+  and what "unstuck" means, and prints the first line for professor (or
+  teach-me), trailblazer, or spike. Returning writes the answer into the
+  brief so the paused flow folds it in on resume. Use when the user says "I don't
   understand this yet," "I need to learn X first," "detour," "let me go figure
   this out," "hand this off," or runs /detour.
 disable-model-invocation: true
@@ -19,7 +19,7 @@ argument-hint: "What you are stuck on, to leave. Or 'back' (and optionally the b
 Mid-flow, the user hits something they do not understand or do not know how to
 do yet. Explaining it here would bury the work under a lesson, and the context
 is already full of the work. A detour leaves the work paused and safe, takes
-the gap to a clean context where `teach-me` or `trailblazer` can do it justice,
+the gap to a clean context where `professor` or `trailblazer` can do it justice,
 and brings the answer back to exactly where the work stopped.
 
 It is a round trip, not a hand-off. The work's own state is saved by the flow
@@ -43,7 +43,7 @@ in one line and act on it.
 |---|---|
 | Fits in a few paragraphs and the user just needs enough to keep going | No detour. Answer it here, briefly, and carry on. |
 | A fact someone has written down ("what does the API do when...") | No detour. Run `research` in the background here and keep working. |
-| A concept the user wants to own, not just get past | Detour to `teach-me`. |
+| A concept the user wants to own, not just get past | Detour to `professor` (or `teach-me`, in a workspace that already uses it). |
 | Fog: the user cannot yet say how to approach it, or what the options are | Detour to `trailblazer`. From inside a trail, this is a new node, not a detour. |
 | "Can it even work?" with a long timebox | Detour to `spike`, or run it in the background here if the user would rather keep going. |
 
@@ -91,7 +91,7 @@ Recommend one, with the reason. The user can overrule.
    - **none:** the brief's Context section carries what the next session
      needs (BRIEF-FORMAT.md says what goes there).
 
-5. **Ask where the detour runs**, only for `teach-me`: its workspace is the
+5. **Ask where the detour runs**, only for `professor` or `teach-me`: its workspace is the
    directory it runs in, usually not this repo. One question, with a
    recommendation: an existing workspace for the subject if the user has one,
    else `~/learning/<subject>`. Trailblazer and spike run in this repo.
@@ -116,7 +116,7 @@ Recommend one, with the reason. The user can overrule.
    > Paused: slice 0003, step 5 (saved on feat/0003-invoice-totals).
    > Brief: docs/detours/0002-context-cancellation.md
    > Next: `/clear`, then in ~/learning/go-concurrency:
-   > `/teach-me how context cancellation reaches a blocked read. Detour brief: /abs/path/docs/detours/0002-context-cancellation.md`
+   > `/professor how context cancellation reaches a blocked read. Detour brief: /abs/path/docs/detours/0002-context-cancellation.md`
 
    Then: "When you're unstuck, run `/detour back` there."
 
@@ -127,7 +127,7 @@ Recommend one, with the reason. The user can overrule.
    session was started with. If none can be found, ask for the path.
 
 2. **Gather what the detour produced:** the lessons and learning records it
-   wrote (teach-me), the trail's `report.md` (trailblazer), the spike brief
+   wrote (professor or teach-me), the trail's `report.md` (trailblazer), the spike brief
    and verdict (spike). Read them.
 
 3. **Ask the user to say it back**, one question: "In your own words, what's

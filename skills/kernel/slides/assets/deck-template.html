@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · One Phone, Many Views</title>
+<!-- Lives at lessons/NNNN-slug/lecture.html; the workspace's assets/ holds deck.css and deck.js. -->
+<link rel="stylesheet" href="../../assets/deck.css">
+</head>
+<body>
+<!--
+  A worked example of every slide kind in DECK-FORMAT.md except the addendum:
+  title, activation, hook (a concrete failure, built in steps), predict, model
+  (a diagram built one layer per step), anchor (two columns: the familiar idea
+  and where it breaks), worked example (a trace revealed row by row),
+  mechanism, predict, code (highlighted, not hidden), and the bridge to the lab.
+  It is shown assembled: in a real lesson, quoted values and code come from
+  fact-check slots in build/lecture.tpl.html. Replace the slides; keep the
+  structure.
+-->
+<div class="deck" data-title="Lesson 2 · One Phone, Many Views">
+
+<!-- ============================================================ title -->
+<section class="slide title" id="title">
+  <div class="canvas">
+    <p class="kicker">Lesson 2 · SwiftUI dialer</p>
+    <h1>One Phone, Many Views</h1>
+    <p class="promise">Put the call machine on a screen without the screen ever disagreeing with it.</p>
+  </div>
+  <aside class="transcript">
+    <p>Last time you built <code>PhoneCore</code>: a phone number that cannot be malformed and a call that cannot be in an impossible state. It runs on your Mac and it has no screen. Today it gets one, on the phone in your pocket.</p>
+    <p>By the end of the lab you will have a dial pad on your iPhone whose Call button turns green only when the number is real. The interesting part is not the buttons. It is a single rule that makes a whole family of interface bugs impossible, and we will spend the lecture earning it.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ activation -->
+<section class="slide" id="last-time">
+  <div class="canvas">
+    <h2>Where Lesson 1 left us</h2>
+    <div class="fill">
+      <svg viewBox="0 0 960 360" role="img" aria-label="PhoneCore as a green box holding PhoneNumber, CallMachine and eight tests; at step one a dashed screen box appears above it.">
+        <g class="ink sketch">
+          <rect class="oktint ok" x="250" y="170" width="460" height="170" rx="10"/>
+          <rect x="280" y="215" width="190" height="50" rx="8"/>
+          <rect x="490" y="215" width="190" height="50" rx="8"/>
+          <g data-step="1">
+            <rect class="tint acc dash thick" x="250" y="30" width="460" height="90" rx="10"/>
+            <path class="acc" d="M480 168 L480 124" marker-end="url(#arr-acc)"/>
+          </g>
+        </g>
+        <g>
+          <text class="big mid t-ok" x="480" y="200">PhoneCore</text>
+          <text class="mid mono" x="375" y="246">PhoneNumber</text>
+          <text class="mid mono" x="585" y="246">CallMachine</text>
+          <text class="sm mid t-muted" x="480" y="305">eight tests, all green</text>
+          <g data-step="1">
+            <text class="big mid t-acc" x="480" y="72">a screen</text>
+            <text class="hand mid" x="480" y="102">today: show the machine, never contradict it</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <aside class="transcript">
+    <p>Before I add anything, a quick warm-up. In your own words: what does <code>CallMachine.send</code> do with an event that is not legal in the current state? Say it, or type it in the chat, then go on.</p>
+    <p data-step="1">Right: it refuses the event, leaves the state alone, and writes an <code>ignored</code> line to the log. Hold on to that, because it comes back in the lab. Today's box sits on top of <code>PhoneCore</code> and adds no rules of its own. Its whole job is to show what the machine says.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ hook -->
+<section class="slide" id="stale-flag">
+  <div class="canvas">
+    <h2>The easy way to build a screen</h2>
+    <div class="fill">
+      <svg viewBox="0 0 960 380" role="img" aria-label="Two columns. After ten keys, typed holds ten digits, isValid is true and Call is green. After one backspace, typed holds nine digits but isValid is still true and Call is still green.">
+        <g class="ink sketch">
+          <rect x="60" y="70" width="340" height="50" rx="8"/>
+          <rect class="oktint ok" x="60" y="145" width="340" height="50" rx="8"/>
+          <circle class="oktint ok" cx="230" cy="265" r="34"/>
+          <g data-step="1">
+            <path d="M420 170 L530 170" marker-end="url(#arr)"/>
+            <rect x="560" y="70" width="340" height="50" rx="8"/>
+          </g>
+          <g data-step="2">
+            <rect class="badtint bad" x="560" y="145" width="340" height="50" rx="8"/>
+            <circle class="badtint bad thick" cx="730" cy="265" r="34"/>
+          </g>
+        </g>
+        <g>
+          <text class="sm mid t-muted" x="230" y="50">after ten keys</text>
+          <text class="mid mono" x="230" y="101">typed = "4155552671"</text>
+          <text class="mid mono" x="230" y="176">isValid = true</text>
+          <text class="sm mid t-ok" x="230" y="271">Call</text>
+          <g data-step="1">
+            <text class="sm mid t-muted" x="730" y="50">after one ⌫</text>
+            <text class="mid" x="475" y="158">⌫</text>
+            <text class="mid mono" x="730" y="101">typed = "415555267"</text>
+          </g>
+          <g data-step="2">
+            <text class="mid mono t-bad" x="730" y="176">isValid = true</text>
+            <text class="sm mid t-bad" x="730" y="271">Call</text>
+            <text class="hand mid" x="480" y="350">⌫ changed typed. Nobody reset isValid.</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <aside class="transcript">
+    <p>Here is how most of us would build the dial pad the first time. Keep what was typed in a string. Keep a flag, <code>isValid</code>, next to it, and set it to true when the tenth digit arrives. The Call button turns green when the flag is true. Ten keys in, everything is right.</p>
+    <p data-step="1">A week later someone adds a backspace key. It removes the last character from <code>typed</code>, so the display now shows nine digits.</p>
+    <p data-step="2">But the backspace code never touched <code>isValid</code>. The flag still says true, the button is still green, and a nine-digit number goes out to Twilio. No line of code is wrong on its own. The bug lives in the gap between two facts that were supposed to agree.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ predict -->
+<section class="slide prompt" id="predict-flag">
+  <div class="canvas">
+    <p class="question">Say we patch the backspace to reset <code>isValid</code>. Name one more way the flag can still go stale.</p>
+    <p class="answer" data-step="1">Any other writer of <code>typed</code>: paste, clear, a long press for +. Each must remember. The fix: store no flag.</p>
+  </div>
+  <aside class="transcript">
+    <p>Pause here and answer before you go on. A guess is fine; the point is to commit to one.</p>
+    <p data-step="1">Every new writer of <code>typed</code> inherits the duty to update the flag, forever. You can be careful, or you can arrange things so there is nothing to be careful about. The rest of the lecture is the second option.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ model -->
+<section class="slide" id="causes-effects">
+  <div class="canvas">
+    <h2>Store the cause, compute the effect</h2>
+    <div class="fill">
+      <svg viewBox="0 0 960 380" role="img" aria-label="Two stored properties, typed and call, on the left. Step one adds three computed properties derived from typed. Step two adds the three views that read them. Step three adds the rule.">
+        <g class="ink sketch">
+          <rect class="tint acc thick" x="40" y="70" width="200" height="44" rx="8"/>
+          <rect class="tint acc thick" x="40" y="250" width="200" height="44" rx="8"/>
+          <g data-step="1">
+            <rect class="oktint ok" x="360" y="40" width="200" height="44" rx="8"/>
+            <rect class="oktint ok" x="360" y="110" width="200" height="44" rx="8"/>
+            <rect class="oktint ok" x="360" y="180" width="200" height="44" rx="8"/>
+            <path class="ok" d="M240 90 L356 64" marker-end="url(#arr-ok)"/>
+            <path class="ok" d="M460 84 L460 106" marker-end="url(#arr-ok)"/>
+            <path class="ok" d="M560 56 C610 56 610 202 564 202" marker-end="url(#arr-ok)"/>
+          </g>
+          <g data-step="2">
+            <rect x="710" y="70" width="210" height="44" rx="8"/>
+            <rect x="710" y="190" width="210" height="44" rx="8"/>
+            <rect x="710" y="270" width="210" height="44" rx="8"/>
+            <path d="M560 136 L706 98" marker-end="url(#arr)"/>
+            <path d="M240 266 L706 214" marker-end="url(#arr)"/>
+            <path d="M240 278 L706 292" marker-end="url(#arr)"/>
+          </g>
+        </g>
+        <g>
+          <text class="sm mid t-acc" x="140" y="52">stored</text>
+          <text class="mid mono" x="140" y="99">typed</text>
+          <text class="mid mono" x="140" y="279">call</text>
+          <g data-step="1">
+            <text class="sm mid t-ok" x="460" y="26">computed on every read</text>
+            <text class="mid mono" x="460" y="69">parsed</text>
+            <text class="mid mono" x="460" y="139">number</text>
+            <text class="mid mono" x="460" y="209">hint</text>
+          </g>
+          <g data-step="2">
+            <text class="sm mid t-muted" x="815" y="52">views read</text>
+            <text class="mid" x="815" y="99">DialerView</text>
+            <text class="mid" x="815" y="219">ContentView</text>
+            <text class="mid" x="815" y="299">CallView</text>
+          </g>
+          <text class="hand mid" x="480" y="356" data-step="3">Two things are stored. Everything else is asked for when it is needed.</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <aside class="transcript">
+    <p>So we store only causes. There are exactly two: what the user typed, and what has happened to the call. Both are values you already have from Lesson 1: a <code>String</code> and a <code>CallMachine</code>.</p>
+    <p data-step="1">Everything else is an effect, and effects are computed every time someone reads them. <code>parsed</code> runs your Lesson 1 parser on <code>typed</code>. <code>number</code> is the success value or nothing. <code>hint</code> turns the result into the line under the display. There is no <code>isValid</code> to forget, because validity is a question asked of <code>typed</code> at the moment it is needed.</p>
+    <p data-step="2">The screens only read. The dial pad reads the computed properties; the view that picks a screen and the call screen read the call. No view keeps a copy of anything.</p>
+    <p data-step="3">That is the rule for the whole course, not just today: store what happened, compute what it means, and let views read only the meaning.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ anchor (two columns) -->
+<section class="slide" id="go-anchor">
+  <div class="canvas">
+    <h2>Seen this in Go?</h2>
+    <div class="cols">
+      <div>
+        <p class="kicker">Go</p>
+        <ul class="points"><li>one struct, shared by pointer</li><li>you tell readers it changed</li></ul>
+      </div>
+      <div data-step="1">
+        <p class="kicker">Swift</p>
+        <ul class="points"><li>one <code>@Observable</code> class</li><li>readers found by reading</li></ul>
+      </div>
+    </div>
+    <p class="big" data-step="2">The break: nobody subscribes by hand.</p>
+  </div>
+  <aside class="transcript">
+    <p>In Go, when several goroutines need the same state, you share one struct by pointer and guard it, and when it changes you tell whoever cares, usually over a channel you wired up yourself.</p>
+    <p data-step="1">Here the sharing half is the same: one <code>Phone</code> object, handed to every view. That is why it is a class and not a struct like <code>CallMachine</code>.</p>
+    <p data-step="2">The telling half is where the analogy breaks. There is no channel and no subscribe call. A view becomes a reader by reading, and the next slides show how SwiftUI notices.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ worked example -->
+<section class="slide" id="trace">
+  <div class="canvas">
+    <h2>Type 4155552671, then one key too many</h2>
+    <table>
+      <tr><th>Key</th><th><code>typed</code></th><th><code>hint</code></th><th>Call</th></tr>
+      <tr data-step="1"><td>1</td><td><code>4</code></td><td>1 of 10 digits</td><td class="off">off</td></tr>
+      <tr data-step="2"><td>9</td><td><code>415555267</code></td><td>9 of 10 digits</td><td class="off">off</td></tr>
+      <tr data-step="3"><td>10</td><td><code>4155552671</code></td><td>Call +14155552671</td><td class="on">on</td></tr>
+      <tr data-step="4"><td>11</td><td><code>41555526711</code></td><td>11 digits: start with + to go abroad</td><td class="off">off</td></tr>
+    </table>
+  </div>
+  <aside class="transcript">
+    <p>Let's watch it work on a real number. Each row is one key press. The only thing that changes is <code>typed</code>; the other columns are recomputed from it.</p>
+    <p data-step="1">One digit: the parser says it needs more, so <code>number</code> is nothing and Call is off.</p>
+    <p data-step="2">Nine digits: same story, one short.</p>
+    <p data-step="3">Ten digits: the parser accepts it and adds the country code, so <code>number</code> exists and the button turns green.</p>
+    <p data-step="4">Now one key too many. Nobody wrote "turn the button off." Eleven digits that don't start with 1 aren't a number by Lesson 1's rules, so <code>number</code> is nothing again, and the button follows.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ mechanism -->
+<section class="slide" id="observe">
+  <div class="canvas">
+    <h2>How SwiftUI knows what to redraw</h2>
+    <div class="fill">
+      <svg viewBox="0 0 960 340" role="img" aria-label="A loop of four boxes revealed one per step: the body runs and reads typed; the read is recorded; a tap writes typed; only the views that read typed run again.">
+        <g class="ink sketch">
+          <g data-step="1"><rect x="60" y="30" width="380" height="84" rx="10"/></g>
+          <g data-step="2"><rect x="520" y="30" width="380" height="84" rx="10"/><path d="M440 72 L516 72" marker-end="url(#arr)"/></g>
+          <g data-step="3"><rect class="tint acc" x="520" y="210" width="380" height="84" rx="10"/><path d="M710 114 L710 206" marker-end="url(#arr)"/></g>
+          <g data-step="4"><rect x="60" y="210" width="380" height="84" rx="10"/><path d="M520 252 L444 252" marker-end="url(#arr)"/><path d="M250 210 L250 118" marker-end="url(#arr)"/></g>
+        </g>
+        <g>
+          <g data-step="1"><text class="mid" x="250" y="66">1 · body runs</text><text class="sm mid mono t-muted" x="250" y="94">reads phone.typed</text></g>
+          <g data-step="2"><text class="mid" x="710" y="66">2 · the read is recorded</text><text class="sm mid mono t-muted" x="710" y="94">DialerView ← typed</text></g>
+          <g data-step="3"><text class="mid" x="710" y="246">3 · a tap writes</text><text class="sm mid mono t-muted" x="710" y="274">phone.press("4")</text></g>
+          <g data-step="4"><text class="mid" x="250" y="246">4 · only readers re-run</text><text class="sm mid mono t-muted" x="250" y="274">DialerView, next frame</text></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <aside class="transcript">
+    <p>You never tell SwiftUI to redraw. So how does the hint change when you press a key? One line on the class, <code>@Observable</code>, does it.</p>
+    <p data-step="1">SwiftUI runs a view's <code>body</code> to draw it. Suppose the dial pad's body reads <code>phone.typed</code>, directly or through <code>hint</code>.</p>
+    <p data-step="2">Observation records that read against that view. This is the subscription: reading is what signs you up.</p>
+    <p data-step="3">Later a tap calls <code>press</code>, which assigns to <code>typed</code>. The setter the macro generated announces the change. This is the only step your code performs, and it is an ordinary assignment.</p>
+    <p data-step="4">Every view whose record contains <code>typed</code> is marked to run again on the next frame, and only those. Apple puts it in one sentence: a view updates when an observable property changes and its body reads that property (<a href="https://developer.apple.com/documentation/swiftui/migrating-from-the-observable-object-protocol-to-the-observable-macro">Migrating to the Observable macro</a>).</p>
+  </aside>
+</section>
+
+<!-- ============================================================ predict -->
+<section class="slide prompt" id="predict-redraw">
+  <div class="canvas">
+    <p class="question">You tap <code>4</code>. Which bodies run again: <code>ContentView</code>, <code>DialerView</code>, or both?</p>
+    <p class="answer" data-step="1">Only <code>DialerView</code>. It read <code>typed</code>. <code>ContentView</code> read only <code>call</code>, and typing never writes <code>call</code>.</p>
+  </div>
+  <aside class="transcript">
+    <p>Use the loop you just saw. Commit to an answer, then advance.</p>
+    <p data-step="1">If you said both, you were treating <code>phone</code> as the thing that changed. Observation is finer than that: it tracks each stored property separately. In the lab you will prove this with a test instead of taking my word for it.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ code -->
+<section class="slide code" id="phone-class">
+  <div class="canvas">
+    <h2>The whole model, condensed</h2>
+<pre><code>@Observable
+final class Phone {
+<span class="hl" data-hl="1">    private(set) var typed = ""
+    private(set) var call = CallMachine()</span><span class="hl" data-hl="2">    var parsed: Result&lt;PhoneNumber, PhoneNumber.ParseError&gt; {
+        do {
+            return .success(try PhoneNumber(typed))
+        } catch {
+            return .failure(error)
+        }
+    }
+    var number: PhoneNumber? { try? parsed.get() }
+    var hint: String { … }</span><span class="hl" data-hl="3">    func press(_ key: Character) { … }
+    func deleteLast() { … }
+    func dial() { … }
+    func hangUp() { … }
+    func simulate(_ event: CallEvent) { … }</span>}</code></pre>
+  </div>
+  <aside class="transcript">
+    <p>Here is the picture as code. You will type all of it in the lab, so for now find the three parts. Bodies marked with an ellipsis are filled in there.</p>
+    <p data-step="1">The causes: two stored properties. <code>private(set)</code> means any view can read them but only this class can write them.</p>
+    <p data-step="2">The effects: computed properties. Notice there is no stored copy of anything here; each one is recalculated from <code>typed</code> when read.</p>
+    <p data-step="3">The only writers. Two edit <code>typed</code>; three send an event to the call machine, so Lesson 1's table still decides every transition.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ bridge -->
+<section class="slide" id="lab">
+  <div class="canvas">
+    <h2>Today's lab</h2>
+    <ul class="points">
+      <li data-step="1">Xcode project beside <code>PhoneCore</code></li>
+      <li data-step="2"><code>Phone</code>: two stored, three computed</li>
+      <li data-step="3">Three views that store nothing</li>
+      <li data-step="4">Four tests, then your iPhone</li>
+    </ul>
+    <p class="big" data-step="5">Done: grey at nine digits, green at ten.</p>
+  </div>
+  <aside class="transcript">
+    <p>That's the theory. Here is the slice of the project that puts it to work.</p>
+    <p data-step="1">First the workspace: a new Xcode project that uses your Lesson 1 package by path, much as Go's <code>replace</code> directive points a module at a sibling folder.</p>
+    <p data-step="2">Then the model you just saw.</p>
+    <p data-step="3">Then three small views: one that picks the screen, the dial pad, and the call screen.</p>
+    <p data-step="4">Four tests pin the behaviour, including one that proves typing does not touch the call. Then it goes on your phone.</p>
+    <p data-step="5">You will know it works when the button behaves exactly like the trace table. Any questions before we build?</p>
+  </aside>
+</section>
+
+</div>
+<script src="../../assets/deck.js"></script>
+</body>
+</html>

@@ -11,6 +11,11 @@ The user has asked you to teach them something. This is a stateful request: they
 
 The argument is a topic to learn next, or an existing lesson to rewrite in the chapter style. It may also name a **detour brief** (from the `detour` skill): the user stepped out of real work to learn this. Read it in full. Its "Where it hit" is the lesson's motive, "What I already know" places the zone of proximal development, and "Unstuck means" is the target. If `MISSION.md` is missing, draft it from the brief and confirm it with the user in one question instead of a full interview.
 
+> **Successor:** the `professor` skill teaches the same way across sessions but
+> splits each lesson into a lecture deck and a project lab, drops the quiz for
+> spaced open questions, and can adopt a teach-me workspace as it stands
+> (records and mission carry over). New courses should start there.
+
 Reference lives beside this file:
 
 - [VOICE.md](VOICE.md): how the prose reads and how a chapter is shaped, with the HTML of every component.

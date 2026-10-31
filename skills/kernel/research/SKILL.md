@@ -49,7 +49,8 @@ A subagent only knows what the brief says. Every brief carries:
 6. **What not to do**: no blog posts or forum answers as sources (they may point
    to a primary source, which is then cited), no installing or running things
    (that is a spike), no recommendations beyond the question.
-7. **The output**: the note's path and the template below, or for recon, "reply
+7. **The output**: the note's path and the template below (with its For
+   teaching section when a teaching skill is the caller), or for recon, "reply
    with a report under 300 words."
 
 Spawn it in the background with the Agent tool when there is one, and carry on.
@@ -58,6 +59,7 @@ the research inline, say so, and keep it short.
 
 ## Where the note goes
 
+In a teaching workspace (a `MISSION.md` at the root), `research/NNNN-<slug>.md`.
 Inside a trail, `docs/research/<topic>/findings/<slug>.md`. Otherwise
 `docs/research/<slug>.md`, or the `Research:` location in
 `docs/agents/profile.md`. Match a convention the repo already has.
@@ -87,6 +89,13 @@ glossary terms where they differ.>
 <Two to five sentences tying the answer back to the decision: what it rules
 out, what it makes easy, what it leaves open. Any options it surfaces, each in
 one line, for the human to choose between later.>
+
+## For teaching
+
+<Only when a teaching skill (professor, teach-me) asked for it. Four short
+items, each from the sources above: the core idea in one sentence; the common
+misconceptions and where they come from; one concrete example with real values
+that shows the idea; and what a first lesson can safely leave for later.>
 
 ## Still unknown
 

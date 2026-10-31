@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "somos-engineering-skills",
-    "version": "2.3.0"
+    "version": "2.4.0"
   },
   "plugins": [
     {
@@ -22,6 +22,9 @@
         "./skills/kernel/research",
         "./skills/kernel/spike",
         "./skills/kernel/prototype",
+        "./skills/kernel/learner",
+        "./skills/kernel/slides",
+        "./skills/kernel/fact-check",
         "./skills/engineering/planning-loop",
         "./skills/engineering/write-requirements",
         "./skills/engineering/solution-design",
@@ -31,6 +34,7 @@
         "./skills/engineering/go-boilerplate",
         "./skills/engineering/let-me-code",
         "./skills/engineering/code-along",
+        "./skills/learning/professor",
         "./skills/learning/teach-me",
         "./skills/productivity/detour",
         "./skills/gamedev/narrative-grill",
@@ -44,8 +48,8 @@
         "./skills/pairing/pair-checkpoint",
         "./skills/pairing/pair-ship"
       ],
-      "version": "2.3.0",
-      "description": "Five ways to build software with an agent (trailblazer research, full loop, light loop, code-along, pairing) on a shared kernel, with stories people can see, spikes and prototypes, and Mermaid pictures in the docs."
+      "version": "2.4.0",
+      "description": "Five ways to build software with an agent (trailblazer research, full loop, light loop, code-along, pairing) on a shared kernel, with stories people can see, spikes and prototypes, Mermaid pictures in the docs, and a professor that teaches any subject through lectures and project labs."
     }
   ]
 }
