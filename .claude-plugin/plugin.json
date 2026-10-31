@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "agent-skills",
-    "version": "3.0.0"
+    "version": "3.1.0"
   },
   "plugins": [
     {
@@ -42,7 +42,7 @@
         "./skills/pairing/pair-checkpoint",
         "./skills/pairing/pair-ship"
       ],
-      "version": "3.0.0",
+      "version": "3.1.0",
       "description": "Five ways to build software with an agent (trailblazer research, full loop, light loop, code-along, pairing) on a shared kernel, with stories people can see, spikes and prototypes, Mermaid pictures in the docs, and a professor that teaches any subject through lectures and project labs."
     }
   ]

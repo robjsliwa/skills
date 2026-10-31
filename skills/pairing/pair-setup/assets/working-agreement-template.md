@@ -62,8 +62,9 @@ Rules no tool enforces:
 - Mode: <github | gitlab | local (no remote; merge --no-ff with the PR body
   as the merge message)>
 - Open as: <draft | ready>
-- Agent review: `review-change` axes standards, spec, decisions (ADRs,
-  glossary, context)
+- Agent review: `review-change` on axes standards, spec, decisions (ADRs,
+  glossary, context), and security, at the depth the change calls for; at most
+  three rounds
 - Post agent review as a PR comment: <yes | no>
 - Human reviewers: <none | @handle>
 - Who merges: <agent after explicit yes in chat | user only>

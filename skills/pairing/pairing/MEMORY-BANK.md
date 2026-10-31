@@ -205,7 +205,8 @@ Entry kinds, in the heading after the date:
 - `Plan change`: steps added, split, dropped, and why.
 - `User-coded`: work the user did outside a session, found by `pair` on
   resume; record what changed and the reason the user gave.
-- `Review round N`: findings from pair-ship and the disposition of each.
+- `Review round N`: `Reviewed: <head sha>`, the depth, then findings from pair-ship with
+  the tag and disposition of each.
 - `Session start` / `Session end`: one or two lines; the end entry says what
   was in flight and what was in the user's head.
 - `Parked` / `Unparked`: why the slice stopped, and what it resumes with.

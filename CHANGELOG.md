@@ -1,5 +1,34 @@
 # Changelog
 
+## 3.1.0 (2026-10-31)
+
+Review layers, after [How the Claude Code team does code review](https://claude.dev/blog/solving-code-review-at-anthropic/).
+
+### Added
+
+- `review-change` has a Security axis. The profile's `Review / Security` picks
+  the source: the agent's own review, a scanner or skill you name, or a
+  built-in brief that works on any agent.
+- `review-change` verifies findings with fresh agents, lists what they drop,
+  and tags survivors Important, Nit, or Pre-existing, the last from `git blame`.
+- `review-change` scales with risk. Quick, Standard, or Deep is picked per
+  change from the paths and size, with `REVIEW.md` and the profile able to
+  override it. Standard stops voting once two verifiers agree, and later rounds
+  rerun only Spec and the axes with fixes.
+- `REVIEW.md` support: every reviewer reads it, and `repo-setup` offers a
+  template.
+- `tdd` runs a fresh-context check of the diff before the story is done.
+
+### Changed
+
+- `pair-ship` re-reviews after fixes, with three rounds at most. Later rounds
+  cover only the new diff and repeat nothing, a bug class is fixed everywhere
+  at once, and repeated findings are proposed for `REVIEW.md`, `CLAUDE.md`, or
+  a lint rule.
+- `pair-ship` will not merge with an open Important Security finding.
+- PR bodies always carry `Testing`, `Risk`, and `How to revert`. `Evidence` and
+  `Merge danger` became `Testing` and `Risk`.
+
 ## 3.0.0 (2026-10-31)
 
 A cleanup, and the repo is now general purpose.

@@ -15,9 +15,10 @@ argument-hint: "Nothing. Re-run any time to change an answer; the profile is edi
 # Repo Setup
 
 Every skill in this repo needs the same handful of facts: where issues go, where
-docs live, how to run the fast tests, the full check, and the app, and whether
-Mermaid diagrams get validated. This skill finds them once and writes them to
-`docs/agents/profile.md`. Everything else reads that file.
+docs live, how to run the fast tests, the full check, and the app, whether
+Mermaid diagrams get validated, and how to review a change for security. This
+skill finds them once and writes them to `docs/agents/profile.md`. Everything
+else reads that file.
 
 Run it once per repo. Running it again is safe: it reads the existing profile,
 shows what it holds, and edits only what changes. Never delete fields the user
@@ -45,7 +46,7 @@ Read, quietly, before saying anything:
   host suggests GitLab. Check whether `gh` or `glab` is installed and logged in
   (`gh auth status`, `glab auth status`).
 - **Existing agent docs:** `docs/agents/profile.md` (a re-run), the v1
-  `docs/agents/issue-tracker.md` (v1), `CLAUDE.md`, `AGENTS.md`.
+  `docs/agents/issue-tracker.md` (v1), `CLAUDE.md`, `AGENTS.md`, `REVIEW.md`.
 - **The spine:** `CONTEXT.md`, `GLOSSARY.md`, `docs/adr/`, `docs/planning/`,
   `docs/pairing/`, `docs/code-along/`.
 - **Diagram tooling:** `node --version`, `npx --version`, and `mmdc --version`.
@@ -85,6 +86,18 @@ show the value you will write so the user can catch a wrong guess.
    `npx -y @mermaid-js/mermaid-cli`, or `mmdc` if it is already installed. If
    Node is missing, recommend `off` and say diagrams will be written and marked
    unvalidated. Viewer port defaults to `4178`; ask only if that port is taken.
+7. **Security review.** Recommend `auto`, which needs nothing installed: it
+   uses the agent's own security review if it has one and a built-in brief if
+   not. If the repo already runs a scanner (semgrep, CodeQL, gosec, bandit,
+   brakeman), recommend adding its command as the value, so its results reach
+   the review. Meanings are in [PROFILE-FORMAT.md](PROFILE-FORMAT.md).
+8. **REVIEW.md.** If the repo has none, offer one from
+   [assets/review-template.md](assets/review-template.md), and draft its first
+   lines from what you found in step 1. Recommend it for any repo more than one
+   person reviews, and say it can wait until the first repeated review comment.
+   Propose `## Always deep` entries for any sensitive paths you saw whose names
+   would not give them away.
+   If the user declines, leave it out; `review-change` runs without it.
 
 ## Step 3: Migrate v1 artifacts
 
@@ -133,11 +146,14 @@ record the choice in the summary.
    - System context: [CONTEXT.md](CONTEXT.md)
    - Language, terms to use and avoid: [GLOSSARY.md](GLOSSARY.md)
    - Decisions: [docs/adr/](docs/adr/)
+   - Review rules: [REVIEW.md](REVIEW.md)
    ```
 
    Keep the links even if a target does not exist yet; the next skills create
    them.
-4. If diagram validation is on and the repo already has Mermaid blocks, offer to
+4. **`REVIEW.md`**, if the user said yes in step 2. Never overwrite one that
+   exists.
+5. If diagram validation is on and the repo already has Mermaid blocks, offer to
    run `python3 the visualize skill's scripts/mermaid_check.py` over them and
    report failures. Do not fix them unasked.
 

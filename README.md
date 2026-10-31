@@ -19,6 +19,7 @@
   <a href="#-the-five-modes">The five modes</a> ·
   <a href="#-finding-things-out">Finding things out</a> ·
   <a href="#-stories-people-can-see">Stories</a> ·
+  <a href="#-reviewing-a-change">Review</a> ·
   <a href="#-pictures-in-the-docs">Pictures</a> ·
   <a href="#-skill-reference">Reference</a>
 </p>
@@ -407,6 +408,199 @@ the critic's rules live in the [`story`](skills/kernel/story) skill.
 
 ---
 
+## 🔎 Reviewing a change
+
+### Why review at all
+
+An agent can write code faster than anyone can read it. The hard part is no
+longer producing a change. It is knowing whether the change is right, and
+having good reason to put your name on it.
+
+Reading every line stops working at that speed, and skipping the reading is
+worse. Asking the agent that wrote the code does not help much either: it has
+the same blind spots it had while writing, and it already believes the code is
+right. So review here is built on a few beliefs:
+
+- **Fresh eyes find what the author cannot.** Each question gets its own
+  reviewer, with no memory of how the code came to be.
+- **A false alarm is not free.** Every wrong finding costs attention and teaches
+  people to skim the next report. Removing noise matters as much as finding
+  bugs.
+- **Effort should follow risk.** A typo and a change to login do not deserve the
+  same review, and treating them alike wastes money on one and care on the other.
+- **Review has to end.** An agent author and an agent reviewer can keep each
+  other busy forever, with later rounds mostly digging up old code, not new bugs.
+- **A repeated finding is a process bug.** If the same comment keeps appearing,
+  the fix belongs in a rule or a lint check, not in another comment.
+- **People stay responsible.** Agents find and check. A person decides what
+  happens to each finding and what gets merged. An agent's review never counts
+  as a person's approval.
+
+### What it is
+
+`review-change` asks up to four separate questions, each in its own sub-agent so
+that one cannot mask another. Code can follow every rule and still build the
+wrong thing.
+
+| Axis | The question | What it reads |
+|---|---|---|
+| Standards | Does it follow this repo's rules? | `CLAUDE.md`, `REVIEW.md`, the working agreement, a short list of code smells |
+| Spec | Does it do what was promised? | The story, slice, or PR; it also runs the checks and the Demo |
+| Decisions | Does it respect what we already decided? | ADRs, `GLOSSARY.md`, `CONTEXT.md`, the stack |
+| Security | Can it be abused? | The source your profile picks (below) |
+
+It reports and stops there. It does not fix anything or approve anything.
+
+### The flow
+
+```mermaid
+flowchart TB
+  a["Change ready"] --> b["Pick the depth from what it touches"]
+  b --> c["Reviewers run in parallel, one per axis"]
+  c --> d{"Any findings?"}
+  d -- no --> g["Report"]
+  d -- yes --> e["Fresh verifiers try to disprove each finding"]
+  e --> f["Tag survivors: Important, Nit, Pre-existing"]
+  f --> g
+  g --> h["A person settles each finding: fix, defer, or dismiss"]
+  h --> i{"Fixes pushed, under 3 rounds?"}
+  i -- yes --> j["Next round: new diff only, due axes only"]
+  j --> c
+  i -- no --> k["Merge, on a person's yes"]
+```
+
+**1. Pick the depth.** The first match wins, and when in doubt it goes up. You
+can also just ask: "deep review this."
+
+| Depth | When | Reviewers | Verifiers |
+|---|---|---|---|
+| Quick | Only prose changed, or under 30 lines with no new file or dependency | Spec, plus Security if code changed | 1 |
+| Standard | Everything else | All four | 2, plus a third on a split vote |
+| Deep | Auth, payments, migrations, public APIs, CI, infrastructure, or a path listed in `REVIEW.md` | All four | 3 |
+
+Depth comes from path names and size, so it is a good guess, not a guarantee. A
+file called `lib/rules.py` that guards permissions looks harmless, which is what
+the `## Always deep` list in `REVIEW.md` is for. If a later fix reaches a
+sensitive path, the review turns Deep; it never gets lighter within a change.
+
+**2. Verify.** Each finding is checked by agents that try to disprove it against
+the code. Standard stops as soon as two agree, because a third vote could not
+change the result. Deep drops a finding only if all three reject it, because
+there a missed bug costs more than a false alarm. Dropped findings are still
+listed with a reason, so you can catch a wrong drop.
+
+**3. Tag.** `git blame` separates the author's bugs from ones that were already
+there.
+
+| Tag | Meaning | Holds up the change? |
+|---|---|---|
+| Important | The change is wrong, unsafe, or breaks a rule the repo holds | Yes, until settled |
+| Nit | Worth knowing, safe to skip | No |
+| Pre-existing | A real bug in lines this change did not write | No |
+
+**4. Converge.** `pair-ship` allows three rounds. Later rounds look only at the
+new diff, rerun only Spec and the axes with fixes (Deep reruns all four), and
+never repeat a finding.
+When a finding names a class of bug, every instance gets fixed at once. If round
+3 still reports something Important, the skill stops and asks you to rethink the
+approach instead of grinding on.
+
+**5. Fix it at the source.** When a finding keeps coming back, `pair-ship`
+proposes moving it into `REVIEW.md`, `CLAUDE.md`, or a lint rule. Past review
+rounds are only kept in pairing journals, so this works in the pairing flow.
+
+### Security on any agent
+
+These skills are not tied to one tool, so Security is a fixed slot that your
+profile fills.
+
+```markdown
+## Review
+Security: auto   # the agent's own review if it has one, else a built-in brief
+Depth: auto
+```
+
+`auto` uses something like Claude Code's `/security-review` where it exists and
+a built-in brief everywhere else. You can name a scanner instead, such as
+`semgrep scan --config auto`, and an agent reads its output as evidence. In
+`pair-ship`, an Important Security finding blocks the merge until it is fixed or
+dismissed with a reason on the record. That block lives in the skill: anyone can
+still merge by hand, so for a hard stop add branch protection and a CI check.
+
+### Tell it what matters: REVIEW.md
+
+`repo-setup` offers a short `REVIEW.md`, and every reviewer and verifier reads
+it. Keep it small and add to it whenever a comment repeats.
+
+```markdown
+## What failure looks like here
+- docs: it lies
+- `billing/`: a customer is charged the wrong amount
+
+## Always deep
+- `internal/ledger/`
+
+## Do not flag
+- Long functions in `generated/`: produced by a tool
+
+## Reporting
+- Nits: at most 3 per review.
+```
+
+### Examples
+
+**A typo in the README.** Only prose changed, so it is Quick. One Spec reviewer
+runs, finds nothing, and no verifier is needed.
+
+```text
+Depth: quick (prose only). Spec: no findings.
+Standards, Decisions, Security: not run at quick depth.
+0 findings. Nothing to fix.
+```
+
+**A new endpoint to list invoices.** New files and no sensitive path, so it is
+Standard. Four reviewers report three findings. The two verifiers agree on two
+and split on the third, so one more verifier looks at that one alone.
+
+```text
+Depth: standard (new files, no sensitive path).
+Security
+  X1 Important  invoices.go:42  any logged-in user can read another account's invoices
+Standards
+  S1 Nit        invoices.go:88  long parameter list; wants a Filter type
+  Dropped 1: "missing nil check" (2 of 3 verifiers: the caller guarantees it)
+2 findings, 1 Important. Not ready to merge.
+```
+
+The X1 fix touches only the handler. Round 2 reruns Spec and Security on the new
+diff, finds nothing new, and the PR can merge once a person says yes.
+
+**A migration that drops a column.** A small diff, but `migrations/` makes it
+Deep. Two verifiers reject a finding about old readers of that column and one
+confirms it, so it stays, because here a false alarm is cheaper than a broken
+deploy. You decide what to do with it.
+
+**The same comment three PRs running.** Reviewers keep flagging handlers that
+skip the tenant check. `pair-ship` notices the repeat and proposes a line in
+`REVIEW.md`, or better, a lint rule, so the next review need not raise it.
+
+### Using it
+
+```bash
+/review-change                         # infers the spec, base, and depth
+/review-change docs/planning/x/stories/01-02-owner-sees-totals.md
+/pair-ship                             # review, rounds, and the merge gate
+```
+
+Before any of this, `tdd` has one fresh agent look at the diff, which clears the
+cheap mistakes first. Afterwards, the `pr` skill records the review and requires
+`Testing`, `Risk`, and `How to revert`, which the person who asked for the
+change signs off on.
+
+The approach follows [How the Claude Code team does code review](https://claude.dev/blog/solving-code-review-at-anthropic/).
+
+---
+
 ## 🖼️ Pictures in the docs
 
 A picture is worth a thousand words, so the skills draw one whenever it makes a
@@ -503,7 +697,7 @@ are always files.
 | `story` | The story format, splitting patterns, and the critic. |
 | `tdd` | Builds a story task by task, red-green-refactor, then performs the demo. |
 | `diagnose` | A gated loop for hard bugs: red signal first, then hypotheses, then the fix. |
-| `review-change` | Three parallel reviews of a change: standards, spec (the story or slice), and decisions (ADRs, glossary). |
+| `review-change` | Parallel reviews of a change on four axes: standards, spec (the story or slice), decisions (ADRs, glossary), and security, scaled to the change's risk. Fresh verifiers vote on each finding before you see it. See [Reviewing a change](#-reviewing-a-change). |
 | `pr` | Writes and opens the PR in every mode, from the journal: why, a Mermaid picture of the type that fits the change, what/why/how per concern, the rationale journal with dead ends, decisions, evidence. |
 | `research` | A background agent answers a factual question from primary sources, cited; or a recon of what the repo already has. |
 | `learner` | The learner's record in a teaching workspace: mission, syllabus, resources, learning records, the spaced practice queue, glossary, notes. Shared by `professor`, `teach-me`, and `code-along`. |

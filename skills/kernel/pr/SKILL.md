@@ -4,7 +4,8 @@ description: >-
   Write and open the pull request for a finished change, in every flow: a
   body with why, a Mermaid picture of the change in the type that fits it
   (sequence, before/after, state, data), a what, why, and how row for every
-  concern, the rationale journal with its dead ends, decisions, and evidence.
+  concern, the rationale journal with its dead ends, decisions, testing, risk,
+  and how to revert.
   Builds from the journal (a pairing slice's or a story's), the ADRs, and the
   diff, never from memory of the chat. Use whenever a PR or merge request is
   opened or its description written or refreshed: when the user says "open a
@@ -78,13 +79,20 @@ Fill [assets/pr-template.md](assets/pr-template.md). Write it to a scratch
 file outside the repo (under `$TMPDIR`), or where the caller says (local
 mode in `pair-ship`). Map each journal entry to its commit from the log.
 
+`Testing`, `Risk`, and `How to revert` are never removed. Write them from the
+journal's evidence and from what the diff touches: a migration, a public API,
+data written, a flag. `Testing` says what the checks would miss. If the sources
+cannot answer one, ask the user rather than guess.
+
 Done when every section is filled or removed, every row in `What changed`
 has all of What, Why, and How, the rationale journal keeps the dead ends,
 and every claim traces to a journal entry, a commit, or a run.
 
 ## 4. Open it
 
-Show the user the title, the diagram, and the body. On their yes: push the
+Show the user the title, the diagram, and the body, and point at `Testing`,
+`Risk`, and `How to revert`: an agent can draft them, but the person who asked
+for the change signs off on them. On their yes: push the
 branch and run
 `gh pr create --base <default> --head <branch> --title <title> --body-file <file>`
 (or `glab mr create`; add `--draft` or reviewers per the working agreement or
@@ -102,5 +110,7 @@ its own state lives.
   question for the user, not a blank.
 - **Keep the dead ends.** They answer "why didn't you just...".
 - **A diagram unless there is nothing to draw**, and then say so.
+- **Every PR says how it was tested, what could go wrong, and how to undo
+  it.**
 - **Opening a PR needs a yes in chat**, each time.
 - **No em dashes** in the body.
