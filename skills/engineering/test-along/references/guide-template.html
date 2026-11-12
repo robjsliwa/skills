@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{STORY_ID}} test guide</title>
+<style>
+  :root { color-scheme: light dark; --bg:#fff; --fg:#1b1f24; --muted:#59636e; --line:#d1d9e0; --code:#f6f8fa; --accent:#0969da; --warn-bg:#fff8c5; --warn-line:#d4a72c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#3d444d; --code:#151b23; --accent:#4493f8; --warn-bg:#272115; --warn-line:#9e6a03; } }
+  body { background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,sans-serif; max-width:60rem; margin:0 auto; padding:1.5rem 1rem 4rem; }
+  h1,h2 { line-height:1.25; } h2 { border-bottom:1px solid var(--line); padding-bottom:.3rem; margin-top:2.2rem; }
+  a { color:var(--accent); }
+  table { border-collapse:collapse; width:100%; display:block; overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:.4rem .6rem; text-align:left; vertical-align:top; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:.8rem; overflow-x:auto; margin:0; }
+  .code { position:relative; margin:.8rem 0; }
+  .copy { position:absolute; top:.4rem; right:.4rem; font:12px system-ui; cursor:pointer; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:4px; padding:.15rem .5rem; }
+  .warn { background:var(--warn-bg); border-left:4px solid var(--warn-line); padding:.6rem .9rem; border-radius:4px; }
+  .tag { font-size:.8rem; color:var(--muted); }
+  details { border:1px solid var(--line); border-radius:6px; padding:.4rem .8rem; margin:.6rem 0; }
+  summary { cursor:pointer; font-weight:600; }
+  [role=tablist] { display:flex; gap:.25rem; border-bottom:1px solid var(--line); }
+  [role=tab] { background:none; color:var(--fg); border:1px solid transparent; border-bottom:none; padding:.4rem .9rem; cursor:pointer; border-radius:6px 6px 0 0; font:inherit; }
+  [role=tab][aria-selected=true] { border-color:var(--line); background:var(--code); font-weight:600; }
+  [role=tabpanel][hidden] { display:none; }
+</style>
+</head>
+<body>
+<p><em>Written for: an independent developer who did not build this story.</em></p>
+<h1>{{STORY_ID}}: {{STORY_TITLE}}</h1>
+<p>Story: <a href="{{STORY_URL_OR_RELATIVE_PATH}}">{{STORY_ID}}</a></p>
+
+<h2>1. What you test</h2>
+<p>{{ONE_PARAGRAPH_PURPOSE}}</p>
+<pre class="mermaid">
+sequenceDiagram
+  participant T as Tester
+  participant S as System
+  T->>S: {{REQUEST}}
+  S-->>T: {{RESPONSE}}
+</pre>
+
+<h2>2. Where the code is</h2>
+<table>
+  <tr><th>Repo</th><th>Branch or PR</th><th>Tasks</th></tr>
+  <tr><td>{{REPO}}</td><td>{{REF}}</td><td>{{TASKS}}</td></tr>
+</table>
+<p class="warn"><strong>Warning.</strong> {{No single ref holds all tasks. Build the integration branch in section 4.}}</p>
+
+<h2>3. Prerequisites</h2>
+<ul><li>{{TOOL_AND_VERSION}}</li></ul>
+
+<h2>4. Prepare</h2>
+<div class="code"><pre>{{COMMANDS}}</pre></div> <span class="tag">not run</span>
+
+<h2>5. Automated tests</h2>
+<div class="code"><pre>{{COMMAND}}</pre></div>
+<p class="warn"><strong>Skips are not passes.</strong> Database tests can skip when the database is down. Count skips: <code>{{COMMAND_WITH_VERBOSE_OR_JSON_OUTPUT}}</code>.</p>
+
+<h2>6. Run it</h2>
+<!-- One tab per run path the repo supports. One path: remove the tab bar. No runnable app (library): replace with one line saying why. -->
+<div class="tabs">
+  <div role="tablist">
+    <button role="tab" aria-selected="true" aria-controls="p-compose" id="t-compose">{{RUN_PATH_A, e.g. Docker Compose}}</button>
+    <button role="tab" aria-selected="false" aria-controls="p-tilt" id="t-tilt" tabindex="-1">{{RUN_PATH_B, e.g. Tilt}}</button>
+  </div>
+  <div role="tabpanel" id="p-compose" aria-labelledby="t-compose">
+    <h3>Start</h3><div class="code"><pre>{{START_A}}</pre></div>
+    <h3>Check</h3><div class="code"><pre>{{CHECK_A}}</pre></div>
+    <h3>Stop</h3><div class="code"><pre>{{STOP_A}}</pre></div>
+  </div>
+  <div role="tabpanel" id="p-tilt" aria-labelledby="t-tilt" hidden>
+    <h3>Start</h3><div class="code"><pre>{{START_B}}</pre></div>
+    <h3>Check</h3><div class="code"><pre>{{CHECK_B}}</pre></div>
+    <h3>Stop</h3><div class="code"><pre>{{STOP_B}}</pre></div>
+  </div>
+</div>
+
+<h2>7. Run the end-to-end check</h2>
+<div class="code"><pre>{{COMMAND}}</pre></div>
+<p>Expected output (not observed). Look for:</p>
+<div class="code"><pre>{{LINES_THAT_MATTER}}</pre></div>
+
+<h2>8. Acceptance checklist</h2>
+<table>
+  <tr><th>Done</th><th>Criterion</th><th>R id</th><th>How to see it</th></tr>
+  <tr><td><input type="checkbox" aria-label="done"></td><td>{{CRITERION}}</td><td>{{R_ID}}</td><td>{{SHORT_CHECK}}</td></tr>
+</table>
+<details>
+  <summary>{{CRITERION}}: full check</summary>
+  <p>Command:</p><div class="code"><pre>{{COMMAND}}</pre></div>
+  <p>Expected: {{EXPECTED}}</p>
+  <p>Second, independent observation:</p><div class="code"><pre>{{SECOND_COMMAND}}</pre></div>
+</details>
+<details>
+  <summary>Extra check, not an acceptance criterion: {{NAME}}</summary>
+  <div class="code"><pre>{{COMMAND}}</pre></div>
+</details>
+
+<h2>9. Coverage gaps</h2>
+<table>
+  <tr><th>Item</th><th>Kind</th><th>Detail</th></tr>
+  <tr><td>{{CRITERION_OR_TEST}}</td><td>gap / test only / missing plan test</td><td>{{DETAIL}}</td></tr>
+</table>
+
+<h2>10. Out of scope</h2>
+<ul><li>{{ITEM}}</li></ul>
+
+<h2>11. Troubleshooting</h2>
+<table>
+  <tr><th>Symptom</th><th>Fix</th></tr>
+  <tr><td>{{SYMPTOM}}</td><td>{{FIX}}</td></tr>
+</table>
+
+<h2>12. Clean up and report</h2>
+<div class="code"><pre>{{TEARDOWN}}</pre></div>
+<p>Send back: command outputs, the refs tested (<code>git rev-parse HEAD</code> per repo), and service logs.</p>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+  // Mermaid, theme-aware
+  mermaid.initialize({ startOnLoad: true, theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default' });
+
+  // Copy buttons
+  document.querySelectorAll('.code').forEach(function (box) {
+    var b = document.createElement('button');
+    b.className = 'copy'; b.type = 'button'; b.textContent = 'Copy';
+    b.addEventListener('click', function () {
+      navigator.clipboard.writeText(box.querySelector('pre').innerText).then(function () {
+        b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1200);
+      });
+    });
+    box.appendChild(b);
+  });
+
+  // Tabs
+  document.querySelectorAll('.tabs').forEach(function (tabs) {
+    var btns = tabs.querySelectorAll('[role=tab]');
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        btns.forEach(function (o) {
+          var on = o === btn;
+          o.setAttribute('aria-selected', on);
+          o.tabIndex = on ? 0 : -1;
+          tabs.querySelector('#' + o.getAttribute('aria-controls')).hidden = !on;
+        });
+      });
+    });
+  });
+</script>
+</body>
+</html>

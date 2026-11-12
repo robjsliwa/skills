@@ -228,7 +228,7 @@ the next skill picks up from disk.
 | 3. Design | `/solution-design` | `design.md`: the how, with C4 container and behaviour diagrams; `CLAUDE.md`; ADRs |
 | 4. Phase | `/vertical-slice-phasing` | `phases.md`: build order, walking skeleton first, with a story map |
 | 5. Stories | `/elaborate-current-phase` | stories for this phase only, each one a change a person can see |
-| 6. Build | `/tdd` or `/code-along` | the code, one story per session; then `/review-change` and `/pr` |
+| 6. Build | `/tdd` or `/code-along` | the code, one story per session; then `/review-change` and `/pr`; optionally `/test-along` to verify it yourself |
 | 7. Next phase | `/elaborate-current-phase` | the next phase's stories, re-derived from the real code |
 
 ```text
@@ -280,6 +280,18 @@ against the code you actually wrote.
 
 `tdd` and `code-along` mix freely, story by story: delegate the wiring, build the
 core yourself.
+
+### 🧪 Test-along
+
+Not a mode: a step after any build. An agent has finished a story and opened a
+PR, and you want to test the change yourself instead of trusting the green
+checks. `test-along` reads the story and the PR (or branch) and writes a
+**test guide** for an independent developer: how to run the code, what to try,
+and what the story says should happen. It works in any repo and stack.
+
+```text
+/test-along docs/planning/invoice-reminders/stories/01-01-owner-sees-overdue-invoices.md <PR link>
+```
 
 ### 🤝 Pairing
 
@@ -718,6 +730,7 @@ are always files.
 | `vertical-slice-phasing` | Interviews you on build order alone and writes `phases.md` with a story map, a walking skeleton first, a definition-of-done script, and a traceability table. |
 | `elaborate-current-phase` | Details only the current phase into stories, and re-derives the next one from the built code. |
 | `to-story` | Finds the changes a person would see, gives each story its tasks with the design carried in, runs the critic, and publishes. |
+| `test-along` | After an agent finishes a story and opens a PR, writes a test guide so you can check the change yourself, from outside: what to run, what to look for, and what the story promised. Works in any repo and stack. See [Test-along](#-test-along). |
 
 </details>
 
@@ -826,7 +839,7 @@ skills/
                  pr, research, spike, prototype, learner, slides, fact-check
   modes/         start, light, trailblazer
   engineering/   write-requirements, solution-design, vertical-slice-phasing,
-                 elaborate-current-phase, to-story, code-along, go-boilerplate
+                 elaborate-current-phase, to-story, code-along, test-along, go-boilerplate
   pairing/       pair, pair-setup, pair-slice, pairing, pair-checkpoint, pair-ship
   learning/      professor, teach-me
   productivity/  detour
