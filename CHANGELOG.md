@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `test-along` writes a test guide for one story from its PR or branch, so an
+  independent developer can verify the change themselves. Works in any repo
+  and stack.
+
 ## 3.1.0 (2026-10-31)
 
 Review layers, after [How the Claude Code team does code review](https://claude.dev/blog/solving-code-review-at-anthropic/).
