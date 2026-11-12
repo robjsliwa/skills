@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-2.4.0-1168bd">
+  <img alt="version" src="https://img.shields.io/github/v/release/robjsliwa/skills?label=version&color=1168bd">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-438dd5">
   <img alt="works with" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20any%20SKILL.md%20agent-85bbf0">
 </p>
